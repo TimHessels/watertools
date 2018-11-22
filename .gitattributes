@@ -8,6 +8,7 @@
 Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
+WebAccounts.py
 
 # Folder config file
 Desktop.ini
@@ -21,7 +22,7 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.pyc
-WebAccounts.py
+**/.pyc
 
 # Windows shortcuts
 *.lnk
@@ -40,9 +41,8 @@ WebAccounts.py
 *.RTF	 diff=astextplain
 __pycache__/
 */__pycache__/
-*/*/__pycache__/
-*/*/*/__pycache__/
+**/__pycache__/
 __pycache__/*.pyc
 */__pycache__/*.pyc
-*/*/__pycache__/*.pyc
-*/*/*/__pycache__/*.pyc
+**/__pycache__/*.pyc
+
