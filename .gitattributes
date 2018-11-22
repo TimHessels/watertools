@@ -22,8 +22,14 @@ $RECYCLE.BIN/
 *.msp
 *.pyc
 WebAccounts.py
-__pycache__
-
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+__pycache__/*.pyc
+*/__pycache__/*.pyc
+*/*/__pycache__/*.pyc
+*/*/*/__pycache__/*.pyc
 
 # Windows shortcuts
 *.lnk
