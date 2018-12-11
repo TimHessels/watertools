@@ -27,7 +27,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-
 # Standard to msysgit
 *.doc	 diff=astextplain
 *.DOC	 diff=astextplain

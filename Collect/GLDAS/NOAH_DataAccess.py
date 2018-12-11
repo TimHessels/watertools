@@ -180,12 +180,14 @@ def RetrieveData_three_hourly(Date, args):
 
 	# Loop over the periods
     for period in CaseParameters:
+        
+        hour = (int(period)-1) * 3 
 
         # Check whether the file already exist or the worldfile is
         # downloaded
         BasinDir = path + '/' + VarStr + '_GLDAS-NOAH10_' + \
             VarInfo.units[Var] + '_3hour_' + Date.strftime('%Y.%m.%d') + \
-            '_'+str(period) + '.tif'
+            '_%02d00.tif' %(hour)
 
         if not os.path.isfile(BasinDir):
 

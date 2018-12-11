@@ -55,6 +55,18 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
         resolution = '15s'
         parameter = 'dem'
 
+    if parameter == "dir_30s":
+        para_name = "DIR"
+        unit = "-"
+        resolution = '30s'
+        parameter = 'dir'
+
+    if parameter == "dem_30s":
+        para_name = "DEM"
+        unit = "m"
+        resolution = '30s'
+        parameter = 'dem'
+
    # converts the latlim and lonlim into names of the tiles which must be
     # downloaded
     if resolution == '3s':
@@ -66,8 +78,8 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
         size_X_tot = 0
         size_Y_tot = 0
 
-    if resolution == '15s':
-       name = Find_Document_names_15s(latlim, lonlim, parameter, resolution)
+    if resolution == '15s' or resolution == '30s':
+       name = Find_Document_names_15s_30s(latlim, lonlim, parameter, resolution)
 
     nameResults = []
     # Create a temporary folder for processing
@@ -97,27 +109,39 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
             if resolution == '15s':
                 file_name_extract2 = file_name_extract[0]+'_'+file_name_extract[1]+'_15s'
 
-            input_adf = os.path.join(output_folder_trash, file_name_extract2,
-                                    file_name_extract2, 'hdr.adf')
+            if resolution == '30s':
+                file_name_extract2 = file_name_extract[0]+'_'+file_name_extract[1]+'_30s'
+
             output_tiff = os.path.join(output_folder_trash, file_name_tiff)
 
             # convert data from adf to a tiff file
-            output_tiff = DC.Convert_adf_to_tiff(input_adf, output_tiff)
+            if (resolution == "15s" or resolution == "3s"):
+                
+                input_adf = os.path.join(output_folder_trash, file_name_extract2,
+                                    file_name_extract2, 'hdr.adf')
+                output_tiff = DC.Convert_adf_to_tiff(input_adf, output_tiff)
+
+            # convert data from adf to a tiff file
+            if resolution == "30s":
+                
+                input_bil = os.path.join(output_folder_trash,'%s.bil' %file_name_extract2)              
+                output_tiff = DC.Convert_bil_to_tiff(input_bil, output_tiff)
 
             geo_out, proj, size_X, size_Y = RC.Open_array_info(output_tiff)
-            if int(size_X) != int(6000) or int(size_Y) != int(6000):
+            if (resolution == "3s" and (int(size_X) != int(6000) or int(size_Y) != int(6000))):
                 data = np.ones((6000, 6000)) * -9999
 
                 # Create the latitude bound
                 Vfile = str(nameFile)[1:3]
                 SignV = str(nameFile)[0]
                 SignVer = 1
+                
                 # If the sign before the filename is a south sign than latitude is negative
                 if SignV is "s":
                     SignVer = -1
                 Bound2 = int(SignVer)*int(Vfile)
 
-              # Create the longitude bound
+                # Create the longitude bound
                 Hfile = str(nameFile)[4:7]
                 SignH = str(nameFile)[3]
                 SignHor = 1
@@ -236,7 +260,11 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
 
     if resolution =='15s':
         output_file_merged = os.path.join(output_folder_trash,'merged.tif')
-        datasetTot, geo_out = Merge_DEM_15s(output_folder_trash, output_file_merged,latlim, lonlim)
+        datasetTot, geo_out = Merge_DEM_15s_30s(output_folder_trash, output_file_merged,latlim, lonlim, resolution)
+
+    if resolution =='30s':
+        output_file_merged = os.path.join(output_folder_trash,'merged.tif')
+        datasetTot, geo_out = Merge_DEM_15s_30s(output_folder_trash, output_file_merged,latlim, lonlim, resolution)
 
     # name of the end result
     output_DEM_name = "%s_HydroShed_%s_%s.tif" %(para_name,unit,resolution)
@@ -250,7 +278,7 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
     # Delete the temporary folder
     shutil.rmtree(output_folder_trash)
 
-def Merge_DEM_15s(output_folder_trash,output_file_merged,latlim, lonlim):
+def Merge_DEM_15s_30s(output_folder_trash,output_file_merged,latlim, lonlim, resolution):
 
     os.chdir(output_folder_trash)
     tiff_files = glob.glob('*.tif')
@@ -259,8 +287,11 @@ def Merge_DEM_15s(output_folder_trash,output_file_merged,latlim, lonlim):
     lonmax =  lonlim[1]
     latmin =  latlim[0]
     latmax =  latlim[1]
-    resolution_geo = 0.00416667
-
+    if resolution == "15s":
+        resolution_geo = 0.00416667
+    if resolution == "30s":
+        resolution_geo = 0.00416667 * 2
+        
     size_x_tot = int(np.round((lonmax-lonmin) / resolution_geo))
     size_y_tot = int(np.round((latmax-latmin) / resolution_geo))
 
@@ -408,6 +439,8 @@ def Download_Data(nameFile, output_folder_trash, parameter,para_name,resolution)
                 url="https://earlywarning.usgs.gov/hydrodata/sa_%s_%s_grid/%s/%s" %(para_name2,resolution,continent2,nameFile)
             if resolution == '15s':
                 url="https://earlywarning.usgs.gov/hydrodata/sa_%s_zip_grid/%s" %(resolution,nameFile)
+            if resolution == '30s':   
+                url="https://earlywarning.usgs.gov/hydrodata/sa_%s_zip_bil/%s" %(resolution,nameFile)                
             file_name = url.split('/')[-1]
             output_file = os.path.join(output_folder_trash, file_name)
             if sys.version_info[0] == 3:
@@ -446,15 +479,18 @@ def Download_Data(nameFile, output_folder_trash, parameter,para_name,resolution)
     return(output_file, file_name)
 
 
-def Find_Document_names_15s(latlim, lonlim, parameter, resolution):
+def Find_Document_names_15s_30s(latlim, lonlim, parameter, resolution):
 
     continents = ['na','ca','sa','eu','af','as','au']
     continents_download = []
 
     for continent in continents:
         extent = DEM_15s_extents.Continent[continent]
-        if (extent[0] < lonlim[0] and extent[1] > lonlim[0] and extent[2] < latlim[0] and extent[3] > latlim[0]) or (extent[0] < lonlim[1] and extent[1] > lonlim[1] and extent[2] < latlim[1] and extent[3] > latlim[1]) == True:
-            name = '%s_%s_%s_grid.zip' %(continent, parameter, resolution)
+        if (extent[0] < lonlim[0] and extent[1] > lonlim[0] and extent[2] < latlim[0] and extent[3] > latlim[0]) and (extent[0] < lonlim[1] and extent[1] > lonlim[1] and extent[2] < latlim[1] and extent[3] > latlim[1]) == True:
+            if resolution == "15s":
+                name = '%s_%s_%s_grid.zip' %(continent, parameter, resolution)
+            if resolution =="30s":
+                name = '%s_%s_%s_bil.zip' %(continent, parameter, resolution)                
             continents_download = np.append(continents_download,name)
 
     return(continents_download)

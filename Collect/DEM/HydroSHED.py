@@ -13,13 +13,13 @@ def main(Dir, latlim, lonlim, resolution = '3s', Waitbar = 1):
     Downloads HydroSHED data from http://www.hydrosheds.org/download/
 
     this data includes a Digital Elevation Model (DEM)
-    The spatial resolution is 90m (3s) or 450m (15s)
+    The spatial resolution is 90m (3s) or 450m (15s) or 900m (30s)
 
     The following keyword arguments are needed:
     Dir -- 'C:/file/to/path/'
     latlim -- [ymin, ymax]
     lonlim -- [xmin, xmax]
-    resolution -- '3s' (Default) or '15s'
+    resolution -- '3s' (Default) or '15s' or '30s'
     Waitbar -- '1' if you want a waitbar (Default = 1)
     """
 

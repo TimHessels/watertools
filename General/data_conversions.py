@@ -100,7 +100,25 @@ def Convert_adf_to_tiff(input_adf, output_tiff):
     RC.Run_command_window(fullCmd)
 
     return(output_tiff)
+    
+def Convert_bil_to_tiff(input_bil, output_tiff):
+    """
+    This function converts the bil files into tiff files
 
+    Keyword Arguments:
+    input_bil -- name, name of the bil file
+    output_tiff -- Name of the output tiff file
+    """
+    import gdalconst
+    
+    gdal.GetDriverByName('EHdr').Register()
+    dest = gdal.Open(input_bil, gdalconst.GA_ReadOnly)
+    Array = dest.GetRasterBand(1).ReadAsArray()
+    geo_out = dest.GetGeoTransform()
+    Save_as_tiff(output_tiff, Array, geo_out, "WGS84")  
+    
+    return(output_tiff)
+    
 def Convert_hdf5_to_tiff(inputname_hdf, Filename_tiff_end, Band_number, scaling_factor, geo_out):
     """
     This function converts the hdf5 files into tiff files
