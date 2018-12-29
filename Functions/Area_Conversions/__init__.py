@@ -6,7 +6,7 @@ Module: watertools/Functions/Area_Conversions
 """
 
 
-from watertools.Functions.Start import Area_converter, Boundaries
+from watertools.Functions.Area_Conversions import Area_converter, Boundaries
 
 __all__ = ['Area_converter', 'Boundaries']
 

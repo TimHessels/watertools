@@ -14,6 +14,7 @@ import numpy as np
 import subprocess
 from pyproj import Proj, transform
 import scipy.interpolate
+import shapefile
 
 def Run_command_window(argument):
     """
@@ -54,6 +55,24 @@ def Open_array_info(filename=''):
         size_Y = f.RasterYSize
         f = None
     return(geo_out, proj, size_X, size_Y)
+
+def GDAL_rasterize(input_shp, res, obj):
+    
+    basefile_shp, ext_shp = os.path.splitext(input_shp)
+    output_map = ''.join([basefile_shp, '.tif'])
+    name_file = input_shp.split(os.sep)[-1]
+    name_File = name_file.split('.')[0]
+
+    # Get environmental variable
+    WA_env_paths = os.environ["WA_PATHS"].split(';')
+    GDAL_env_path = WA_env_paths[0]
+    GDALRASTERIZE_PATH = os.path.join(GDAL_env_path, 'gdal_rasterize.exe')
+    
+    fullCmd = ' '.join(['"%s"' %(GDALRASTERIZE_PATH), '-a %s -tr %s %s -l "%s" "%s" "%s"' %(obj, res, res, name_File, input_shp, output_map)])
+    
+    Run_command_window(fullCmd)
+       
+    return(output_map)
 
 def Open_tiff_array(filename='', band=''):
     """
@@ -513,6 +532,99 @@ def reproject_MODIS(input_name, epsg_to):
 
     return(name_out)
 
+def reproject_shapefile(input_shp, epsg_to):
+    
+    shpf = shapefile.Reader(input_shp)
+    wgs_shp = shapefile.Writer(shapefile.POLYGON)
+    
+    input_shp_name_base, input_shp_name_ext= os.path.splitext(input_shp)
+    output_shp_name = ''.join([input_shp_name_base, "_EPSG%s" %epsg_to, input_shp_name_ext])
+    
+    fields = shpf.fields
+    
+    for name in fields:
+        if type(name) == "tuple":
+            continue
+        else:
+            args = name
+            wgs_shp.field(*args)
+    
+    records = shpf.records()
+    
+    for row in records:
+        args = row
+        wgs_shp.record(*args)
+    
+    epsg_from = Get_epsg(input_shp, '.shp')
+    
+    input_projection = Proj(init="epsg:%s" %epsg_from)
+    output_projection = Proj(init="epsg:%s" %epsg_to)
+    
+    geom = shpf.shapes()
+    
+    for feature in geom:
+        # if there is only one part
+        if len(feature.parts) == 1:
+            # create empty list to store all the coordinates
+            poly_list = []
+            # get each coord that makes up the polygon
+            for coords in feature.points:
+                x, y = coords[0], coords[1]
+                # tranform the coord
+                new_x, new_y = transform(input_projection, output_projection, x, y)
+                # put the coord into a list structure
+                poly_coord = [float(new_x), float(new_y)]
+                # append the coords to the polygon list
+                poly_list.append(poly_coord)
+            # add the geometry to the shapefile.
+            wgs_shp.poly(parts=[poly_list])
+            
+        else:
+            # append the total amount of points to the end of the parts list
+            feature.parts.append(len(feature.points))
+            # enpty list to store all the parts that make up the complete feature
+            poly_list = []
+            # keep track of the part being added
+            parts_counter = 0
+    
+            # while the parts_counter is less than the amount of parts
+            while parts_counter < len(feature.parts) - 1:
+                # keep track of the amount of points added to the feature
+                coord_count = feature.parts[parts_counter]
+                # number of points in each part
+                no_of_points = abs(feature.parts[parts_counter] - feature.parts[parts_counter + 1])
+                # create list to hold individual parts - these get added to poly_list[]
+                part_list = []
+                # cut off point for each part
+                end_point = coord_count + no_of_points
+    
+                # loop through each part
+                while coord_count < end_point:
+                    for coords in feature.points[coord_count:end_point]:
+                        x, y = coords[0], coords[1]
+                        # tranform the coord
+                        new_x, new_y = transform(input_projection, output_projection, x, y)
+                        # put the coord into a list structure
+                        poly_coord = [float(new_x), float(new_y)]
+                        # append the coords to the part list
+                        part_list.append(poly_coord)
+                        coord_count = coord_count + 1
+            # append the part to the poly_list
+            poly_list.append(part_list)
+            parts_counter = parts_counter + 1
+            # add the geometry to to new file
+            wgs_shp.poly(parts=poly_list)   
+    
+    
+    wgs_shp.save(output_shp_name)
+
+    prj = open(''.join([os.path.splitext(output_shp_name)[0],".prj"]), "w")
+    epsg = getWKT_PRJ("%s" %epsg_to)
+    prj.write(epsg)
+    prj.close()
+    
+    return(output_shp_name)
+
 def reproject_dataset_example(dataset, dataset_example, method=1):
     """
     A sample function to reproject and resample a GDAL dataset from within
@@ -666,7 +778,16 @@ def Get_epsg(g, extension = 'tiff'):
             Projection=g_proj.split('EPSG","')
         if extension == 'GEOGCS':
             Projection = g
-        epsg_to=int((str(Projection[-1]).split(']')[0])[0:-1])
+            
+        if extension == '.shp':
+            projection_file = ''.join([os.path.splitext(g)[0],'.prj'])
+            Projection = open(projection_file, 'r').read()
+            srs = osr.SpatialReference()
+            srs.SetFromUserInput(Projection)
+            epsg_to = srs.GetAttrValue("AUTHORITY",1)
+        
+        if "epsg_to" not in locals():
+            epsg_to=int((str(Projection[-1]).split(']')[0])[0:-1])
     except:
        epsg_to=4326
        #print 'Was not able to get the projection, so WGS84 is assumed'
@@ -945,3 +1066,22 @@ def Create_Buffer(Data_In, Buffer_area):
    Data_Out[Data_Out<=0.1] = 0
 
    return(Data_Out)
+   
+def getWKT_PRJ(epsg_code):   
+    
+    if sys.version_info[0] == 3:
+        import urllib
+        wkt = urllib.request.urlopen("http://spatialreference.org/ref/epsg/{0}/prettywkt/".format(epsg_code))
+        input_str = wkt.read().decode('utf-8')
+        #replace_slash = input_str.replace("\\", " ") 
+        remove_space = input_str.replace(" ","")     
+        output = remove_space.replace("\n", "")    
+
+    if sys.version_info[0] == 2:
+        import urllib2
+        wkt = urllib2.urlopen("http://spatialreference.org/ref/epsg/{0}/prettywkt/".format(epsg_code))
+        remove_spaces = wkt.read().replace(" ","")
+        output = remove_spaces.replace("\n", "")   
+
+    return output   
+   

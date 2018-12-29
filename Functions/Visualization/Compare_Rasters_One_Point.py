@@ -12,7 +12,6 @@ import gdal
 import osr
 from pyproj import Proj, transform
 
-
 #input_folders = [r"G:\SEBAL_Tadla\Daily_SEBAL\Dataset_out\PreSEBAL_SEBAL_out\NDVI",r"G:\SEBAL_Tadla\Daily_SEBAL\Dataset_out\NDVI_daily",""]
 #input_formats = ["*{yyyy}{mm:02d}{dd:02d}.tif", "*{yyyy}_{doy}.tif"]
 #Coordinate = [-6.80689, 32.46206]
@@ -85,7 +84,6 @@ def Get_Dataset_Point(input_folder, input_format, Dates, Coordinate):
     del yID, xID
     
     return(Dataset)
-       
 
     
 def Get_Row_Column_CoordinateWGS(filename, Coordinate):
@@ -107,7 +105,7 @@ def Get_Row_Column_CoordinateWGS(filename, Coordinate):
     proj = osr.SpatialReference(wkt=dest.GetProjection())
     EPSG = int(proj.GetAttrValue('AUTHORITY',1))
     
-    if EPSG is not 4326:   
+    if EPSG != 4326:   
         inProj = Proj(init='epsg:%d' %EPSG)
         outProj = Proj(init='epsg:4326')
         ulx_flat, uly_flat = transform(inProj,outProj,ulx_flat, uly_flat)
@@ -122,10 +120,7 @@ def Get_Row_Column_CoordinateWGS(filename, Coordinate):
     
     return(yID, xID)     
     
-    
-    
-    
-    
+ 
     
 '''   
  

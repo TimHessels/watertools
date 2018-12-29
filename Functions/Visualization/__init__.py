@@ -5,9 +5,8 @@ Module: watertools/Functions/Area_Conversions
 
 """
 
+from watertools.Functions.Visualization import Compare_Rasters_One_Point, Compare_Rasters_One_Polygon
 
-#from watertools.Functions.Random import WaitbarConsole
+__all__ = ['Compare_Rasters_One_Point', 'Compare_Rasters_One_Polygon']
 
-#__all__ = ['WaitbarConsole']
-
-#__version__ = '0.1'
+__version__ = '0.1'
