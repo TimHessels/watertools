@@ -434,10 +434,13 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
     """
 
     # 1) Open the dataset
-    g = gdal.Open(dataset)
-    if g is None:
-        print('input folder does not exist')
-
+    try:
+        g = gdal.Open(dataset)
+        if g is None:
+            print('input folder does not exist')
+    except:
+        g = dataset
+        
     # Get EPSG code
     epsg_from = Get_epsg(g)
 
