@@ -36,6 +36,8 @@ def Visualize_Graph(input_folders, input_formats, Coordinate, Startdate, Enddate
             
         else:
             Datasets_end[:,j + 1] = Dataset[:,1]
+            
+    Datasets_end[Datasets_end==-9999]=np.nan
     
     import matplotlib.pyplot as plt
     
@@ -67,18 +69,20 @@ def Get_Dataset_Point(input_folder, input_format, Dates, Coordinate):
         filename = glob.glob(input_format.format(yyyy=Year, mm=Month, dd=Day, doy = DOY))
     
         if len(filename) > 0: 
-            filename = filename[0]
-            
-            if not'yID' in locals():
-                yID, xID = Get_Row_Column_CoordinateWGS(filename, Coordinate)
-            
-            
-            dest = gdal.Open(filename)
-            Array = dest.GetRasterBand(1).ReadAsArray()
-            Value = Array[yID, xID]
-            
-            Dataset[i,1] = Value
-
+            try:
+                filename = filename[0]
+                
+                if not'yID' in locals():
+                    yID, xID = Get_Row_Column_CoordinateWGS(filename, Coordinate)
+                
+                
+                dest = gdal.Open(filename)
+                Array = dest.GetRasterBand(1).ReadAsArray()
+                Value = Array[yID, xID]
+                
+                Dataset[i,1] = Value
+            except:   
+                Dataset[i,1] = np.nan
         i += 1
 
     del yID, xID

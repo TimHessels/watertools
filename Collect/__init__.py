@@ -42,6 +42,7 @@ MOD9 (daily)                  2000/02/24-now                    NASA
 MSWEP (daily)                 1979/01/01-now                    MSWEP
 MSWEP (monthly)               1979/01/01-now                    MSWEP
 MYD13 (16-daily)              2000/02/18-now                    NASA
+NLDAS                         1979/01/01-now                    NASA
 RFE (daily)                   2001/01/01-now                    -
 RFE (monthly)                 2001/01/01-now                    -                  
 SEBS (monthly)                2000/03/01-2015/12/31             WA+ guest FTP
@@ -57,8 +58,8 @@ help(Collect)
 dir(Collect)
 """
 
-from watertools.Collect import TRMM, GLDAS, ALEXI, CHIRPS, DEM, CFSR, MOD9, MOD10, MOD11, MOD12, MOD13, MOD15, MOD16, MOD17, MCD43, MYD13, GLEAM, HiHydroSoil, ECMWF, RFE, JRC, TWC, ETmonitor, SEBS, SSEBop, CMRSET, MSWEP, ASCAT, SoilGrids, FEWS, PROBAV, GPM
+from watertools.Collect import TRMM, GLDAS, ALEXI, CHIRPS, DEM, CFSR, MOD9, MOD10, MOD11, MOD12, MOD13, MOD15, MOD16, MOD17, MCD43, MYD13, GLEAM, HiHydroSoil, ECMWF, RFE, JRC, TWC, ETmonitor, SEBS, SSEBop, CMRSET, MSWEP, ASCAT, SoilGrids, FEWS, PROBAV, GPM, NLDAS
 
-__all__ = ['TRMM', 'GLDAS', 'ALEXI', 'CHIRPS', 'DEM', 'CFSR', 'MOD9', 'MOD10', 'MOD11', 'MOD12', 'MOD13', 'MOD15', 'MOD16', 'MOD17', 'MCD43', 'MYD13', 'GLEAM', 'HiHydroSoil', 'ECMWF', 'RFE', 'JRC', 'TWC', 'ETmonitor', 'SEBS', 'SSEBop', 'CMRSET', 'MSWEP', 'ASCAT', 'SoilGrids', 'FEWS', 'PROBAV', 'GPM']
+__all__ = ['TRMM', 'GLDAS', 'ALEXI', 'CHIRPS', 'DEM', 'CFSR', 'MOD9', 'MOD10', 'MOD11', 'MOD12', 'MOD13', 'MOD15', 'MOD16', 'MOD17', 'MCD43', 'MYD13', 'GLEAM', 'HiHydroSoil', 'ECMWF', 'RFE', 'JRC', 'TWC', 'ETmonitor', 'SEBS', 'SSEBop', 'CMRSET', 'MSWEP', 'ASCAT', 'SoilGrids', 'FEWS', 'PROBAV', 'GPM', 'NLDAS']
 
 __version__ = '0.1'

@@ -45,15 +45,22 @@ def Open_array_info(filename=''):
         string that defines the input tiff file or gdal file
 
     """
-    f = gdal.Open(r"%s" %filename)
-    if f is None:
-        print('%s does not exists' %filename)
-    else:
+    try:
+        if filename.split('.')[-1] == 'tif':
+            f = gdal.Open(r"%s" %filename)
+        else:
+            f = filename
+    except:
+            f = filename       
+    try:
         geo_out = f.GetGeoTransform()
         proj = f.GetProjection()
         size_X = f.RasterXSize
         size_Y = f.RasterYSize
         f = None
+    except:
+        print('%s does not exists' %filename)
+        
     return(geo_out, proj, size_X, size_Y)
 
 def GDAL_rasterize(input_shp, res, obj):
