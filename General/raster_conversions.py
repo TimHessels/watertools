@@ -528,17 +528,28 @@ def reproject_MODIS(input_name, epsg_to):
     epsg_to -- integer
         The EPSG code of the output dataset
     '''
+    
     # Define the output name
     name_out = ''.join(input_name.split(".")[:-1]) + '_reprojected.tif'
-
-    # Get environmental variable
-    WA_env_paths = os.environ["WA_PATHS"].split(';')
-    GDAL_env_path = WA_env_paths[0]
-    GDALWARP_PATH = os.path.join(GDAL_env_path, 'gdalwarp.exe')
-
-    # find path to the executable
-    fullCmd = ' '.join(["%s" %(GDALWARP_PATH), '-overwrite -s_srs "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs"', '-t_srs EPSG:%s -of GTiff' %(epsg_to), input_name, name_out])
-    Run_command_window(fullCmd)
+   
+    src_ds = gdal.Open(input_name)
+    
+    # Define target SRS
+    dst_srs = osr.SpatialReference()
+    dst_srs.ImportFromEPSG(int(epsg_to))
+    dst_wkt = dst_srs.ExportToWkt()
+    
+    error_threshold = 0.125  # error threshold --> use same value as in gdalwarp
+    resampling = gdal.GRA_NearestNeighbour
+    
+    # Call AutoCreateWarpedVRT() to fetch default values for target raster dimensions and geotransform
+    tmp_ds = gdal.AutoCreateWarpedVRT( src_ds,
+                                   None, # src_wkt : left to default value --> will use the one from source
+                                   dst_wkt,
+                                   resampling,
+                                   error_threshold )
+    dst_ds = gdal.GetDriverByName('GTiff').CreateCopy(name_out, tmp_ds)
+    dst_ds = None 
 
     return(name_out)
 
@@ -786,21 +797,21 @@ def Get_epsg(g, extension = 'tiff'):
             # Get info of the dataset that is used for transforming
             g_proj = g.GetProjection()
             Projection=g_proj.split('EPSG","')
+            epsg_to=int((str(Projection[-1]).split(']')[0])[0:-1])
         if extension == 'GEOGCS':
             Projection = g
-            
+            epsg_to=int((str(Projection).split('"EPSG","')[-1].split('"')[0:-1])[0])
         if extension == '.shp':
             projection_file = ''.join([os.path.splitext(g)[0],'.prj'])
             Projection = open(projection_file, 'r').read()
             srs = osr.SpatialReference()
             srs.SetFromUserInput(Projection)
             epsg_to = srs.GetAttrValue("AUTHORITY",1)
-        
-        if "epsg_to" not in locals():
-            epsg_to=int((str(Projection[-1]).split(']')[0])[0:-1])
+            if epsg_to == None:
+                epsg_to=4326                
     except:
-       epsg_to=4326
-       #print 'Was not able to get the projection, so WGS84 is assumed'
+        epsg_to=4326
+        #print 'Was not able to get the projection, so WGS84 is assumed'
     return(epsg_to)
 
 def gap_filling(dataset,NoDataValue, method = 1):

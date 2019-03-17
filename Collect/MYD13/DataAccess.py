@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 """
 Authors: Tim Hessels
 Module: Collect/MOD13
@@ -165,7 +164,7 @@ def Make_TimeStamps(Startdate,Enddate):
     YearEnd = datetime.datetime.strptime(Enddate,'%Y-%m-%d').timetuple().tm_year
 
     # Change the DOY of the start day into a DOY of MODIS day (16-daily) and create new startdate
-    DOYstart = int(math.floor(DOY / 16.0) * 16) + 1
+    DOYstart = int(math.floor(DOY / 16.0) * 16) + 9
     DOYstart = str('%s-%s' %(DOYstart, Year))
     Day = datetime.datetime.strptime(DOYstart, '%j-%Y')
     Month = '%02d' % Day.month
@@ -173,7 +172,7 @@ def Make_TimeStamps(Startdate,Enddate):
     Startdate = (str(Year) + '-' + str(Month) + '-' + str(Day))
 
     # Create the start and end data for the whole year
-    YearStartDate = pd.date_range(Startdate, Enddate, freq = 'AS')
+    YearStartDate = pd.date_range(Startdate, Enddate, freq = 'AS') + datetime.timedelta(days = 8)
     YearEndDate = pd.date_range(Startdate, Enddate, freq = 'A')
 
     # Define the amount of years that are involved

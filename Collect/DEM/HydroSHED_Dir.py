@@ -11,7 +11,7 @@ import os
 import sys
 
 # Water Accounting modules
-from watertools.Collect.DEM.DataAccess import DownloadData
+from watertools.Collect.DEM.DataAccess_Hydro import DownloadData
 
 def main(Dir, latlim, lonlim, resolution = '3s', Waitbar = 1):
     """
