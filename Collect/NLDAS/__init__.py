@@ -26,15 +26,15 @@ NLDAS.FORA_daily(Dir='C:/Temp/', Vars=['tmp2m'], Startdate='2004-12-20', Enddate
 NLDAS.FORA_monthly(Dir='C:/TempNLDAS', Vars=['tmp2m'], Startdate='2004-12-20', Enddate='2005-03-10',latlim=[38, 41], lonlim=[-76, -73])
 """
 
-#from .three_hourly import main as three_hourly
-#from .daily import main as daily
-#from .monthly import main as monthly
-#from .DataAccess import VariablesInfo as VarInfo
-from .FORA_DataAccess import VariablesInfo as CLSM_VarInfo
+from .FORA_DataAccess import VariablesInfo as FORA_VarInfo
 from .FORA_daily import main as FORA_daily
 from .FORA_monthly import main as FORA_monthly
 from .FORA_hourly import main as FORA_hourly
+from .DataAccess import VariablesInfo as VarInfo
+from .daily import main as daily
+from .monthly import main as monthly
+from .hourly import main as hourly
 
-__all__ = ['FORA_VarInfo', 'FORA_daily', 'FORA_monthly', 'FORA_hourly']
+__all__ = ['FORA_VarInfo', 'FORA_daily', 'FORA_monthly', 'FORA_hourly', 'VarInfo', 'daily', 'monthly', 'hourly']
 
 __version__ = '0.1'

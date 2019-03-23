@@ -42,22 +42,22 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     
-    # Define IDs
-    IDx = [np.floor((lonlim[0] + 180)/0.625), np.ceil((lonlim[1] + 180)/0.625)]
-    IDy = [np.floor((latlim[0] + 90)/0.5), np.ceil((latlim[1] + 90)/0.5)]
-    
-    # Create output geo transform
-    Xstart = -180 + 0.625 * IDx[0]
-    Ystart = -90 + 0.5 * IDy[1]
-    
     if TimeStep.split("_")[-1] == "MERRA2":
         corrx = 0.625 * 0.5
         corry = 0.5 * 0.5
     else:
         corrx = 0
         corry = 0
-        
-    geo_out = tuple([Xstart-corrx, 0.625, 0, Ystart-corry, 0, -0.5])
+    
+    # Define IDs
+    IDx = [np.floor((lonlim[0] + corrx + 180)/0.625), np.ceil((lonlim[1] + corrx + 180)/0.625)]
+    IDy = [np.floor((latlim[0] + corry + 90)/0.5), np.ceil((latlim[1] + corry + 90)/0.5)]
+    
+    # Create output geo transform
+    Xstart = -180 + 0.625 * IDx[0] - corrx
+    Ystart = -90 + 0.5 * IDy[1] - corry
+    
+    geo_out = tuple([Xstart, 0.625, 0, Ystart, 0, -0.5])
     proj = "WGS84"
     
     if TimeStep == "yearly":
@@ -218,16 +218,16 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                             data_min = np.nanmin(data_end, 0)
                             data_max = np.nanmax(data_end, 0) 
                             data_end = data_max - data_min
-                                
-                        # Add the VarFactor
-                        if VarInfo.factors[Var] < 0:
-                            data_end[data_end != -9999] = data_end[data_end != -9999] + VarInfo.factors[Var]
-                        else:
-                            data_end[data_end != -9999] = data_end[data_end != -9999] * VarInfo.factors[Var]
-                        data_end[data_end < -9999] = -9999
         
                         # Download was succesfull
                         downloaded = 1
+
+                    # Add the VarFactor
+                    if VarInfo.factors[Var] < 0:
+                        data_end[data_end != -9999] = data_end[data_end != -9999] + VarInfo.factors[Var]
+                    else:
+                        data_end[data_end != -9999] = data_end[data_end != -9999] * VarInfo.factors[Var]
+                    data_end[data_end < -9999] = -9999
         
                     # twist the data                
                     data_end = np.flipud(data_end)
