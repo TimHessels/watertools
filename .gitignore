@@ -8,7 +8,7 @@
 Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
-WebAccounts.py
+
 
 # Folder config file
 Desktop.ini
@@ -23,6 +23,7 @@ $RECYCLE.BIN/
 *.msp
 *.pyc
 **/.pyc
+*Accounts.py
 
 # Windows shortcuts
 *.lnk
