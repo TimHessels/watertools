@@ -78,7 +78,7 @@ def DownloadData(Dir, Startdate, Enddate, S2_tile):
                 uly = int(meta["ULY"])   
                 size = int(meta["SPATIAL_RESOLUTION"]) 
                 projection_zone = int(meta["HORIZONTAL_CS_NAME"].split(" ")[-1])
-                projection = int("326%02d" %projection_zone)
+                projection = dest.GetProjection()
                 time_string = meta["SENSING_TIME"].split(";")[-1][:-9] 
                 import datetime
                 Time = datetime.datetime.strptime(time_string.replace(" ", ""),"%Y-%m-%dT%H:%M:%S")

@@ -18,9 +18,9 @@ from pyproj import Proj, transform
 #Startdate = "2016-10-01"
 #Enddate = "2017-09-30"
 
-def Visualize_Graph(input_folders, input_formats, Coordinate, Startdate, Enddate, vmin = None, vmax = None):
+def Visualize_Graph(input_folders, input_formats, Coordinate, Startdate, Enddate, freq = "D", vmin = None, vmax = None):
 
-    Dates = pd.date_range(Startdate, Enddate, freq = "D")
+    Dates = pd.date_range(Startdate, Enddate, freq = freq)
     
     Datasets_end = np.ones([len(Dates), len(input_folders)+1]) * np.nan
     
@@ -63,10 +63,12 @@ def Get_Dataset_Point(input_folder, input_format, Dates, Coordinate):
         Day = Date.day
         Month = Date.month
         Year = Date.year
+        Hour = Date.hour
+        Minute = Date.minute
         DOY = Date.dayofyear
         Dataset[i,0] = '%d%02d%02d' %(Year, Month, Day)
         os.chdir(input_folder)
-        filename = glob.glob(input_format.format(yyyy=Year, mm=Month, dd=Day, doy = DOY))
+        filename = glob.glob(input_format.format(yyyy=Year, mm=Month, dd=Day, doy = DOY, HH = Hour, MM=Minute))
     
         if len(filename) > 0: 
             try:
@@ -75,10 +77,12 @@ def Get_Dataset_Point(input_folder, input_format, Dates, Coordinate):
                 if not'yID' in locals():
                     yID, xID = Get_Row_Column_CoordinateWGS(filename, Coordinate)
                 
-                
-                dest = gdal.Open(filename)
-                Array = dest.GetRasterBand(1).ReadAsArray()
-                Value = Array[yID, xID]
+                if (np.isnan(yID) or np.isnan(xID)):
+                    Value = np.nan
+                else:
+                    dest = gdal.Open(filename)
+                    Array = dest.GetRasterBand(1).ReadAsArray()
+                    Value = Array[yID, xID]
                 
                 Dataset[i,1] = Value
             except:   
@@ -120,7 +124,10 @@ def Get_Row_Column_CoordinateWGS(filename, Coordinate):
     ulx_wgs_dis = np.abs(ulx_wgs - Coordinate[0])
     uly_wgs_dis = np.abs(uly_wgs - Coordinate[1])
     tot_dis = ulx_wgs_dis + uly_wgs_dis
-    yID, xID = np.argwhere(tot_dis == np.nanmin(tot_dis))[0]
+    if np.nanmin(tot_dis) > (4 * (np.abs(ulx_wgs[0,0]-ulx_wgs[1,1]) + np.abs(uly_wgs[0,0]-uly_wgs[1,1]))):
+        yID, xID = [np.nan, np.nan]
+    else:
+        yID, xID = np.argwhere(tot_dis == np.nanmin(tot_dis))[0]
     
     return(yID, xID)     
     

@@ -21,7 +21,7 @@ if sys.version_info[0] == 2:
     import urlparse
     import urllib2
 
-def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, username, password, Waitbar, hdf_library, remove_hdf):
+def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, hdf_library, remove_hdf):
     """
     This function downloads MYD11 daily LST data
 
@@ -37,7 +37,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, username, password, Wa
     remove_hdf -- 1 (Default), if 1 remove all the downloaded hdf files in the end    
     """
     import watertools
-
+	
     # Check start and end date and otherwise set the date to max
     if not Startdate:
         Startdate = pd.Timestamp('2000-02-18')
@@ -66,7 +66,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, username, password, Wa
 
     # Make directory for the MODIS NDVI data
     Dir = Dir.replace("/", os.sep)
-    output_folder = os.path.join(Dir, 'MODIS', 'MYD11')
+    output_folder = os.path.join(Dir, 'LST', 'MYD11', 'daily')
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -74,7 +74,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, username, password, Wa
     TilesVertical, TilesHorizontal = watertools.Collect.MOD15.DataAccess.Get_tiles_from_txt(output_folder, hdf_library, latlim, lonlim)
 
     # Pass variables to parallel function and run
-    args = [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, username, password, hdf_library]
+    args = [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, hdf_library]
     for Date in Dates:
         RetrieveData(Date, args)
         if Waitbar == 1:
@@ -107,49 +107,59 @@ def RetrieveData(Date, args):
     # watertools modules
     import watertools.General.raster_conversions as RC
     import watertools.General.data_conversions as DC
+    from watertools import WebAccounts
     
     # Argument
-    [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, username, password, hdf_library] = args
+    [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, hdf_library] = args
     
     # Define output names
-    LSTfileName = os.path.join(output_folder, 'LST_MYD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
-    TimefileName = os.path.join(output_folder, 'Time_MYD11A1_hour_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
-
-    if not (os.path.exists(LSTfileName) and os.path.exists(TimefileName)):
+    LSTfileNamePart = os.path.join(output_folder, 'LST_MYD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '*.tif')
+    filesMOD = glob.glob(LSTfileNamePart)
+    
+    # Load accounts
+    username, password = WebAccounts.Accounts(Type = 'NASA')
+	
+    if not len(filesMOD) == 1:
 
         # Collect the data from the MODIS webpage and returns the data and lat and long in meters of those tiles
         try:
             Collect_data(TilesHorizontal, TilesVertical, Date, username, password, output_folder, hdf_library)
-        
-            # Define the output name of the collect data function
-            name_collect = os.path.join(output_folder, 'Merged.tif')
-            name_collect_time = os.path.join(output_folder, 'Merged_Time.tif')
-            
-            # Reproject the MODIS product to epsg_to
-            epsg_to ='4326'
-            name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
-            name_reprojected_time = RC.reproject_MODIS(name_collect_time, epsg_to)
-        
-            # Clip the data to the users extend
-            data, geo = RC.clip_data(name_reprojected, latlim, lonlim)
-            data_time, geo = RC.clip_data(name_reprojected_time, latlim, lonlim)
-            
-            # remove wrong values
-            data[data==0.] = -9999
-            data_time[data_time==25.5] = -9999
-           
-            # Save results as Gtiff 
-            DC.Save_as_tiff(name=LSTfileName, data=data, geo=geo, projection='WGS84')
-            DC.Save_as_tiff(name=TimefileName, data=data_time, geo=geo, projection='WGS84')
-            
-            # remove the side products
-            os.remove(name_collect)
-            os.remove(name_reprojected)
-            os.remove(name_collect_time)
-            os.remove(name_reprojected_time) 
         except:
-            print("Was not able to download the file")
+            print("Was not able to download the file")   
+            
+        # Define the output name of the collect data function
+        name_collect = os.path.join(output_folder, 'Merged.tif')
+        name_collect_time = os.path.join(output_folder, 'Merged_Time.tif')
+        
+        # Reproject the MODIS product to epsg_to
+        epsg_to ='4326'
+        name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
+        name_reprojected_time = RC.reproject_MODIS(name_collect_time, epsg_to)
+    
+        # Clip the data to the users extend
+        data, geo = RC.clip_data(name_reprojected, latlim, lonlim)
+        data_time, geo = RC.clip_data(name_reprojected_time, latlim, lonlim)
+        
+        # remove wrong values
+        data[data==0.] = -9999
+        data_time[data_time==25.5] = np.nan
+        data_time_ave = np.nanmean(data_time)
+        try:
+            hour_GMT = int(np.floor(data_time_ave))
+            minutes_GMT = int((data_time_ave - np.floor(data_time_ave))*60)    
+        except:
+            hour_GMT = int(12)
+            minutes_GMT = int(0)         
+        LSTfileName = os.path.join(output_folder, 'LST_MYD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.%02d%02d.tif'%(hour_GMT,minutes_GMT))
 
+        # Save results as Gtiff 
+        DC.Save_as_tiff(name=LSTfileName, data=data, geo=geo, projection='WGS84')
+        
+        # remove the side products
+        os.remove(name_collect)
+        os.remove(name_reprojected)
+        os.remove(name_collect_time)
+        os.remove(name_reprojected_time) 
     
     return True
 

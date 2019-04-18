@@ -807,8 +807,20 @@ def Get_epsg(g, extension = 'tiff'):
             srs = osr.SpatialReference()
             srs.SetFromUserInput(Projection)
             epsg_to = srs.GetAttrValue("AUTHORITY",1)
+
             if epsg_to == None:
-                epsg_to=4326                
+                try:
+                    epsg_str = srs.GetAttrValue("PROJCS", 0)        
+                    zone = epsg_str.split("_")[-1][0:-1]
+                    NorS = str(epsg_str.split("_")[-1][-1])
+                    if NorS == "N":
+                        SN = 6
+                    if NorS == "S":
+                        SN = 7   
+                    epsg_to = int("32%s%02s" %(SN, zone))
+                except:       
+                    epsg_to=4326   
+                    
     except:
         epsg_to=4326
         #print 'Was not able to get the projection, so WGS84 is assumed'

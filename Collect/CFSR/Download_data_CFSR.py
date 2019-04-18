@@ -4,6 +4,7 @@ Module: Collect/CFSR
 # General modules
 import os
 import pycurl
+import datetime
 
 def Download_data(Date, Version, output_folder, Var):
     """
@@ -21,8 +22,11 @@ def Download_data(Date, Version, output_folder, Var):
     if Version == 1:
         filename = Var + '.gdas.' + str(Date.strftime('%Y')) + str(Date.strftime('%m')) + '.grb2'
     if Version == 2:
-        filename = Var + '.gdas.' + str(Date.strftime('%Y')) + str(Date.strftime('%m')) + '.grib2'
-
+        if Date < datetime.datetime(2018, 8, 1):
+            filename = Var + '.gdas.' + str(Date.strftime('%Y')) + str(Date.strftime('%m')) + '.grib2'
+        else:
+            filename = "%s%02d"%(Date.year, Date.month) + Var + '.gdas.' + str(Date.strftime('%Y')) + str(Date.strftime('%m')) + '.grib2'
+            
     try:
          # download the file when it not exist
         local_filename = os.path.join(output_folder, filename)
@@ -37,6 +41,7 @@ def Download_data(Date, Version, output_folder, Var):
                 if Version == 2:
                     FTP_name = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_timeseries/' + Date.strftime('%Y') + '/' + Date.strftime('%Y') + Date.strftime('%m')+ '/' + filename
 
+                        
                 curl = pycurl.Curl()
                 curl.setopt(pycurl.URL, FTP_name)
                 fp = open(local_filename, "wb")

@@ -54,7 +54,7 @@ def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop =
     dest = gdal.Open(filename_in) 
     geo = dest.GetGeoTransform()  
     
-    epsg_tiff = RC.Get_epsg(filename_in)
+    epsg_tiff = RC.Get_epsg(dest)
     epsg_shp = RC.Get_epsg(input_shp, '.shp')
     
     if epsg_tiff != epsg_shp:
@@ -66,8 +66,8 @@ def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop =
     dest = RC.reproject_dataset_example(mask_tiff, filename_in)
            
     MASK = dest.GetRasterBand(1).ReadAsArray()
-    MASK[MASK>0] = 1
-    MASK[MASK<=0] = np.nan           
+    MASK[MASK!=Shp_value] = np.nan           
+    MASK[MASK==Shp_value] = 1
 
     for Date in Dates:
 

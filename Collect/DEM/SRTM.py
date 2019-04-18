@@ -35,7 +35,7 @@ def main(Dir, latlim, lonlim, Waitbar = 1):
         # Create Waitbar
         if Waitbar == 1:
             print('\nDownload SRTM altitude map with a resolution of 3s')
-            import watertools.Functions.WaitbarConsole as WaitbarConsole
+            import watertools.Functions.Random.WaitbarConsole as WaitbarConsole
             total_amount = 1
             amount = 0
             WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
