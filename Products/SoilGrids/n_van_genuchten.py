@@ -14,7 +14,7 @@ from watertools.General import raster_conversions as RC
 
 def Topsoil(Dir, latlim, lonlim):
     """
-    This function calculates the topsoil Theta residual soil characteristic (15cm)
+    This function calculates the n van genuchten soil characteristic (15cm)
 
     Keyword arguments:
     Dir -- 'C:/' path to the WA map
@@ -22,7 +22,7 @@ def Topsoil(Dir, latlim, lonlim):
     Enddate -- 'yyyy-mm-dd'
     """
 	
-    print('/nCreate Theta residual map of the topsoil from SoilGrids')
+    print('/nCreate n van genuchten map of the topsoil from SoilGrids')
     
     # Define parameters to define the topsoil
     SL = "sl3"
@@ -33,7 +33,7 @@ def Topsoil(Dir, latlim, lonlim):
 
 def Subsoil(Dir, latlim, lonlim):
     """
-    This function calculates the subsoil Theta residual soil characteristic (100cm)
+    This function calculates the subsoil n van genuchten soil characteristic (100cm)
 
     Keyword arguments:
     Dir -- 'C:/' path to the WA map
@@ -41,7 +41,7 @@ def Subsoil(Dir, latlim, lonlim):
     Enddate -- 'yyyy-mm-dd'
     """
 	
-    print('/nCreate Theta residual map of the subsoil from SoilGrids')
+    print('/nCreate n van genuchten map of the subsoil from SoilGrids')
     
 	 # Define parameters to define the subsoil	
     SL = "sl6"
@@ -68,14 +68,14 @@ def Calc_Property(Dir, latlim, lonlim, SL):
        elif SL == "sl6":
            watertools.Products.SoilGrids.Theta_Sat2.Subsoil(Dir, latlim, lonlim)
 
-    filedir_out_thetares = os.path.join(Dir, 'SoilGrids', 'Theta_Res')
-    if not os.path.exists(filedir_out_thetares):
-        os.makedirs(filedir_out_thetares)   
+    filedir_out_n_genuchten = os.path.join(Dir, 'SoilGrids', 'N_van_genuchten')
+    if not os.path.exists(filedir_out_n_genuchten):
+        os.makedirs(filedir_out_n_genuchten)   
              
-    # Define theta field capacity output
-    filename_out_thetares = os.path.join(filedir_out_thetares ,'Theta_Res_%s_SoilGrids_kg-kg.tif' %level)
+    # Define n van genuchten output
+    filename_out_ngenuchten = os.path.join(filedir_out_n_genuchten ,'N_genuchten_%s_SoilGrids_-.tif' %level)
 
-    if not os.path.exists(filename_out_thetares):
+    if not os.path.exists(filename_out_ngenuchten):
             
         # Get info layer
         geo_out, proj, size_X, size_Y = RC.Open_array_info(filename_out_thetasat)
@@ -83,12 +83,12 @@ def Calc_Property(Dir, latlim, lonlim, SL):
         # Open dataset
         theta_sat = RC.Open_tiff_array(filename_out_thetasat)
         
-        # Calculate theta field capacity
-        theta_Res = np.ones(theta_sat.shape) * -9999   
-        #theta_Res = np.where(theta_sat < 0.351, 0.01, 0.4 * np.arccosh(theta_sat + 0.65) - 0.05 * np.power(theta_sat + 0.65, 2.5) + 0.02)        
-        theta_Res = np.where(theta_sat < 0.351, 0.01, 0.271 * np.log(theta_sat) + 0.335)
+        # Calculate n van genuchten
+        n_van_genuchten = np.ones(theta_sat.shape) * -9999   
+        n_van_genuchten = 166.63*theta_sat**4-387.72*theta_sat**3+340.55*theta_sat**2-133.07*theta_sat+20.739
+		
         # Save as tiff
-        DC.Save_as_tiff(filename_out_thetares, theta_Res, geo_out, proj)
+        DC.Save_as_tiff(filename_out_ngenuchten, n_van_genuchten, geo_out, proj)
     return           
            
            

@@ -67,6 +67,20 @@ def Calc_Property(Dir, latlim, lonlim, SL):
            watertools.Products.SoilGrids.Theta_Sat2.Topsoil(Dir, latlim, lonlim)
        elif SL == "sl6":
            watertools.Products.SoilGrids.Theta_Sat2.Subsoil(Dir, latlim, lonlim)
+           
+    filename_out_thetares = os.path.join(Dir, 'SoilGrids', 'Theta_Res' ,'Theta_Res_%s_SoilGrids_kg-kg.tif' %level)
+    if not os.path.exists(filename_out_thetares):
+       if SL == "sl3":
+           watertools.Products.SoilGrids.Theta_Res.Topsoil(Dir, latlim, lonlim)
+       elif SL == "sl6":
+           watertools.Products.SoilGrids.Theta_Res.Subsoil(Dir, latlim, lonlim)           
+           
+    filename_out_n_genuchten = os.path.join(Dir, 'SoilGrids', 'N_van_genuchten' ,'N_genuchten_%s_SoilGrids_-.tif' %level)
+    if not os.path.exists(filename_out_n_genuchten):
+       if SL == "sl3":
+           watertools.Products.SoilGrids.n_van_genuchten.Topsoil(Dir, latlim, lonlim)
+       elif SL == "sl6":
+           watertools.Products.SoilGrids.n_van_genuchten.Subsoil(Dir, latlim, lonlim)              
 
     filedir_out_thetafc = os.path.join(Dir, 'SoilGrids', 'Theta_FC')
     if not os.path.exists(filedir_out_thetafc):
@@ -82,11 +96,15 @@ def Calc_Property(Dir, latlim, lonlim, SL):
         
         # Open dataset
         theta_sat = RC.Open_tiff_array(filename_out_thetasat)
+        theta_res = RC.Open_tiff_array(filename_out_thetares)
+        n_genuchten = RC.Open_tiff_array(filename_out_n_genuchten)
         
         # Calculate theta field capacity
         theta_FC = np.ones(theta_sat.shape) * -9999   
-        theta_FC = np.where(theta_sat < 0.301, 0.042, np.arccosh(theta_sat + 0.7) - 0.32 * (theta_sat + 0.7) + 0.2)        
-               
+        #theta_FC = np.where(theta_sat < 0.301, 0.042, np.arccosh(theta_sat + 0.7) - 0.32 * (theta_sat + 0.7) + 0.2)        
+        #theta_FC = np.where(theta_sat < 0.301, 0.042, -2.95*theta_sat**2+3.96*theta_sat-0.871)   
+        
+        theta_FC = theta_res +  (theta_sat - theta_res)/(1+(0.02 * 200)**n_genuchten)**(1-1/n_genuchten)                
         # Save as tiff
         DC.Save_as_tiff(filename_out_thetafc, theta_FC, geo_out, proj)
 

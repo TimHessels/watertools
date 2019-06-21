@@ -8,6 +8,7 @@ Module: Collect/DEM
 import os
 import shutil
 from ftplib import FTP
+import urllib
 
 # WA+ modules
 import watertools.General.raster_conversions as RC
@@ -64,20 +65,27 @@ def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
     
         # Download, extract, and converts all the files to tiff files
         try:
+            
+                    
+            url = "http://85.214.241.121:8080/geoserver/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=%s_M_%s250m&subset=Long(%d,%d)&subset=Lat(%d,%d)" %(dataset, level_name, lonlim[0], lonlim[1], latlim[0], latlim[1])
+            urllib.request.urlretrieve(url, filename=nameEnd)
+            
+            '''
             # Download the data from
             output_file = Download_Data(output_folder_trash, level_name, dataset)
     
             # Clip the data
             RC.Clip_Dataset_GDAL(output_file, nameEnd, latlim, lonlim)
-    
+            '''
         except:
             print("Was not able to create the wanted dataset")
-            
+        '''    
         try:
             shutil.rmtree(output_folder_trash)  
         except:
             print("Was not able to remove the trash bin")
-
+        '''
+        
     return()
 
 def Download_Data(output_folder_trash, level_name, dataset):
@@ -95,6 +103,9 @@ def Download_Data(output_folder_trash, level_name, dataset):
         filename = "%s_M_%s250m.tif" %(dataset,level_name)
         local_filename = os.path.join(output_folder_trash, filename)
         
+        
+
+
         if not os.path.exists(local_filename):
             # Open the FTP connection
             ftp = FTP("ftp.soilgrids.org", "", "")

@@ -373,7 +373,7 @@ def Clip_Dataset_GDAL(input_name, output_name, latlim, lonlim):
 
     return()
 
-def clip_data(input_file, latlim, lonlim):
+def clip_data(input_file, latlim, lonlim, band = 1):
     """
     Clip the data to the defined extend of the user (latlim, lonlim) or to the
     extend of the DEM tile
@@ -392,7 +392,7 @@ def clip_data(input_file, latlim, lonlim):
         dest_in = input_file
 
     # Open Array
-    data_in = dest_in.GetRasterBand(1).ReadAsArray()
+    data_in = dest_in.GetRasterBand(band).ReadAsArray()
 
     # Define the array that must remain
     Geo_in = dest_in.GetGeoTransform()
@@ -661,7 +661,7 @@ def reproject_dataset_example(dataset, dataset_example, method=1):
     """
     # open dataset that must be transformed
     try:
-        if os.path.splitext(dataset)[-1] == '.tif':
+        if (os.path.splitext(dataset)[-1] == '.tif' or os.path.splitext(dataset)[-1] == '.TIF'):
             g = gdal.Open(dataset)
         else:
             g = dataset
@@ -675,7 +675,7 @@ def reproject_dataset_example(dataset, dataset_example, method=1):
 
     # open dataset that is used for transforming the dataset
     try:
-        if os.path.splitext(dataset_example)[-1] == '.tif':
+        if (os.path.splitext(dataset_example)[-1] == '.tif' or os.path.splitext(dataset_example)[-1] == '.TIF'):
             gland = gdal.Open(dataset_example)
             epsg_to = Get_epsg(gland)
         elif os.path.splitext(dataset_example)[-1] == '.nc':
@@ -795,9 +795,14 @@ def Get_epsg(g, extension = 'tiff'):
     try:
         if extension == 'tiff':
             # Get info of the dataset that is used for transforming
-            g_proj = g.GetProjection()
+            try:
+                dest = gdal.Open(g)
+            except:
+                dest = g
+            g_proj = dest.GetProjection()
             Projection=g_proj.split('EPSG","')
             epsg_to=int((str(Projection[-1]).split(']')[0])[0:-1])
+                
         if extension == 'GEOGCS':
             Projection = g
             epsg_to=int((str(Projection).split('"EPSG","')[-1].split('"')[0:-1])[0])

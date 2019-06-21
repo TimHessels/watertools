@@ -43,7 +43,7 @@ def Visualize_Graph(input_folders, input_formats, Startdate, Enddate, input_shp,
     
     return(plt)
        
-def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop = 'id', Shp_value = 1):
+def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop = 'id', Shp_value = 1, Stats = "mean"):
       
     Dataset = np.ones([len(Dates), 2]) * np.nan
     i = 0
@@ -87,15 +87,24 @@ def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop =
             
             dest = gdal.Open(filename)
             Array = dest.GetRasterBand(1).ReadAsArray()
+            Array[Array==-9999] = np.nan
             try:
-                Value = np.nanmean(Array[MASK==1])
+                if Stats == "mean":
+                    Value = np.nanmean(Array[MASK==1])
+                if Stats == "std":
+                    Value = np.nanstd(Array[MASK==1])   
+                
             except:
                 dest = RC.reproject_dataset_example(mask_tiff, filename)
            
                 MASK = dest.GetRasterBand(1).ReadAsArray()
                 MASK[MASK>0] = 1
                 MASK[MASK<=0] = np.nan   
-                Value = np.nanmean(Array[MASK==1])
+                if Stats == "mean":
+                    Value = np.nanmean(Array[MASK==1])
+                if Stats == "std":
+                    Value = np.nanstd(Array[MASK==1])                
+                
                 
             Dataset[i,1] = Value
         i += 1

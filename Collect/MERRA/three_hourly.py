@@ -17,8 +17,6 @@ def main(Dir, Vars, Startdate, Enddate, latlim, lonlim, Periods = [1,2,3,4,5,6,7
 	Periods -- [1,2,3,4,5,6,7,8] Period that needs to be downloaded. 1 period is 3 hour starting from noon
     Waitbar -- 1 (Default) Will print a waitbar
     """
-    username = ""
-    password = ""
     
     for Var in Vars:
 
