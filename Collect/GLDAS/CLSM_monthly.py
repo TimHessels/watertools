@@ -22,10 +22,10 @@ def main(Dir, Vars, Startdate, Enddate, latlim, lonlim, cores=False, Waitbar = 1
 
         if Waitbar == 1:
             print('\nDownloading monthly GLDAS CLSM %s data for the period %s till %s' %(Var, Startdate, Enddate))
-
+        
+        CaseParameters = False
         # Download data
-        DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCase='monthly', CaseParameters=False,)
+        DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, Waitbar, CaseParameters, cores, TimeCase='monthly')
 
 if __name__ == '__main__':
     main(sys.argv)
-

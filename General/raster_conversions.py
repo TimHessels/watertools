@@ -829,6 +829,7 @@ def Get_epsg(g, extension = 'tiff'):
     except:
         epsg_to=4326
         #print 'Was not able to get the projection, so WGS84 is assumed'
+        
     return(epsg_to)
 
 def gap_filling(dataset,NoDataValue, method = 1):

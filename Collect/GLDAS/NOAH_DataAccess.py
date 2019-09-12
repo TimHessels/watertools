@@ -440,7 +440,7 @@ def RetrieveData_monthly(Date, args):
 
         # define total url
         url_GLDAS = url + '.ascii?%s[%s][%s:1:%s][%s:1:%s]' %(Var,zID,yID[0],yID[1],xID[0],xID[1])
-        print(url_GLDAS)
+        #print(url_GLDAS)
         # if not downloaded try to download file
         while downloaded == 0:
             try:
