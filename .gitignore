@@ -23,7 +23,6 @@ $RECYCLE.BIN/
 *.msp
 *.pyc
 **/.pyc
-*Accounts.py
 
 # Windows shortcuts
 *.lnk
@@ -39,8 +38,3 @@ $RECYCLE.BIN/
 *.PDF	 diff=astextplain
 *.rtf	 diff=astextplain
 *.RTF	 diff=astextplain
-__pycache__/
-*/__pycache__/
-**/__pycache__/
-
-

@@ -171,7 +171,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, LC_Type, hdf_
             countX=Horizontal - TilesHorizontal[0] + 1
 
             # Download the MODIS LC data
-            url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD12Q1.051/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD12Q1.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
 		      # Reset the begin parameters for downloading
             downloaded = 0
@@ -254,12 +254,12 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, LC_Type, hdf_
                 # Open .hdf only band with LC and collect all tiles to one array
                 dataset = gdal.Open(file_name)
                 sdsdict = dataset.GetMetadata('SUBDATASETS')
-                sdslist = [sdsdict[k] for k in sdsdict.keys() if '_%d_NAME' %LC_Type in k]
+                sdslist = [sdsdict[k] for k in sdsdict.keys() if '_%d_NAME' %int(LC_Type + 8) in k]
                 sds = []
 
                 for n in sdslist:
                     sds.append(gdal.Open(n))
-                    full_layer = [i for i in sdslist if 'Land_Cover_Type_%d' %LC_Type in i]
+                    full_layer = [i for i in sdslist if 'LC_Prop%d' %int(int(LC_Type)) in i]
                     idx = sdslist.index(full_layer[0])
                     if Horizontal == TilesHorizontal[0] and Vertical == TilesVertical[0]:
                         geo_t = sds[idx].GetGeoTransform()
