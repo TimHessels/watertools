@@ -68,7 +68,7 @@ def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
             
                     
             url = "http://85.214.241.121:8080/geoserver/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=%s_M_%s250m&subset=Long(%d,%d)&subset=Lat(%d,%d)" %(dataset, level_name, lonlim[0], lonlim[1], latlim[0], latlim[1])
-            print(url)
+            #print(url)
             urllib.request.urlretrieve(url, filename=nameEnd)
 
             
