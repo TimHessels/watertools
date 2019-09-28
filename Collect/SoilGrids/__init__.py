@@ -24,7 +24,8 @@ from .Organic_Carbon_Stock import main as Organic_Carbon_Stock
 from .Predicted_Probability_Of_Occurrence import main as Predicted_Probability_Of_Occurrence
 from .Sand_Content import main as Sand_Content
 from .Silt_Content import main as Silt_Content
+from .Soil_pH import main as Soil_pH
 
-__all__ = ['Bulk_Density','Clay_Content','Absolute_Depth_To_Bedrock','Coarse_Fragment_Volumetric','Depth_To_Bedrock','Organic_Carbon_Content','Organic_Carbon_Stock','Predicted_Probability_Of_Occurrence','Sand_Content','Silt_Content']
+__all__ = ['Bulk_Density','Clay_Content','Absolute_Depth_To_Bedrock','Coarse_Fragment_Volumetric','Depth_To_Bedrock','Organic_Carbon_Content','Organic_Carbon_Stock','Predicted_Probability_Of_Occurrence','Sand_Content','Silt_Content', 'Soil_pH']
 
 __version__ = '0.1'

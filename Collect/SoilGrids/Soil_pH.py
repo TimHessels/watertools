@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Authors: Tim Hessels
-Module: Collect/SoilGrids
+WaterSat
+author: Tim Martijn Hessels
+Created on Sat Sep 28 14:15:13 2019
 """
+
 import os
 from watertools.Collect.SoilGrids.DataAccess import DownloadData
 import sys
@@ -27,25 +29,25 @@ def main(Dir, latlim, lonlim, level = 'sl1', Waitbar = 1):
     """
 
     # Create directory if not exists for the output
-    output_folder = os.path.join(Dir, 'SoilGrids', 'Bulk_Density')
+    output_folder = os.path.join(Dir, 'SoilGrids', 'PH10')
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
     # Define the output map and create this if not exists
-    nameEnd = os.path.join(output_folder, 'BulkDensity_%s_SoilGrids_kg-m-3.tif' %level)
+    nameEnd = os.path.join(output_folder, 'SoilPH_%s_SoilGrids_KCi10.tif' %level)
 
     if not os.path.exists(nameEnd):
 
         # Create Waitbar
         if Waitbar == 1:
-            print('\nDownload Bulk Density soil map of %s from SoilGrids.org' %level)
+            print('\nDownload Soil pH soil map of %s from SoilGrids.org' %level)
             import watertools.Functions.Random.WaitbarConsole as WaitbarConsole
             total_amount = 1
             amount = 0
             WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
         # Download and process the data
-        DownloadData(output_folder, latlim, lonlim, "BLDFIE", level)
+        DownloadData(output_folder, latlim, lonlim, "PHIKCL", level)
 
         if Waitbar == 1:
             amount = 1
@@ -53,7 +55,7 @@ def main(Dir, latlim, lonlim, level = 'sl1', Waitbar = 1):
 
     else:
         if Waitbar == 1:
-            print("\nBulk Density soil map of %s from SoilGrids.org already exists in output folder" %level)
+            print("\nDownload Soil pH soil map of %s from SoilGrids.org already exists in output folder" %level)
 
 if __name__ == '__main__':
     main(sys.argv)

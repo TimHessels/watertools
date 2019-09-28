@@ -6,12 +6,8 @@ Module: Collect/DEM
 
 # General modules
 import os
-import shutil
 from ftplib import FTP
 import urllib
-
-# WA+ modules
-import watertools.General.raster_conversions as RC
 
 def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
     """
@@ -55,76 +51,25 @@ def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
     if dataset == "BDRLOG":
         nameEnd = os.path.join(output_folder, 'PredictedProbabilityOfOccurrence_SoilGrids_percentage.tif') 
         level_name = ""
+    if dataset == "PHIKCL":
+        nameEnd = os.path.join(output_folder, 'SoilPH_%s_SoilGrids_KCi10.tif') 
+        level_name = "%s_" %level
+
 
     if not os.path.exists(nameEnd):
-        
-        # Create trash folder
-        output_folder_trash = os.path.join(output_folder, "Trash")
-        if not os.path.exists(output_folder_trash):
-            os.makedirs(output_folder_trash)
-    
+            
         # Download, extract, and converts all the files to tiff files
         try:
-            
                     
-            url = "http://85.214.241.121:8080/geoserver/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=%s_M_%s250m&subset=Long(%d,%d)&subset=Lat(%d,%d)" %(dataset, level_name, lonlim[0], lonlim[1], latlim[0], latlim[1])
+            url = "http://85.214.241.121:8080/geoserver/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=%s_M_%s250m&subset=Long(%f,%f)&subset=Lat(%f,%f)" %(dataset, level_name, lonlim[0], lonlim[1], latlim[0], latlim[1])
             #print(url)
             urllib.request.urlretrieve(url, filename=nameEnd)
 
-            
-            '''
-            # Download the data from
-            output_file = Download_Data(output_folder_trash, level_name, dataset)
-    
-            # Clip the data
-            RC.Clip_Dataset_GDAL(output_file, nameEnd, latlim, lonlim)
-            '''
         except:
             print("Was not able to create the wanted dataset")
-        '''    
-        try:
-            shutil.rmtree(output_folder_trash)  
-        except:
-            print("Was not able to remove the trash bin")
-        '''
         
     return()
 
-def Download_Data(output_folder_trash, level_name, dataset):
-    """
-    This function downloads the DEM data from the HydroShed website
 
-    Keyword Arguments:
-    output_folder_trash -- Dir, directory where the downloaded data must be
-                           stored
-    level_name -- "sl1_" .... "sl7_" or ""
-    dataset -- ground dataset                           
-    """
-    try:
-        # Define the filename
-        filename = "%s_M_%s250m.tif" %(dataset,level_name)
-        local_filename = os.path.join(output_folder_trash, filename)
-        
-        
-
-
-        if not os.path.exists(local_filename):
-            # Open the FTP connection
-            ftp = FTP("ftp.soilgrids.org", "", "")
-            ftp.login()
-            
-            # Go to the right path
-            pathFTP = "data/recent"
-            ftp.cwd(pathFTP)
-            
-            # Download the dataset
-            lf = open(local_filename, "wb")
-            ftp.retrbinary("RETR " + filename, lf.write, 8192)
-            lf.close()
- 
-    except:
-        print("Was not able to download the SoilGrids database, Database: %s level: %s" %(dataset, level_name))
-
-    return(local_filename)
     
 
