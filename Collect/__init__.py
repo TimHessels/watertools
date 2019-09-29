@@ -19,6 +19,7 @@ CHIRPS (monthly)              1981/01/01-now                    -
 CMRSET (monthly)              2000/01/01-2012/12/31             WA+ FTP
 DEM                           -                                 -
 ECMWF                         1979/01/01-now                    ECMWF_API
+ESACCI                        -                                 -
 ETmonitor (monthly)           2008/01/01-2013/12/31             WA+ FTP    
 GLDAS                         2000/01/01-now                    NASA
 GLEAM (daily)                 2007/01/01-2017/12/31             GLEAM
@@ -58,8 +59,8 @@ help(Collect)
 dir(Collect)
 """
 
-from watertools.Collect import TRMM, GLDAS, ALEXI, CHIRPS, DEM, CFSR, MOD9, MOD10, MOD11, MOD12, MOD13, MOD15, MOD16, MOD17, MCD43, MYD11, MYD13, GLEAM, HiHydroSoil, ECMWF, RFE, JRC, TWC, ETmonitor, SEBS, SSEBop, CMRSET, MSWEP, ASCAT, SoilGrids, FEWS, PROBAV, GPM, NLDAS, S30, L30, Globcover, MERRA, GEOS, MSGCPP
+from watertools.Collect import TRMM, GLDAS, ALEXI, CHIRPS, DEM, CFSR, MOD9, MOD10, MOD11, MOD12, MOD13, MOD15, MOD16, MOD17, MCD43, MYD11, MYD13, GLEAM, HiHydroSoil, ECMWF, RFE, JRC, TWC, ETmonitor, SEBS, SSEBop, CMRSET, MSWEP, ASCAT, SoilGrids, FEWS, PROBAV, GPM, NLDAS, S30, L30, Globcover, MERRA, GEOS, MSGCPP, ESACCI
 
-__all__ = ['TRMM', 'GLDAS', 'ALEXI', 'CHIRPS', 'DEM', 'CFSR', 'MOD9', 'MOD10', 'MOD11', 'MOD12', 'MOD13', 'MOD15', 'MOD16', 'MOD17', 'MCD43', 'MYD11','MYD13', 'GLEAM', 'HiHydroSoil', 'ECMWF', 'RFE', 'JRC', 'TWC', 'ETmonitor', 'SEBS', 'SSEBop', 'CMRSET', 'MSWEP', 'ASCAT', 'SoilGrids', 'FEWS', 'PROBAV', 'GPM', 'NLDAS', 'S30', 'L30', 'Globcover', 'MERRA', 'GEOS', 'MSGCPP']
+__all__ = ['TRMM', 'GLDAS', 'ALEXI', 'CHIRPS', 'DEM', 'CFSR', 'MOD9', 'MOD10', 'MOD11', 'MOD12', 'MOD13', 'MOD15', 'MOD16', 'MOD17', 'MCD43', 'MYD11','MYD13', 'GLEAM', 'HiHydroSoil', 'ECMWF', 'RFE', 'JRC', 'TWC', 'ETmonitor', 'SEBS', 'SSEBop', 'CMRSET', 'MSWEP', 'ASCAT', 'SoilGrids', 'FEWS', 'PROBAV', 'GPM', 'NLDAS', 'S30', 'L30', 'Globcover', 'MERRA', 'GEOS', 'MSGCPP', 'ESACCI']
 
 __version__ = '0.1'
