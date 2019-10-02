@@ -52,7 +52,7 @@ def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
         nameEnd = os.path.join(output_folder, 'PredictedProbabilityOfOccurrence_SoilGrids_percentage.tif') 
         level_name = ""
     if dataset == "PHIKCL":
-        nameEnd = os.path.join(output_folder, 'SoilPH_%s_SoilGrids_KCi10.tif') 
+        nameEnd = os.path.join(output_folder, 'SoilPH_%s_SoilGrids_KCi10.tif' %level) 
         level_name = "%s_" %level
 
 

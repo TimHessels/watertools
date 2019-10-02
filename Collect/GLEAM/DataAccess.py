@@ -46,14 +46,14 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCa
 
     # String Parameters
     if TimeCase == 'daily':
-        VarCode = '%s_GLEAM.V3.2b_mm-day-1_daily' %Product
-        FTPprefix = 'data/v3.2b/'
+        VarCode = '%s_GLEAM.V3.3b_mm-day-1_daily' %Product
+        FTPprefix = 'data/v3.3b/'
         TimeFreq = 'D'
         Folder_name = 'Daily'
 
     elif TimeCase == 'monthly':
-        VarCode = '%s_GLEAM.V3.2b_mm-month-1_monthly' %Product
-        FTPprefix = 'data/v3.2b/'
+        VarCode = '%s_GLEAM.V3.3b_mm-month-1_monthly' %Product
+        FTPprefix = 'data/v3.3b/'
         TimeFreq = 'M'
         Folder_name = 'Monthly'
 
@@ -146,17 +146,17 @@ def RetrieveData(Date, args):
 
     Year=Date.year
     Month=Date.month
-
-    if Product == "ET":
-        filename='E_' + str(Year) + '_GLEAM_v3.2b.nc'
-    if Product == "ETpot":
-        filename='Ep_' + str(Year) + '_GLEAM_v3.2b.nc'
-        
-    local_filename = os.path.join(output_folder, filename)
-
-    f = Dataset(local_filename,mode='r')
-
+    
     if TimeCase == 'monthly':
+
+        if Product == "ET":
+            filename='E_' + str(Year) + '_GLEAM_v3.3b_MO.nc'
+        if Product == "ETpot":
+            filename='Ep_' + str(Year) + '_GLEAM_v3.3b_MO.nc'
+        
+        local_filename = os.path.join(output_folder, filename)
+
+        f = Dataset(local_filename,mode='r')
 
         # defines the start and end of the month
         Datesend1=str(Date)
@@ -185,6 +185,17 @@ def RetrieveData(Date, args):
         dataCor=np.swapaxes(dataSum,0,1)
 
     if TimeCase == 'daily':
+        
+        if Product == "ET":
+            filename='E_' + str(Year) + '_GLEAM_v3.3b.nc'
+        if Product == "ETpot":
+            filename='Ep_' + str(Year) + '_GLEAM_v3.3b.nc'
+        
+        local_filename = os.path.join(output_folder, filename)
+
+        f = Dataset(local_filename,mode='r')
+        
+        
         Day = Date.day
 
         # Define the DOY, DOY-1 is taken from the yearly dataset
@@ -247,9 +258,9 @@ def Collect_data(FTPprefix,Years,output_folder, Waitbar, Product):
         ftp.chdir(directory)
         
         if Product == "ET":
-             filename='E_' + str(year) + '_GLEAM_v3.2b.nc'
+             filename='E_' + str(year) + '_GLEAM_v3.3b.nc'
         if Product == "ETpot":
-             filename='Ep_' + str(year) + '_GLEAM_v3.2b.nc'
+             filename='Ep_' + str(year) + '_GLEAM_v3.3b.nc'
         local_filename = os.path.join(output_folder, filename)
 
         if not os.path.exists(local_filename):

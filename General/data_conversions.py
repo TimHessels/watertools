@@ -219,6 +219,12 @@ def Save_as_tiff(name='', data='', geo='', projection=''):
             pixelsize], (geospatial dataset)
     projection -- integer, the EPSG code
     """
+    
+    dir_name = os.path.dirname(name)
+    
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+        
     # save as a geotiff
     driver = gdal.GetDriverByName("GTiff")
     dst_ds = driver.Create(name, int(data.shape[1]), int(data.shape[0]), 1,
