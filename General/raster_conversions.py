@@ -576,7 +576,7 @@ def reproject_shapefile(input_shp, epsg_to):
         args = row
         wgs_shp.record(*args)
     
-    epsg_from = Get_epsg(input_shp, '.shp')
+    epsg_from = Get_epsg(input_shp, 'shp')
     
     input_projection = Proj(init="epsg:%s" %epsg_from)
     output_projection = Proj(init="epsg:%s" %epsg_to)
@@ -806,7 +806,7 @@ def Get_epsg(g, extension = 'tiff'):
         if extension == 'GEOGCS':
             Projection = g
             epsg_to=int((str(Projection).split('"EPSG","')[-1].split('"')[0:-1])[0])
-        if extension == '.shp':
+        if extension == 'shp':
             projection_file = ''.join([os.path.splitext(g)[0],'.prj'])
             Projection = open(projection_file, 'r').read()
             srs = osr.SpatialReference()
@@ -999,7 +999,7 @@ def Vector_to_Raster(Dir, shapefile_name, reference_raster_data_name):
     pixel_size = geo[1]
 
     # Filename of the raster Tiff that will be created
-    Dir_Basin_Shape = os.path.join(Dir,'Basin')
+    Dir_Basin_Shape = os.path.join(Dir, 'Basin')
     if not os.path.exists(Dir_Basin_Shape):
         os.mkdir(Dir_Basin_Shape)
 

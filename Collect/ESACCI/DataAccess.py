@@ -42,11 +42,16 @@ def DownloadData(Dir, latlim, lonlim, Waitbar):
     # Define input of the world tiff file
     filename_world = os.path.join(Dir_trash, "product", "ESACCI-LC-L4-LCCS-Map-300m-P1Y-2015-v2.0.7.tif")
     
-    # Clip data to user extend
-    data, Geo_out = RC.clip_data(filename_world, latlim, lonlim)
-    
-    # Save data of clipped array
-    DC.Save_as_tiff(output_filename, data, Geo_out, 4326)
+    try:
+        # Clip data to user extend
+        data, Geo_out = RC.clip_data(filename_world, latlim, lonlim)
+        
+        # Save data of clipped array
+        DC.Save_as_tiff(output_filename, data, Geo_out, 4326)
+        
+    except:
+        
+        RC.Clip_Dataset_GDAL(RC.clip_data(filename_world, latlim, lonlim))
     
     # Remove trash folder
     shutil.rmtree(Dir_trash)
