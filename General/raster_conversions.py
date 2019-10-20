@@ -14,6 +14,7 @@ import numpy as np
 import subprocess
 from pyproj import Proj, transform
 import scipy.interpolate
+import fiona
 import shapefile
 
 def Run_command_window(argument):
@@ -807,12 +808,18 @@ def Get_epsg(g, extension = 'tiff'):
             Projection = g
             epsg_to=int((str(Projection).split('"EPSG","')[-1].split('"')[0:-1])[0])
         if extension == 'shp':
+            data = fiona.open(g)
+            epsg_to = int(data.crs['init'].split(":")[-1])
+            
+            '''
             projection_file = ''.join([os.path.splitext(g)[0],'.prj'])
+            print(projection_file)
             Projection = open(projection_file, 'r').read()
+            print(Projection)            
             srs = osr.SpatialReference()
             srs.SetFromUserInput(Projection)
             epsg_to = srs.GetAttrValue("AUTHORITY",1)
-
+            print(srs)
             if epsg_to == None:
                 try:
                     epsg_str = srs.GetAttrValue("PROJCS", 0)        
@@ -823,9 +830,10 @@ def Get_epsg(g, extension = 'tiff'):
                     if NorS == "S":
                         SN = 7   
                     epsg_to = int("32%s%02s" %(SN, zone))
+                    
                 except:       
                     epsg_to=4326   
-                    
+            '''                    
     except:
         epsg_to=4326
         #print 'Was not able to get the projection, so WGS84 is assumed'
