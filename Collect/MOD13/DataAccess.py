@@ -20,6 +20,7 @@ import glob
 from joblib import Parallel, delayed
 import sys
 if sys.version_info[0] == 3:
+    import urllib.request    
     import urllib.parse
 if sys.version_info[0] == 2:
     import urlparse

@@ -18,6 +18,7 @@ from joblib import Parallel, delayed
 import sys
 if sys.version_info[0] == 3:
     import urllib.parse
+    import urllib.request
 if sys.version_info[0] == 2:
     import urlparse
     import urllib2
@@ -157,7 +158,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
     Date -- 'yyyy-mm-dd'
     output_folder -- 'C:/file/to/path/'
     '''
-
+    
     # Make a new tile for the data
     sizeX = int((TilesHorizontal[1] - TilesHorizontal[0] + 1) * 2400)
     sizeY = int((TilesVertical[1] - TilesVertical[0] + 1) * 2400)
@@ -204,21 +205,21 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                     f = urllib2.urlopen(url)
 
                 # Sum all the files on the server
-                soup = BeautifulSoup(f, "lxml")
+                soup = BeautifulSoup(f, "lxml")             
                 for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
 
                     # Find the file with the wanted tile number
                     Vfile=str(i)[30:32]
                     Hfile=str(i)[27:29]
-                    if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
 
+                    if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
+                        
                         # Define the whole url name
                         if sys.version_info[0] == 3:
                             full_url = urllib.parse.urljoin(url, i['href'])
 
                         if sys.version_info[0] == 2:
                             full_url = urlparse.urljoin(url, i['href'])
-
                         # if not downloaded try to download file
                         while downloaded == 0:
 
