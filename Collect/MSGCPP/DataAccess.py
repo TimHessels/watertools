@@ -26,6 +26,11 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', Waitbar = 1
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     
+    if isinstance(Enddate, str):
+        Enddate = datetime.datetime(int(Enddate.split('-')[0]), int(Enddate.split('-')[1]), int(Enddate.split('-')[2]), 23, 59)
+    else:    
+        Enddate = datetime.datetime(Enddate.year, Enddate.month, Enddate.day, 23, 59)
+    
     if Time == '':
         Dates = pd.date_range(Startdate, Enddate, freq = "15min")
     else:
@@ -41,7 +46,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', Waitbar = 1
     # Loop over dates
     for Date in Dates:
         
-        if Time is not '':
+        if Time != '':
             Hour = int(Time.split(':')[0])
             Minute = int(Time.split(':')[1])        
             Date = datetime.datetime(Date.year, Date.month, Date.day, Hour, Minute)
