@@ -10,7 +10,7 @@ import datetime
 import pandas as pd
 import numpy as np
 
-def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', Waitbar = 1):
+def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', GMT_Offset = 0, Waitbar = 1):
     
     # Check the latitude and longitude and otherwise set lat or lon on greatest extent
     if latlim[0] < -82 or latlim[1] > 82:
@@ -32,9 +32,9 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', Waitbar = 1
         Enddate = datetime.datetime(Enddate.year, Enddate.month, Enddate.day, 23, 59)
     
     if Time == '':
-        Dates = pd.date_range(Startdate, Enddate, freq = "15min")
+        Dates = pd.date_range(Startdate, Enddate, freq = "15min") - datetime.timedelta(hours=GMT_Offset)
     else:
-        Dates = pd.date_range(Startdate, Enddate, freq = "D")
+        Dates = pd.date_range(Startdate, Enddate, freq = "D") - datetime.timedelta(hours=GMT_Offset)
     
     # Create Waitbar
     if Waitbar == 1:

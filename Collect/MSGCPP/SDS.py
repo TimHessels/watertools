@@ -7,7 +7,7 @@ Module: Collect/MSGCPP
 import sys
 from watertools.Collect.MSGCPP.DataAccess import DownloadData
 
-def main(Dir, Startdate, Enddate, latlim, lonlim, Time = '', Waitbar = 1):
+def main(Dir, Startdate, Enddate, latlim, lonlim, Time = '', GMT_Offset = 0, Waitbar = 1):
     """
     This function downloads MOD11 daily data for the specified time
     interval, and spatial extent.
@@ -23,7 +23,7 @@ def main(Dir, Startdate, Enddate, latlim, lonlim, Time = '', Waitbar = 1):
     """
     print('\nDownload 15min short downward surface radiation from MSGCPP for period %s till %s' %(Startdate, Enddate))
     
-    DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time, Waitbar)
+    DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time, GMT_Offset, Waitbar)
 
 if __name__ == '__main__':
     main(sys.argv)

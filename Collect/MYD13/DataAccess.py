@@ -102,9 +102,9 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_li
             os.remove(os.path.join(output_folder, f))
 
         # Remove all .txt files
-        files = glob.glob("*.txt")
-        for f in files:
-            os.remove(os.path.join(output_folder, f))
+        #files = glob.glob("*.txt")
+        #for f in files:
+        #    os.remove(os.path.join(output_folder, f))
 
     return(results)
 
