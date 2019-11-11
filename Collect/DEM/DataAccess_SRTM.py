@@ -102,8 +102,7 @@ def DownloadData(output_folder, latlim, lonlim):
                           0.0, -0.0008333333333333333333]
 
                 # save chunk as tiff file
-                DC.Save_as_tiff(name=output_tiff, data=data, geo=geo_in,
-                             projection="WGS84")
+                destDEM = DC.Save_as_MEM(data=data, geo=geo_in, projection="WGS84")
                 
                 dest_SRTM = None 
 
@@ -129,12 +128,11 @@ def DownloadData(output_folder, latlim, lonlim):
                           0.0, -0.0008333333333333333333]
 
             # save chunk as tiff file
-            DC.Save_as_tiff(name=output_tiff, data=data, geo=geo_in,
-                         projection="WGS84")
+            destDEM = DC.Save_as_MEM(data=data, geo=geo_in, projection="WGS84")
 
 
         # clip data
-        Data, Geo_data = RC.clip_data(output_tiff, latlim, lonlim)
+        Data, Geo_data = RC.clip_data(destDEM, latlim, lonlim)
         size_Y_out = int(np.shape(Data)[0])
         size_X_out = int(np.shape(Data)[1])
 

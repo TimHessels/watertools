@@ -99,7 +99,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, Waitbar, cores,
         CaseParameters = []
 
         # Startdate if not defined
-        sd_date = '2000-03-01'
+        sd_date = '2000-01-01'
 
         # Define Time frequency
         TimeFreq = 'MS'
@@ -117,10 +117,10 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, Waitbar, cores,
         raise KeyError("The input time interval is not supported")
 
     # Define IDs (latitude/longitude)
-    yID = np.int16(np.array([np.ceil((latlim[0] + 60) * 4)-1,
-                             np.floor((latlim[1] + 60) * 4)+1]))
-    xID = np.int16(np.array([np.floor((lonlim[0] + 180) * 4)-1,
-                             np.ceil((lonlim[1] + 180) * 4)+1]))
+    yID = np.int16(np.array([np.floor((latlim[0] + 60) * 4)+1,
+                             np.ceil((latlim[1] + 60) * 4)-1]))
+    xID = np.int16(np.array([np.floor((lonlim[0] + 180) * 4)+1,
+                             np.ceil((lonlim[1] + 180) * 4)-1]))
 
     # Check dates. If no dates are given, the max number of days is used.
     if not Startdate:

@@ -709,14 +709,15 @@ def reproject_dataset_example(dataset, dataset_example, method=1):
     dest1.SetProjection(osng.ExportToWkt())
 
     # Perform the projection/resampling
-    if method is 1:
+    if method == 1:
         gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_NearestNeighbour)
-    if method is 2:
+    if method == 2:
         gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Bilinear)
-    if method is 3:
+    if method == 3:
         gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Lanczos)
-    if method is 4:
+    if method == 4:
         gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Average)
+        
     return(dest1)
 
 def resize_array_example(Array_in, Array_example, method=1):
@@ -840,7 +841,7 @@ def Get_epsg(g, extension = 'tiff'):
         
     return(epsg_to)
 
-def gap_filling(dataset,NoDataValue, method = 1):
+def gap_filling(dataset, NoDataValue, method = 1):
     """
     This function fills the no data gaps in a numpy array
 
@@ -983,36 +984,28 @@ def Get3Darray_time_series_monthly(Data_Path, Startdate, Enddate, Example_data =
 
     return(dataTot)
 
-def Vector_to_Raster(Dir, shapefile_name, reference_raster_data_name):
+def Vector_to_Raster(shapefile_name, dest_ex, Attribute_name):
     """
     This function creates a raster of a shp file
 
     Keyword arguments:
-    Dir --
-        str: path to the basin folder
     shapefile_name -- 'C:/....../.shp'
         str: Path from the shape file
-    reference_raster_data_name -- 'C:/....../.tif'
-        str: Path to an example tiff file (all arrays will be reprojected to this example)
-    """
+    reference_raster_data_name -- destination file as example file
 
+    """
     from osgeo import gdal, ogr
 
-    geo, proj, size_X, size_Y=Open_array_info(reference_raster_data_name)
-
+    proj = Get_epsg(dest_ex)
+    geo = dest_ex.GetGeoTransform()
+    size_X = dest_ex.RasterXSize
+    size_Y = dest_ex.RasterYSize
+    
     x_min = geo[0]
     x_max = geo[0] + size_X * geo[1]
     y_min = geo[3] + size_Y * geo[5]
     y_max = geo[3]
     pixel_size = geo[1]
-
-    # Filename of the raster Tiff that will be created
-    Dir_Basin_Shape = os.path.join(Dir, 'Basin')
-    if not os.path.exists(Dir_Basin_Shape):
-        os.mkdir(Dir_Basin_Shape)
-
-    Basename = os.path.basename(shapefile_name)
-    Dir_Raster_end = os.path.join(Dir_Basin_Shape, os.path.splitext(Basename)[0]+'.tif')
 
     # Open the data source and read in the extent
     source_ds = ogr.Open(shapefile_name)
@@ -1023,22 +1016,22 @@ def Vector_to_Raster(Dir, shapefile_name, reference_raster_data_name):
     y_res = int(round((y_max - y_min) / pixel_size))
 
     # Create tiff file
-    target_ds = gdal.GetDriverByName('GTiff').Create(Dir_Raster_end, x_res, y_res, 1, gdal.GDT_Float32, ['COMPRESS=LZW'])
+    target_ds = gdal.GetDriverByName('MEM').Create('', x_res, y_res, 1, gdal.GDT_Float32)
     target_ds.SetGeoTransform(geo)
     srse = osr.SpatialReference()
-    srse.SetWellKnownGeogCS(proj)
+    srse.ImportFromEPSG(int(proj))
     target_ds.SetProjection(srse.ExportToWkt())
     band = target_ds.GetRasterBand(1)
     target_ds.GetRasterBand(1).SetNoDataValue(-9999)
     band.Fill(-9999)
 
     # Rasterize the shape and save it as band in tiff file
-    gdal.RasterizeLayer(target_ds, [1], source_layer, None, None, [1], ['ALL_TOUCHED=TRUE'])
-    target_ds = None
+    gdal.RasterizeLayer(target_ds, [1], source_layer, options=["ATTRIBUTE=%s" %Attribute_name])
 
     # Open array
-    Raster_Basin = Open_tiff_array(Dir_Raster_end)
-
+    Raster_Basin = target_ds.GetRasterBand(1).ReadAsArray()
+    target_ds = None
+    
     return(Raster_Basin)
 
 def Moving_average(dataset, Moving_front, Moving_back):
@@ -1080,7 +1073,7 @@ def Get_ordinal(Startdate, Enddate, freq = 'MS'):
 
     return(ordinal)
 
-def Create_Buffer(Data_In, Buffer_area):
+def Create_Buffer(Data_In, Buffer_area = 2):
 
    '''
    This function creates a 3D array which is used to apply the moving window
