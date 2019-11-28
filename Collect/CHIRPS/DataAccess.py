@@ -105,25 +105,6 @@ def RetrieveData(Date, args):
     # Argument
     [output_folder, TimeCase, xID, yID, lonlim, latlim] = args
 
-    # open ftp server
-    ftp = FTP("chg-ftpout.geog.ucsb.edu", "", "")
-    ftp.login()
-
-	# Define FTP path to directory
-    if TimeCase == 'daily':
-        pathFTP = 'pub/org/chg/products/CHIRPS-2.0/global_daily/tifs/p05/%s/' %Date.strftime('%Y')
-    elif TimeCase == 'monthly':
-        pathFTP = 'pub/org/chg/products/CHIRPS-2.0/global_monthly/tifs/'
-    else:
-        raise KeyError("The input time interval is not supported")
-
-    # find the document name in this directory
-    ftp.cwd(pathFTP)
-    listing = []
-
-	# read all the file names in the directory
-    ftp.retrlines("LIST", listing.append)
-
 	# create all the input name (filename) and output (outfilename, filetif, DiFileEnd) names
     if TimeCase == 'daily':
         filename = 'chirps-v2.0.%s.%02s.%02s.tif.gz' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d'))
@@ -136,31 +117,53 @@ def RetrieveData(Date, args):
     else:
         raise KeyError("The input time interval is not supported")
 
-    # download the global rainfall file
-    try:
-        local_filename = os.path.join(output_folder, filename)
-        lf = open(local_filename, "wb")
-        ftp.retrbinary("RETR " + filename, lf.write, 8192)
-        lf.close()
+    if not os.path.exists(DirFileEnd):
 
-        # unzip the file
-        zip_filename = os.path.join(output_folder, filename)
-        DC.Extract_Data_gz(zip_filename, outfilename)
-
-        # open tiff file
-        dataset = RC.Open_tiff_array(outfilename)
-
-        # clip dataset to the given extent
-        data = dataset[yID[0]:yID[1], xID[0]:xID[1]]
-        data[data < 0] = -9999
-
-        # save dataset as geotiff file
-        geo = [lonlim[0], 0.05, 0, latlim[1], 0, -0.05]
-        DC.Save_as_tiff(name=DirFileEnd, data=data, geo=geo, projection="WGS84")
-
-        # delete old tif file
-        os.remove(outfilename)
-
-    except:
-        print("file not exists")
+        # open ftp server
+        ftp = FTP("chg-ftpout.geog.ucsb.edu", "", "")
+        ftp.login()
+    
+    	# Define FTP path to directory
+        if TimeCase == 'daily':
+            pathFTP = 'pub/org/chg/products/CHIRPS-2.0/global_daily/tifs/p05/%s/' %Date.strftime('%Y')
+        elif TimeCase == 'monthly':
+            pathFTP = 'pub/org/chg/products/CHIRPS-2.0/global_monthly/tifs/'
+        else:
+            raise KeyError("The input time interval is not supported")
+    
+        # find the document name in this directory
+        ftp.cwd(pathFTP)
+        listing = []
+    
+    	# read all the file names in the directory
+        ftp.retrlines("LIST", listing.append)
+    
+        # download the global rainfall file
+        try:
+            local_filename = os.path.join(output_folder, filename)
+            lf = open(local_filename, "wb")
+            ftp.retrbinary("RETR " + filename, lf.write, 8192)
+            lf.close()
+    
+            # unzip the file
+            zip_filename = os.path.join(output_folder, filename)
+            DC.Extract_Data_gz(zip_filename, outfilename)
+    
+            # open tiff file
+            dataset = RC.Open_tiff_array(outfilename)
+    
+            # clip dataset to the given extent
+            data = dataset[yID[0]:yID[1], xID[0]:xID[1]]
+            data[data < 0] = -9999
+    
+            # save dataset as geotiff file
+            geo = [lonlim[0], 0.05, 0, latlim[1], 0, -0.05]
+            DC.Save_as_tiff(name=DirFileEnd, data=data, geo=geo, projection="WGS84")
+    
+            # delete old tif file
+            os.remove(outfilename)
+    
+        except:
+            print("file not exists")
+            
     return True

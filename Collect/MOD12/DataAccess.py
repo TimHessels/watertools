@@ -117,30 +117,38 @@ def RetrieveData(Date, args):
     # Argument
     [output_folder, TilesVertical, TilesHorizontal, lonlim, latlim, LC_Type, hdf_library] = args
 
-    # Collect the data from the MODIS webpage and returns the data and lat and long in meters of those tiles
-    try:
-        Collect_data(TilesHorizontal, TilesVertical, Date, output_folder, LC_Type, hdf_library)
-    except:
-        print("Was not able to download the file")
-
-      # Define the output name of the collect data function
-    name_collect = os.path.join(output_folder, 'Merged.tif')
-
-    # Reproject the MODIS product to epsg_to
-    epsg_to ='4326'
-    name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
-
-    # Clip the data to the users extend
-    data, geo = RC.clip_data(name_reprojected, latlim, lonlim)
-
-    # Save results as Gtiff
     LCfileName = os.path.join(output_folder, 'LC_MOD12_LC%d_yearly_' %LC_Type + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
-    DC.Save_as_tiff(name=LCfileName, data=data, geo=geo, projection='WGS84')
 
-    # remove the side products
-    os.remove(os.path.join(output_folder, name_collect))
-    os.remove(os.path.join(output_folder, name_reprojected))
-
+    if not os.path.exists(LCfileName):
+        
+    
+        # Collect the data from the MODIS webpage and returns the data and lat and long in meters of those tiles
+        try:
+            Collect_data(TilesHorizontal, TilesVertical, Date, output_folder, LC_Type, hdf_library)
+        except:
+            print("Was not able to download the file")
+            
+        try:
+             # Define the output name of the collect data function
+            name_collect = os.path.join(output_folder, 'Merged.tif')
+        
+            # Reproject the MODIS product to epsg_to
+            epsg_to ='4326'
+            name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
+        
+            # Clip the data to the users extend
+            data, geo = RC.clip_data(name_reprojected, latlim, lonlim)
+        
+            # Save results as Gtiff
+            DC.Save_as_tiff(name=LCfileName, data=data, geo=geo, projection='WGS84')
+        
+            # remove the side products
+            os.remove(os.path.join(output_folder, name_collect))
+            os.remove(os.path.join(output_folder, name_reprojected))
+            
+        except:
+            print("Failed for date: %s" %Date)
+            
     return True
 
 
@@ -191,66 +199,71 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, LC_Type, hdf_
                         file_name = hdf_file
 
             if not downloaded == 1:
+                
+                try:
+                    # Get files on FTP server
+                    if sys.version_info[0] == 3:
+                        f = urllib.request.urlopen(url)
+    
+                    if sys.version_info[0] == 2:
+                        f = urllib2.urlopen(url)
 
-                # Get files on FTP server
-                if sys.version_info[0] == 3:
-                    f = urllib.request.urlopen(url)
-
-                if sys.version_info[0] == 2:
-                    f = urllib2.urlopen(url)
-
-                # Sum all the files on the server
-                soup = BeautifulSoup(f, "lxml")
-                for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
-
-                    # Find the file with the wanted tile number
-                    Vfile=str(i)[30:32]
-                    Hfile=str(i)[27:29]
-                    if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
-
-                        # Define the whole url name
-                        if sys.version_info[0] == 3:
-                            full_url = urllib.parse.urljoin(url, i['href'])
-
-                        if sys.version_info[0] == 2:
-                            full_url = urlparse.urljoin(url, i['href'])
-
-                        # if not downloaded try to download file
-                        while downloaded == 0:
-
-                            try:# open http and download whole .hdf
-                                nameDownload = full_url
-                                file_name = os.path.join(output_folder,nameDownload.split('/')[-1])
-                                if os.path.isfile(file_name):
-                                    print("file ", file_name, " already exists")
-                                    downloaded = 1
-                                else:
-                                    x = requests.get(nameDownload, allow_redirects = False)
-                                    try:
-                                        y = requests.get(x.headers['location'], auth = (username, password))
-                                    except:
-                                        from requests.packages.urllib3.exceptions import InsecureRequestWarning
-                                        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-                                        y = requests.get(x.headers['location'], auth = (username, password), verify = False)
-                                    z = open(file_name, 'wb')
-                                    z.write(y.content)
-                                    z.close()
-                                    statinfo = os.stat(file_name)
-                                    # Say that download was succesfull
-                                    if int(statinfo.st_size) > 10000:
-                                         downloaded = 1
-
-                            # If download was not succesfull
-                            except:
-
-                                # Try another time
-                                N = N + 1
-
-            				         # Stop trying after 10 times
-                                if N == 10:
-                                    print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
-                                    downloaded = 1
+                    # Sum all the files on the server
+                    soup = BeautifulSoup(f, "lxml")
+                    for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
+    
+                        # Find the file with the wanted tile number
+                        Vfile=str(i)[30:32]
+                        Hfile=str(i)[27:29]
+                        if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
+    
+                            # Define the whole url name
+                            if sys.version_info[0] == 3:
+                                full_url = urllib.parse.urljoin(url, i['href'])
+    
+                            if sys.version_info[0] == 2:
+                                full_url = urlparse.urljoin(url, i['href'])
+    
+                            # if not downloaded try to download file
+                            while downloaded == 0:
+    
+                                try:# open http and download whole .hdf
+                                    nameDownload = full_url
+                                    file_name = os.path.join(output_folder,nameDownload.split('/')[-1])
+                                    if os.path.isfile(file_name):
+                                        print("file ", file_name, " already exists")
+                                        downloaded = 1
+                                    else:
+                                        x = requests.get(nameDownload, allow_redirects = False)
+                                        try:
+                                            y = requests.get(x.headers['location'], auth = (username, password))
+                                        except:
+                                            from requests.packages.urllib3.exceptions import InsecureRequestWarning
+                                            requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    
+                                            y = requests.get(x.headers['location'], auth = (username, password), verify = False)
+                                        z = open(file_name, 'wb')
+                                        z.write(y.content)
+                                        z.close()
+                                        statinfo = os.stat(file_name)
+                                        # Say that download was succesfull
+                                        if int(statinfo.st_size) > 10000:
+                                             downloaded = 1
+    
+                                # If download was not succesfull
+                                except:
+    
+                                    # Try another time
+                                    N = N + 1
+    
+                				         # Stop trying after 10 times
+                                    if N == 10:
+                                        print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
+                                        downloaded = 1
+                                        
+                except:
+                        print("Url not found: %s" %url)                                             
+                                        
             try:
                 # Open .hdf only band with LC and collect all tiles to one array
                 dataset = gdal.Open(file_name)

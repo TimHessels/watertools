@@ -140,43 +140,46 @@ def RetrieveData(Date, args):
             Collect_data(TilesHorizontal, TilesVertical, Date, output_folder, TimeStep, hdf_library)
         except:
             print("Was not able to download the file")
-    
-        # Define the output name of the collect data function
-        name_collect = os.path.join(output_folder, 'Merged.tif')
-    
-        # Reproject the MODIS product to epsg_to
-        epsg_to ='4326'
-        name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
-    
-        # Clip the data to the users extend
-        data, geo = RC.clip_data(name_reprojected, latlim, lonlim)
+        try:
+            # Define the output name of the collect data function
+            name_collect = os.path.join(output_folder, 'Merged.tif')
+        
+            # Reproject the MODIS product to epsg_to
+            epsg_to ='4326'
+            name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
+        
+            # Clip the data to the users extend
+            data, geo = RC.clip_data(name_reprojected, latlim, lonlim)
+                
+            # Save results as Gtiff
+            if TimeStep == 8:
+                LSTfileName = os.path.join(output_folder, 'LST_MOD11A2_K_8-daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
+            if TimeStep == 1:
+                name_collect_time = os.path.join(output_folder, 'Merged_Time.tif')
+                name_reprojected_time = RC.reproject_MODIS(name_collect_time, epsg_to) 
+                data_time, geo = RC.clip_data(name_reprojected_time, latlim, lonlim)
+                data_time[data_time==25.5] = np.nan
+                data_time_ave = np.nanmean(data_time)
+                try:
+                    hour_GMT = int(np.floor(data_time_ave))
+                    minutes_GMT = int((data_time_ave - np.floor(data_time_ave))*60)    
+                except:
+                    hour_GMT = int(12)
+                    minutes_GMT = int(0)
+                LSTfileName = os.path.join(output_folder, 'LST_MOD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.%02d%02d.tif'%(hour_GMT,minutes_GMT))
+                os.remove(name_collect_time)
+                os.remove(name_reprojected_time) 
+        
+            data[data==0.] = -9999
+            DC.Save_as_tiff(name=LSTfileName, data=data, geo=geo, projection='WGS84')
+        
+            # remove the side products
+            os.remove(os.path.join(output_folder, name_collect))
+            os.remove(os.path.join(output_folder, name_reprojected))
             
-        # Save results as Gtiff
-        if TimeStep == 8:
-            LSTfileName = os.path.join(output_folder, 'LST_MOD11A2_K_8-daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
-        if TimeStep == 1:
-            name_collect_time = os.path.join(output_folder, 'Merged_Time.tif')
-            name_reprojected_time = RC.reproject_MODIS(name_collect_time, epsg_to) 
-            data_time, geo = RC.clip_data(name_reprojected_time, latlim, lonlim)
-            data_time[data_time==25.5] = np.nan
-            data_time_ave = np.nanmean(data_time)
-            try:
-                hour_GMT = int(np.floor(data_time_ave))
-                minutes_GMT = int((data_time_ave - np.floor(data_time_ave))*60)    
-            except:
-                hour_GMT = int(12)
-                minutes_GMT = int(0)
-            LSTfileName = os.path.join(output_folder, 'LST_MOD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.%02d%02d.tif'%(hour_GMT,minutes_GMT))
-            os.remove(name_collect_time)
-            os.remove(name_reprojected_time) 
-    
-        data[data==0.] = -9999
-        DC.Save_as_tiff(name=LSTfileName, data=data, geo=geo, projection='WGS84')
-    
-        # remove the side products
-        os.remove(os.path.join(output_folder, name_collect))
-        os.remove(os.path.join(output_folder, name_reprojected))
-
+        except:
+            print("Failed for date: %s" %Date)
+            
     return True
 
 def Make_TimeStamps(Startdate,Enddate):
@@ -291,65 +294,70 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
 
             if not downloaded == 1:
 
-                # Get files on FTP server
-                if sys.version_info[0] == 3:
-                    f = urllib.request.urlopen(url)
+                try:
+                    # Get files on FTP server
+                    if sys.version_info[0] == 3:
+                        f = urllib.request.urlopen(url)
+    
+                    if sys.version_info[0] == 2:
+                        f = urllib2.urlopen(url)
 
-                if sys.version_info[0] == 2:
-                    f = urllib2.urlopen(url)
-
-                # Sum all the files on the server
-                soup = BeautifulSoup(f, "lxml")
-                for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
-
-                    # Find the file with the wanted tile number
-                    Vfile=str(i)[30:32]
-                    Hfile=str(i)[27:29]
-                    if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
-
-                        # Define the whole url name
-                        if sys.version_info[0] == 3:
-                            full_url = urllib.parse.urljoin(url, i['href'])
-
-                        if sys.version_info[0] == 2:
-                            full_url = urlparse.urljoin(url, i['href'])
-
-                        # if not downloaded try to download file
-                        while downloaded == 0:
-
-                            try:# open http and download whole .hdf
-                                nameDownload = full_url
-                                file_name = os.path.join(output_folder,nameDownload.split('/')[-1])
-                                if os.path.isfile(file_name):
-                                    print("file ", file_name, " already exists")
-                                    downloaded = 1
-                                else:
-                                    x = requests.get(nameDownload, allow_redirects = False)
-                                    try:
-                                        y = requests.get(x.headers['location'], auth = (username, password))
-                                    except:
-                                        from requests.packages.urllib3.exceptions import InsecureRequestWarning
-                                        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-                                        y = requests.get(x.headers['location'], auth = (username, password), verify = False)
-                                    z = open(file_name, 'wb')
-                                    z.write(y.content)
-                                    z.close()
-                                    statinfo = os.stat(file_name)
-                                    # Say that download was succesfull
-                                    if int(statinfo.st_size) > 10000:
-                                         downloaded = 1
-
-                            # If download was not succesfull
-                            except:
-
-                                # Try another time
-                                N = N + 1
-
-    				  # Stop trying after 10 times
-                        if N == 10:
-                            print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
-                            downloaded = 1
+                    # Sum all the files on the server
+                    soup = BeautifulSoup(f, "lxml")
+                    for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
+    
+                        # Find the file with the wanted tile number
+                        Vfile=str(i)[30:32]
+                        Hfile=str(i)[27:29]
+                        if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
+    
+                            # Define the whole url name
+                            if sys.version_info[0] == 3:
+                                full_url = urllib.parse.urljoin(url, i['href'])
+    
+                            if sys.version_info[0] == 2:
+                                full_url = urlparse.urljoin(url, i['href'])
+    
+                            # if not downloaded try to download file
+                            while downloaded == 0:
+    
+                                try:# open http and download whole .hdf
+                                    nameDownload = full_url
+                                    file_name = os.path.join(output_folder,nameDownload.split('/')[-1])
+                                    if os.path.isfile(file_name):
+                                        print("file ", file_name, " already exists")
+                                        downloaded = 1
+                                    else:
+                                        x = requests.get(nameDownload, allow_redirects = False)
+                                        try:
+                                            y = requests.get(x.headers['location'], auth = (username, password))
+                                        except:
+                                            from requests.packages.urllib3.exceptions import InsecureRequestWarning
+                                            requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    
+                                            y = requests.get(x.headers['location'], auth = (username, password), verify = False)
+                                        z = open(file_name, 'wb')
+                                        z.write(y.content)
+                                        z.close()
+                                        statinfo = os.stat(file_name)
+                                        # Say that download was succesfull
+                                        if int(statinfo.st_size) > 10000:
+                                             downloaded = 1
+    
+                                # If download was not succesfull
+                                except:
+    
+                                    # Try another time
+                                    N = N + 1
+    
+        				  # Stop trying after 10 times
+                            if N == 10:
+                                print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
+                                downloaded = 1
+                                
+                except:
+                        print("Url not found: %s" %url)     
+                                              
             try:
                 # Open .hdf only band with NDVI and collect all tiles to one array
                 dataset = gdal.Open(file_name)

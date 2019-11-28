@@ -114,33 +114,39 @@ def RetrieveData(Date, args):
     # Argument
     [output_folder, TilesVertical, TilesHorizontal,latlim, lonlim, timestep, hdf_library, Size_pix] = args
 
-    # Collect the data from the MODIS webpage and returns the data and lat and long in meters of those tiles
-    try:
-        Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, timestep, hdf_library, Size_pix)
-    except:
-        print("Was not able to download the file")
-
-    # Define the output name of the collect data function
-    name_collect = os.path.join(output_folder, 'Merged.tif')
-
-    # Reproject the MODIS product to epsg_to
-    epsg_to ='4326'
-    name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
-
-    # Clip the data to the users extend
-    data, geo = RC.clip_data(name_reprojected, latlim, lonlim)
-
     if timestep == 'monthly':
          ETfileName = os.path.join(output_folder, 'ET_MOD16A2_mm-month-1_monthly_'+Date.strftime('%Y')+'.' + Date.strftime('%m')+'.01.tif')
     elif timestep == '8-daily':
          ETfileName = os.path.join(output_folder, 'ET_MOD16A2_mm-8days-1_8-daily_'+Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
 
-    DC.Save_as_tiff(name=ETfileName, data=data, geo=geo, projection='WGS84')
 
-    # remove the side products
-    os.remove(os.path.join(output_folder, name_collect))
-    os.remove(os.path.join(output_folder, name_reprojected))
+    if not os.path.exists(ETfileName):
 
+        # Collect the data from the MODIS webpage and returns the data and lat and long in meters of those tiles
+        try:
+            Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, timestep, hdf_library, Size_pix)
+        except:
+            print("Was not able to download the file")
+        try:
+            # Define the output name of the collect data function
+            name_collect = os.path.join(output_folder, 'Merged.tif')
+        
+            # Reproject the MODIS product to epsg_to
+            epsg_to ='4326'
+            name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
+        
+            # Clip the data to the users extend
+            data, geo = RC.clip_data(name_reprojected, latlim, lonlim)
+        
+        
+            DC.Save_as_tiff(name=ETfileName, data=data, geo=geo, projection='WGS84')
+        
+            # remove the side products
+            os.remove(os.path.join(output_folder, name_collect))
+            os.remove(os.path.join(output_folder, name_reprojected))
+        except:
+            print("Failed for date: %s" %Date)
+            
     return()
 
 
@@ -200,17 +206,18 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder,timestep, hdf_
                 if timestep == '8-daily':
                     url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD16A2.006/%d.%02d.%02d/' %(Date.year, Date.month, Date.day)
 
-                # Get files on FTP server
-                if sys.version_info[0] == 3:
-                    f = urllib.request.urlopen(url)
-
-                if sys.version_info[0] == 2:
-                    f = urllib2.urlopen(url)
-
-                # Sum all the files on the server
-                soup = BeautifulSoup(f, "lxml")
-
                 try:
+                    
+                    # Get files on FTP server
+                    if sys.version_info[0] == 3:
+                        f = urllib.request.urlopen(url)
+    
+                    if sys.version_info[0] == 2:
+                        f = urllib2.urlopen(url)
+    
+                    # Sum all the files on the server
+                    soup = BeautifulSoup(f, "lxml")
+
                     for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
 
                         # Find the file with the wanted tile number
