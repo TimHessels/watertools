@@ -74,7 +74,7 @@ def GDAL_rasterize(input_shp, res, obj):
     # Get environmental variable
     WA_env_paths = os.environ["WA_PATHS"].split(';')
     GDAL_env_path = WA_env_paths[0]
-    GDALRASTERIZE_PATH = os.path.join(GDAL_env_path, 'gdal_rasterize.exe')
+    GDALRASTERIZE_PATH = os.path.join(GDAL_env_path, 'gdal_rasterize.exe') #!!! Vervang deze door gdal.RasterizeLayer
     
     fullCmd = ' '.join(['"%s"' %(GDALRASTERIZE_PATH), '-a %s -tr %s %s -l "%s" "%s" "%s"' %(obj, res, res, name_File, input_shp, output_map)])
     
@@ -137,7 +137,7 @@ def Open_nc_info(NC_filename, Var = None):
     crso = fh.variables['crs']
     proj = crso.projection
     epsg = Get_epsg(proj, extension = 'GEOGCS')
-    geo_out = tuple([Geo1, Geo2, 0, Geo4, 0, Geo6])
+    geo_out = tuple([Geo1, Geo2, 0, Geo4, 0, -Geo6])
     fh.close()
 
     return(geo_out, epsg, size_X, size_Y, size_Z, Time)
@@ -366,7 +366,7 @@ def Clip_Dataset_GDAL(input_name, output_name, latlim, lonlim):
     # Get environmental variable
     WA_env_paths = os.environ["WA_PATHS"].split(';')
     GDAL_env_path = WA_env_paths[0]
-    GDALTRANSLATE_PATH = os.path.join(GDAL_env_path, 'gdal_translate.exe')
+    GDALTRANSLATE_PATH = os.path.join(GDAL_env_path, 'gdal_translate.exe') #!!! Vervang deze door gdal.Translate
 
     # find path to the executable
     fullCmd = ' '.join(["%s" %(GDALTRANSLATE_PATH), '-projwin %s %s %s %s -of GTiff %s %s'  %(lonlim[0], latlim[1], lonlim[1], latlim[0], input_name, output_name)])
@@ -508,13 +508,13 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
     dest.SetProjection(osng.ExportToWkt())
 
     # Perform the projection/resampling
-    if method is 1:
+    if method == 1:
         gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(),gdal.GRA_NearestNeighbour)
-    if method is 2:
+    if method == 2:
         gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(),gdal.GRA_Bilinear)
-    if method is 3:
+    if method == 3:
         gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Lanczos)
-    if method is 4:
+    if method == 4:
         gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Average)
     return dest, ulx, lry, lrx, uly, epsg_to
 
