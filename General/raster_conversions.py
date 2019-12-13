@@ -555,12 +555,12 @@ def reproject_MODIS(input_name, epsg_to):
     return(name_out)
 
 def reproject_shapefile(input_shp, epsg_to):
-    
-    shpf = shapefile.Reader(input_shp)
-    wgs_shp = shapefile.Writer(shapefile.POLYGON)
-    
+
     input_shp_name_base, input_shp_name_ext= os.path.splitext(input_shp)
     output_shp_name = ''.join([input_shp_name_base, "_EPSG%s" %epsg_to, input_shp_name_ext])
+    
+    shpf = shapefile.Reader(input_shp)
+    wgs_shp = shapefile.Writer(output_shp_name, shapeType=5)
     
     fields = shpf.fields
     
@@ -595,11 +595,11 @@ def reproject_shapefile(input_shp, epsg_to):
                 # tranform the coord
                 new_x, new_y = transform(input_projection, output_projection, x, y)
                 # put the coord into a list structure
-                poly_coord = [float(new_x), float(new_y)]
+                poly_coord = [new_x, new_y]
                 # append the coords to the polygon list
                 poly_list.append(poly_coord)
             # add the geometry to the shapefile.
-            wgs_shp.poly(parts=[poly_list])
+            wgs_shp.poly([poly_list])
             
         else:
             # append the total amount of points to the end of the parts list
@@ -635,10 +635,10 @@ def reproject_shapefile(input_shp, epsg_to):
             poly_list.append(part_list)
             parts_counter = parts_counter + 1
             # add the geometry to to new file
-            wgs_shp.poly(parts=poly_list)   
+            wgs_shp.poly([poly_list])   
     
     
-    wgs_shp.save(output_shp_name)
+    wgs_shp.close()
 
     prj = open(''.join([os.path.splitext(output_shp_name)[0],".prj"]), "w")
     epsg = getWKT_PRJ("%s" %epsg_to)

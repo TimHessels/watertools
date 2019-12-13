@@ -55,7 +55,7 @@ def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop =
     geo = dest.GetGeoTransform()  
     
     epsg_tiff = RC.Get_epsg(dest)
-    epsg_shp = RC.Get_epsg(input_shp, '.shp')
+    epsg_shp = RC.Get_epsg(input_shp, 'shp')
     
     if epsg_tiff != epsg_shp:
         input_shp = RC.reproject_shapefile(input_shp, epsg_tiff)
@@ -78,7 +78,7 @@ def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop =
         
         filename = glob.glob(input_format.format(yyyy=Year, mm=Month, dd=Day, doy = DOY))
         
-        Dataset[i,0] = '%d%02d%02d' %(Year, Month, Day)
+        Dataset[i,0] = Date.toordinal()
         
     
         if len(filename) > 0: 
