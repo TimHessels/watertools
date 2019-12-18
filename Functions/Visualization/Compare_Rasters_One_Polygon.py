@@ -87,6 +87,7 @@ def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop =
             
             dest = gdal.Open(filename)
             Array = dest.GetRasterBand(1).ReadAsArray()
+            Array = np.float_(Array)
             Array[Array==-9999] = np.nan
             try:
                 if Stats == "mean":
