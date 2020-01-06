@@ -95,6 +95,8 @@ def Calc_Property(Dir, latlim, lonlim, SL):
         # Open Arrays
         Clay = dest_clay.GetRasterBand(1).ReadAsArray()
         #OM = dest_om.GetRasterBand(1).ReadAsArray()
+        
+
         Clay = np.float_(Clay)
         Clay[Clay>100]=np.nan
         #OM = np.float_(OM)
@@ -106,9 +108,20 @@ def Calc_Property(Dir, latlim, lonlim, SL):
         #bulk_dens = 1/(0.6117 + 0.3601 * Clay/100 + 0.002172 * np.power(OM * 100, 2)+ 0.01715 * np.log(OM * 100))
         bulk_dens = dest_bulk.GetRasterBand(1).ReadAsArray()
         bulk_dens = bulk_dens/1000 
+
+        '''
+        # Oude methode gebaseerd op Schenost, Sinowski & Priesack (1996) 
         
         # Calculate theta saturated
         theta_sat = 0.85 * (1- (bulk_dens/2.65)) + 0.13 * Clay/100
+        '''
+        # Nieuwe methode gebaseerd op Toth et al (2014)
+        
+        # Calculate silt fraction based on clay fraction
+        Silt_fraction = 0.7 * (Clay/100) ** 2 + 0.308 * Clay/100
+        
+        # Calculate theta sat
+        theta_sat = 0.8308 - 0.28217 * bulk_dens + 0.02728 * Clay/100 + 0.0187 * Silt_fraction
         
         # Save data
         #DC.Save_as_tiff(filename_out_densbulk, bulk_dens, geo_out, "WGS84")

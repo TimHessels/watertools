@@ -14,8 +14,9 @@ DEM.HydroSHED(Dir='C:/TempDEM4/', latlim=[29, 32], lonlim=[-113, -109])
 """
 from .HydroSHED import main as HydroSHED
 from .HydroSHED_Dir import main as HydroSHED_Dir
+from .HydroSHED_Acc import main as HydroSHED_Acc
 from .SRTM import main as SRTM
 
-__all__ = ['HydroSHED','HydroSHED_Dir', 'SRTM']
+__all__ = ['HydroSHED','HydroSHED_Dir', 'HydroSHED_Acc', 'SRTM']
 
 __version__ = '0.1'

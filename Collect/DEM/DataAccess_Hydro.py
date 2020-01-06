@@ -55,6 +55,12 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
         resolution = '15s'
         parameter = 'dem'
 
+    if parameter == "acc_15s":
+        para_name = "ACC"
+        unit = "-"
+        resolution = '15s'
+        parameter = 'acc'
+
     if parameter == "dir_30s":
         para_name = "DIR"
         unit = "-"
@@ -66,6 +72,12 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
         unit = "m"
         resolution = '30s'
         parameter = 'dem'
+
+    if parameter == "acc_30s":
+        para_name = "ACC"
+        unit = "-"
+        resolution = '30s'
+        parameter = 'acc'
 
    # converts the latlim and lonlim into names of the tiles which must be
     # downloaded
@@ -436,11 +448,11 @@ def Download_Data(nameFile, output_folder_trash, parameter,para_name,resolution)
             para_name2 = para_name.lower()
             # info about the roots http://www.hydrosheds.org/download/getroot
             if resolution == '3s':
-                url="https://earlywarning.usgs.gov/hydrodata/sa_%s_%s_grid/%s/%s" %(para_name2,resolution,continent2,nameFile)
+                url="https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/hydrosheds/sa_%s_%s_zip_grid/%s/%s" %(para_name2,resolution,continent2,nameFile)
             if resolution == '15s':
-                url="https://earlywarning.usgs.gov/hydrodata/sa_%s_zip_grid/%s" %(resolution,nameFile)
+                url="https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/hydrosheds/sa_%s_zip_grid/%s" %(resolution,nameFile)
             if resolution == '30s':   
-                url="https://earlywarning.usgs.gov/hydrodata/sa_%s_zip_bil/%s" %(resolution,nameFile)                
+                url="https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/hydrosheds/sa_%s_zip_bil/%s" %(resolution,nameFile)                
             file_name = url.split('/')[-1]
             output_file = os.path.join(output_folder_trash, file_name)
             if sys.version_info[0] == 3:
@@ -497,7 +509,7 @@ def Find_Document_names_15s_30s(latlim, lonlim, parameter, resolution):
 
 class DEM_15s_extents:
         Continent = { 'na' : [-138, -52, 24, 60],
-					'ca' : [-119, -60, 5, 39],
+					  'ca' : [-119, -60, 5, 39],
                       'sa' : [-93, -32, -56, 15],
                       'eu' : [-14, 70, 12, 62],
                       'af' : [-19, 55, -35, 38],
