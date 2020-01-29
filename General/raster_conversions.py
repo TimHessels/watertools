@@ -15,6 +15,7 @@ import subprocess
 from pyproj import Proj, transform
 import scipy.interpolate
 import fiona
+import pycurl
 import shapefile
 
 def Run_command_window(argument):
@@ -96,7 +97,7 @@ def Open_tiff_array(filename='', band=''):
     if f is None:
         print('%s does not exists' %filename)
     else:
-        if band is '':
+        if band == '':
             band = 1
         Data = f.GetRasterBand(band).ReadAsArray()
     return(Data)
@@ -162,7 +163,7 @@ def Open_nc_array(NC_filename, Var = None, Startdate = '', Enddate = ''):
     if Var == None:
         Var = fh.variables.keys()[-1]
 
-    if Startdate is not '':
+    if Startdate != '':
         Time = fh.variables['time'][:]
         Array_check_start = np.ones(np.shape(Time))
         Date = pd.Timestamp(Startdate)
@@ -172,7 +173,7 @@ def Open_nc_array(NC_filename, Var = None, Startdate = '', Enddate = ''):
     else:
         Start = 0
 
-    if Enddate is not '':
+    if Enddate != '':
         Time = fh.variables['time'][:]
         Array_check_end = np.zeros(np.shape(Time))
         Date = pd.Timestamp(Enddate)
@@ -186,7 +187,7 @@ def Open_nc_array(NC_filename, Var = None, Startdate = '', Enddate = ''):
         except:
             End = ''
 
-    if (Enddate is not '' or Startdate is not ''):
+    if (Enddate != '' or Startdate != ''):
         Data = fh.variables[Var][int(Start):int(End), :, :]
 
     else:
@@ -317,7 +318,7 @@ def Open_nc_dict(input_netcdf, group_name, startdate = '', enddate = ''):
     # Clip the dynamic dataset if a start and enddate is defined
     if kind_of_data == 'dynamic':
 
-        if startdate is not '':
+        if startdate != '':
             Array_check_start = np.ones(np.shape(time_dates))
             Date = pd.Timestamp(startdate)
             Startdate_ord = Date.toordinal()
@@ -326,7 +327,7 @@ def Open_nc_dict(input_netcdf, group_name, startdate = '', enddate = ''):
         else:
             Start = 0
 
-        if enddate is not '':
+        if enddate != '':
             Array_check_end = np.zeros(np.shape(time_dates))
             Date = pd.Timestamp(enddate)
             Enddate_ord = Date.toordinal()
@@ -362,15 +363,21 @@ def Clip_Dataset_GDAL(input_name, output_name, latlim, lonlim):
     output_name -- output data, output filename of the clipped file
     latlim -- [ymin, ymax]
     lonlim -- [xmin, xmax]
-    """
+
     # Get environmental variable
     WA_env_paths = os.environ["WA_PATHS"].split(';')
     GDAL_env_path = WA_env_paths[0]
     GDALTRANSLATE_PATH = os.path.join(GDAL_env_path, 'gdal_translate.exe') #!!! Vervang deze door gdal.Translate
 
-    # find path to the executable
+    # find path to the executable    
     fullCmd = ' '.join(["%s" %(GDALTRANSLATE_PATH), '-projwin %s %s %s %s -of GTiff %s %s'  %(lonlim[0], latlim[1], lonlim[1], latlim[0], input_name, output_name)])
     Run_command_window(fullCmd)
+    """   
+    
+    options_list = ['-projwin %s %s %s %s'%(lonlim[0], latlim[1], lonlim[1], latlim[0])]
+    options_string = " ".join(options_list)
+    gdal.UseExceptions()
+    gdal.Translate(output_name, input_name, options = options_string)
 
     return()
 
@@ -1124,4 +1131,14 @@ def getWKT_PRJ(epsg_code):
         output = remove_spaces.replace("\n", "")   
 
     return output   
-   
+
+
+def Update_log_website(url, postfields):
+    
+    c = pycurl.Curl()
+    c.setopt(c.URL, url)
+    c.setopt(c.POSTFIELDS, postfields)
+    c.perform()    
+    c.close()
+    
+    return()   
