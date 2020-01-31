@@ -22,10 +22,10 @@ def Download_data(Date, Version, output_folder, Var):
     if Version == 1:
         filename = Var + '.gdas.' + str(Date.strftime('%Y')) + str(Date.strftime('%m')) + '.grb2'
     if Version == 2:
-        if Date < datetime.datetime(2018, 8, 1):
-            filename = Var + '.gdas.' + str(Date.strftime('%Y')) + str(Date.strftime('%m')) + '.grib2'
-        else:
-            filename = "%s%02d"%(Date.year, Date.month) + Var + '.gdas.' + str(Date.strftime('%Y')) + str(Date.strftime('%m')) + '.grib2'
+        #if Date < datetime.datetime(2018, 8, 1):
+        filename = Var + '.gdas.' + str(Date.strftime('%Y')) + str(Date.strftime('%m')) + '.grib2'
+        #else:
+        #    filename = "%s%02d"%(Date.year, Date.month) + Var + '.gdas.' + str(Date.strftime('%Y')) + str(Date.strftime('%m')) + '.grib2'
             
     try:
          # download the file when it not exist
