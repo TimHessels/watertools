@@ -22,7 +22,7 @@ def Visualize_Graph(input_folders, input_formats, Startdate, Enddate, input_shp,
     
         input_folder = input_folders[j]  
         input_format = input_formats[j]
-        Dataset = Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop = 'id', Shp_value = 1)   
+        Dataset = Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop = obj, Shp_value = Shp_value)   
         
         if j == 0:
             

@@ -63,7 +63,7 @@ def Calc_Property(Dir, latlim, lonlim, SL):
     # Define path to layers
     filename_clay = os.path.join(Dir, 'SoilGrids', 'Clay_Content' ,'ClayContentMassFraction_%s_SoilGrids_percentage.tif' %SL)
     filename_om = os.path.join(Dir, 'SoilGrids', 'Soil_Organic_Carbon_Content' ,'SoilOrganicCarbonContent_%s_SoilGrids_g_kg.tif' %SL)
-    #filename_bulkdensity = os.path.join(Dir, 'SoilGrids', 'Bulk_density' ,'BulkDensity_%s_SoilGrids_kg-m-3.tif' %SL)
+    #filename_bulkdensity = os.path.join(Dir, 'SoilGrids', 'Bulk_Density' ,'BulkDensity_%s_SoilGrids_kg-m-3.tif' %SL)
     
     # Define path for output
     if SL == "sl3":
@@ -71,7 +71,7 @@ def Calc_Property(Dir, latlim, lonlim, SL):
     elif SL == "sl6":
         level = "Subsoil"        
 
-    filedir_out_densbulk = os.path.join( Dir, 'SoilGrids', 'Bulk_density')
+    filedir_out_densbulk = os.path.join( Dir, 'SoilGrids', 'Bulk_Density')
     if not os.path.exists(filedir_out_densbulk):
         os.makedirs(filedir_out_densbulk)
     filedir_out_thetasat = os.path.join(Dir, 'SoilGrids', 'Theta_Sat')
