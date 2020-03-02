@@ -495,8 +495,8 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
     # The size of the raster is given the new projection and pixel spacing
     # Using the values we calculated above. Also, setting it to store one band
     # and to use Float32 data type.
-    col = int((lrx - ulx)/pixel_spacing)
-    rows = int((uly - lry)/pixel_spacing)
+    col = int(np.ceil((lrx - ulx)/pixel_spacing))
+    rows = int(np.ceil((uly - lry)/pixel_spacing))
 
     # Re-define lr coordinates based on whole number or rows and columns
     (lrx, lry) = (ulx + col * pixel_spacing, uly -

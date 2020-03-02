@@ -100,8 +100,8 @@ def Get_Row_Column_CoordinateWGS(filename, Coordinate):
     geo_out = dest.GetGeoTransform()
     size_x = dest.RasterXSize
     size_y = dest.RasterYSize
-    ulx = np.arange(0,size_x) * geo_out[1] + geo_out[0]
-    uly = np.arange(0,size_y) * geo_out[5] + geo_out[3]    
+    ulx = np.arange(0,size_x) * geo_out[1] + geo_out[0] + 0.5 *geo_out[1]
+    uly = np.arange(0,size_y) * geo_out[5] + geo_out[3] + 0.5 *geo_out[5]   
     ulxx = np.zeros([len(uly),len(ulx)])
     ulyy = np.zeros([len(uly),len(ulx)])
     ulxx[:,:]=ulx[None,:]
