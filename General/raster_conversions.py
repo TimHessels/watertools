@@ -447,6 +447,7 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
     method -- 1,2,3,4 default = 2
         1 = Nearest Neighbour, 2 = Bilinear, 3 = lanzcos, 4 = average
     """
+    import watertools.General.data_conversions as DC
 
     # 1) Open the dataset
     try:
@@ -503,6 +504,7 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
                   rows * pixel_spacing)
 
     dest = mem_drv.Create('', col, rows, 1, gdal.GDT_Float32)
+    dest_nan = mem_drv.Create('', col, rows, 1, gdal.GDT_Float32)
     if dest is None:
         print('input folder to large for memory, clip input map')
 
@@ -513,6 +515,14 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
     # Set the geotransform
     dest.SetGeoTransform(new_geo)
     dest.SetProjection(osng.ExportToWkt())
+    dest_nan.SetGeoTransform(new_geo)
+    dest_nan.SetProjection(osng.ExportToWkt())
+    
+    #
+    data_in = g.GetRasterBand(1).ReadAsArray()
+    data_in[np.isnan(data_in)] = -9999
+    data_nan = np.where(data_in == -9999, 0, 1)
+    g_nan = DC.Save_as_MEM(data_nan, geo_t, epsg_from)
 
     # Perform the projection/resampling
     if method == 1:
@@ -523,7 +533,15 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
         gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Lanczos)
     if method == 4:
         gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Average)
-    return dest, ulx, lry, lrx, uly, epsg_to
+        
+    gdal.ReprojectImage(g_nan, dest_nan, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Average)
+    
+    data = dest.GetRasterBand(1).ReadAsArray()
+    data_nan = dest_nan.GetRasterBand(1).ReadAsArray() 
+    data_end = np.where(data_nan == 0, np.nan, data)
+    dest_end = DC.Save_as_MEM(data_end, new_geo, epsg_to)
+
+    return dest_end, ulx, lry, lrx, uly, epsg_to
 
 def reproject_MODIS(input_name, epsg_to):
     '''
