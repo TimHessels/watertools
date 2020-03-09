@@ -521,7 +521,7 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
     #
     data_in = g.GetRasterBand(1).ReadAsArray()
     data_in[np.isnan(data_in)] = -9999
-    data_nan = np.where(data_in == -9999, 0, 1)
+    data_nan = np.where(data_in == -9999, 0, 9999)
     g_nan = DC.Save_as_MEM(data_nan, geo_t, epsg_from)
 
     # Perform the projection/resampling
@@ -534,11 +534,11 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
     if method == 4:
         gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Average)
         
-    gdal.ReprojectImage(g_nan, dest_nan, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Average)
+    gdal.ReprojectImage(g_nan, dest_nan, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_NearestNeighbour)
     
     data = dest.GetRasterBand(1).ReadAsArray()
     data_nan = dest_nan.GetRasterBand(1).ReadAsArray() 
-    data_end = np.where(data_nan == 0, np.nan, data)
+    data_end = np.where(data_nan != 9999, np.nan, data)
     dest_end = DC.Save_as_MEM(data_end, new_geo, epsg_to)
 
     return dest_end, ulx, lry, lrx, uly, epsg_to
