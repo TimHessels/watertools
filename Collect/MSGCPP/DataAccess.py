@@ -13,14 +13,14 @@ import numpy as np
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', GMT_Offset = 0, Waitbar = 1):
     
     # Check the latitude and longitude and otherwise set lat or lon on greatest extent
-    if latlim[0] < -82 or latlim[1] > 82:
-        print('Latitude above 82N or below 82S is not possible. Value set to maximum')
-        latlim[0] = np.max(latlim[0], -82)
-        latlim[1] = np.min(latlim[1], 82)
-    if lonlim[0] < -80 or lonlim[1] > 80:
-        print('Longitude must be between 80E and 80W. Now value is set to maximum')
-        lonlim[0] = np.max(lonlim[0], -80)
-        lonlim[1] = np.min(lonlim[1], 80)
+    if latlim[0] < -90 or latlim[1] > 90:
+        print('Latitude above 90N or below 90S is not possible. Value set to maximum')
+        latlim[0] = np.max(latlim[0], -90)
+        latlim[1] = np.min(latlim[1], 90)
+    if lonlim[0] < -180 or lonlim[1] > 180:
+        print('Longitude must be between 180E and 180W. Now value is set to maximum')
+        lonlim[0] = np.max(lonlim[0], -180)
+        lonlim[1] = np.min(lonlim[1], 180)
     
     output_folder = os.path.join(Dir, "MSGCPP", "SDS", "15min")
     if not os.path.exists(output_folder):
