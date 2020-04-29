@@ -448,7 +448,7 @@ def Download_Data(nameFile, output_folder_trash, parameter,para_name,resolution)
             para_name2 = para_name.lower()
             # info about the roots http://www.hydrosheds.org/download/getroot
             if resolution == '3s':
-                url="https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/hydrosheds/sa_%s_%s_zip_grid/%s/%s" %(para_name2,resolution,continent2,nameFile)
+                url="https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/hydrosheds/sa_%s_%s_grid/%s/%s" %(para_name2,resolution,continent2,nameFile)
             if resolution == '15s':
                 url="https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/hydrosheds/sa_%s_zip_grid/%s" %(resolution,nameFile)
             if resolution == '30s':   

@@ -87,6 +87,9 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out = None):
     # Loop over months and create monthly tiff files
     i = 0
     for date in Dates:
+        
+        print(date)
+        
         # Get Start and end DOY of the current month
         DOY_month_start = date.strftime('%j')
         DOY_month_end = DatesEnd[i].strftime('%j')

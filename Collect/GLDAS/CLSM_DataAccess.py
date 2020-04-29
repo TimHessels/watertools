@@ -546,7 +546,8 @@ class VariablesInfo:
              'swnet': 'SWnet',
              'snowf': 'Snow',
              'tair': 'Tair',
-             'wind': 'W'}
+             'wind': 'W',
+             'gws_tavg': 'GWS'}
     descriptions = {'avgsurft_tavg': 'surface average surface temperature [k]',
                     'canopint_tavg': 'surface plant canopy surface water [kg/m^2]',
                     'evap_tavg': 'surface total evapotranspiration [kg/m^2/s]',
@@ -594,7 +595,8 @@ class VariablesInfo:
                     'swnet': 'surface net shortwave radiation [w/m^2]',
                     'snowf': 'surface snowfall rate [kg/m^2/s]',
                     'tair': 'surface near surface air temperature [k]',
-                    'wind': 'surface near surface wind speed [m/s]'}
+                    'wind': 'surface near surface wind speed [m/s]',
+                    'gws_tavg': 'ground water storage [mm]'}
     factors = {'avgsurft_tavg': -273.15,
                'canopint_tavg': 1,
                'evap_tavg': 86400,
@@ -638,7 +640,8 @@ class VariablesInfo:
                'swnet': 1,
                'snowf': 1,
                'tair': -273.15,
-               'wind': 1}
+               'wind': 1,
+               'gws_tavg': 1}
     types = {'avgsurft_tavg': 'state',
              'canopint_tavg': 'state',
              'evap_tavg': 'flux',
@@ -682,7 +685,8 @@ class VariablesInfo:
              'swnet': 'state',
              'snowf': 'state',
              'tair': 'state',
-             'wind': 'state'}
+             'wind': 'state',
+             'gws_tavg': 'state'}
 
     def __init__(self, step):
         if step == 'three_hourly':
@@ -705,7 +709,8 @@ class VariablesInfo:
                           'swnet': 'W-m-2',
                           'snowf': 'mm',
                           'tair': 'C',
-                          'wind': 'm-s-1'}
+                          'wind': 'm-s-1',
+                          'gws_tavg': 'mm'}
         elif step == 'daily':
             self.units = {'avgsurft_tavg': 'C',
                           'canopint_tavg': 'mm',
@@ -730,7 +735,8 @@ class VariablesInfo:
                           'soilmoist_p_tav': 'kg-m-2',
                           'tair_f_tavg': 'C',
                           'wind_f_tavg': 'm-s-1',
-                          'tveg_tavg' : 'W-m-2'}
+                          'tveg_tavg' : 'W-m-2',
+                          'gws_tavg': 'mm'}
         elif step == 'monthly':
             self.units = {'avgsurft_tavg': 'C',
                           'canopint_tavg': 'mm',
@@ -755,6 +761,7 @@ class VariablesInfo:
                           'soilmoist_p_tav': 'kg-m-2',
                           'tair_f_tavg': 'C',
                           'wind_f_tavg': 'm-s-1',
-                          'tveg_tavg' : 'W-m-2'}
+                          'tveg_tavg' : 'W-m-2',
+                          'gws_tavg': 'mm'}
         else:
             raise KeyError("The input time step is not supported")

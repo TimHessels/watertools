@@ -120,7 +120,7 @@ def RetrieveData(Date, args):
     # Argument
     [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, hdf_library] = args
 
-    FPARfileName = os.path.join(output_folder, 'SnowFrac_MOD10_unitless_8-daily_'  + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
+    FPARfileName = os.path.join(output_folder, 'SnowFrac_MOD10_-_8-daily_'  + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
  
     if not os.path.exists(FPARfileName):
 
