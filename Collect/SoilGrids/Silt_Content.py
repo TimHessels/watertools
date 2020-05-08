@@ -32,7 +32,7 @@ def main(Dir, latlim, lonlim, level = 'sl1', Waitbar = 1):
         os.makedirs(output_folder)
 
     # Define the output map and create this if not exists
-    nameEnd = os.path.join(output_folder, 'SiltContentMassFraction_%s_SoilGrids_percentage.tif' %level)   
+    nameEnd = os.path.join(output_folder, 'SiltContentMassFraction_%s_SoilGrids_percentage.tif' %level)    
 
     if not os.path.exists(nameEnd):
 
@@ -45,7 +45,7 @@ def main(Dir, latlim, lonlim, level = 'sl1', Waitbar = 1):
             WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
         # Download and process the data
-        DownloadData(output_folder, latlim, lonlim, "SLTPPT", level)
+        DownloadData(output_folder, latlim, lonlim, "SILT", level)
 
         if Waitbar == 1:
             amount = 1

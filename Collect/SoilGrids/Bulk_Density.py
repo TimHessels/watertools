@@ -45,7 +45,7 @@ def main(Dir, latlim, lonlim, level = 'sl1', Waitbar = 1):
             WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
         # Download and process the data
-        DownloadData(output_folder, latlim, lonlim, "BLDFIE", level)
+        DownloadData(output_folder, latlim, lonlim, "BULKDENSITY", level)
 
         if Waitbar == 1:
             amount = 1

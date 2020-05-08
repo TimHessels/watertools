@@ -1,44 +1,53 @@
 # -*- coding: utf-8 -*-
 """
-Authors: Tim Hessels
-Module: Collect/SoilGrids
+WaterSat
+author: Tim Martijn Hessels
+Created on Sat Sep 28 14:15:13 2019
 """
+
 import os
 from watertools.Collect.SoilGrids.DataAccess import DownloadData
 import sys
 
 
-def main(Dir, latlim, lonlim, Waitbar = 1):
+def main(Dir, latlim, lonlim, level = 'sl1', Waitbar = 1):
     """
-    Downloads SoilGrids data from ftp://ftp.soilgrids.org/data/recent/
+    Downloads data from SoilGrids (www.soilgrids.org)
 
     The following keyword arguments are needed:
     Dir -- 'C:/file/to/path/'
     latlim -- [ymin, ymax]
-    lonlim -- [xmin, xmax] 
+    lonlim -- [xmin, xmax]
+    level -- 'sl1' (Default) 
+             'sl2'     
+             'sl3'     
+             'sl4'     
+             'sl5'     
+             'sl6'     
+             'sl7'    
     Waitbar -- '1' if you want a waitbar (Default = 1)
     """
 
     # Create directory if not exists for the output
-    output_folder = os.path.join(Dir, 'SoilGrids', 'Absolute_Depth_To_Bedrock')
+    output_folder = os.path.join(Dir, 'SoilGrids', 'Nitrogen')
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
     # Define the output map and create this if not exists
-    nameEnd = os.path.join(output_folder, 'AbsoluteDepthToBedrock_SoilGrids_cm.tif')  
+    nameEnd = os.path.join(output_folder,'Nitrogen_%s_SoilGrids_g_kg-1.tif' %level)    
 
     if not os.path.exists(nameEnd):
 
         # Create Waitbar
         if Waitbar == 1:
-            print('\nDownload Absolute Depth to bedrock soil map from SoilGrids.org')
+            print('\nDownload Soil nitrogen map of %s from SoilGrids.org' %level)
             import watertools.Functions.Random.WaitbarConsole as WaitbarConsole
             total_amount = 1
             amount = 0
             WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
         # Download and process the data
-        DownloadData(output_folder, latlim, lonlim, "BDTICM")
+        DownloadData(output_folder, latlim, lonlim, "NITROGEN", level)
 
         if Waitbar == 1:
             amount = 1
@@ -46,8 +55,7 @@ def main(Dir, latlim, lonlim, Waitbar = 1):
 
     else:
         if Waitbar == 1:
-            print("\nAbsolute Depth to Bedrock soil map from SoilGrids.org already exists in output folder")
+            print("\nDownload Soil nitrogen map of %s from SoilGrids.org already exists in output folder" %level)
 
 if __name__ == '__main__':
     main(sys.argv)
-

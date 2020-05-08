@@ -34,7 +34,7 @@ def main(Dir, latlim, lonlim, level = 'sl1', Waitbar = 1):
         os.makedirs(output_folder)
 
     # Define the output map and create this if not exists
-    nameEnd = os.path.join(output_folder, 'SoilPH_%s_SoilGrids_KCi10.tif' %level)
+    nameEnd = os.path.join(output_folder, 'SoilPH_%s_SoilGrids_pH10.tif' %level) 
 
     if not os.path.exists(nameEnd):
 
@@ -47,7 +47,7 @@ def main(Dir, latlim, lonlim, level = 'sl1', Waitbar = 1):
             WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
         # Download and process the data
-        DownloadData(output_folder, latlim, lonlim, "PHIKCL", level)
+        DownloadData(output_folder, latlim, lonlim, "PH", level)
 
         if Waitbar == 1:
             amount = 1

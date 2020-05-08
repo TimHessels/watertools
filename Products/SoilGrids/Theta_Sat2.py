@@ -54,7 +54,7 @@ def Subsoil(Dir, latlim, lonlim):
 def Calc_Property(Dir, latlim, lonlim, SL):	
 	
     import watertools.Collect.SoilGrids as SG
-    
+
     # Download needed layers
     SG.Clay_Content(Dir, latlim, lonlim, level=SL)
     #SG.Organic_Carbon_Content(Dir, latlim, lonlim, level=SL)
