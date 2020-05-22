@@ -13,6 +13,7 @@ import gdal
 import time
 
 import watertools.General.data_conversions as DC
+import watertools.General.raster_conversions as RC
 
 def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
     """
@@ -97,6 +98,12 @@ def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
                 del dest
                 time.sleep(1)
                 Array = np.float_(Array) * conversion
+                
+                try:
+                    Array = RC.gap_filling(Array, 0)
+                except:
+                    pass
+                
                 DC.Save_as_tiff(nameEnd, Array, geo, proj)
 
         except:

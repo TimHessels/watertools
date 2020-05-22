@@ -30,18 +30,22 @@ def Download_data(Date, Version, output_folder, Var):
     try:
          # download the file when it not exist
         local_filename = os.path.join(output_folder, filename)
+        #print(local_filename)
         if not os.path.exists(local_filename):
             Downloaded = 0
             Times = 0
             while Downloaded == 0:
                 # Create the command and run the command in cmd
                 if Version == 1:
-                    FTP_name = 'https://nomads.ncdc.noaa.gov/data/cfsr/' + Date.strftime('%Y') + Date.strftime('%m')+ '/' + filename
-
+                    #print("VERSION1")
+                    #FTP_name = 'https://nomads.ncdc.noaa.gov/data/cfsr/' + Date.strftime('%Y') + Date.strftime('%m')+ '/' + filename
+                    FTP_name = 'https://www.ncei.noaa.gov/data/climate-forecast-system/access/reanalysis/time-series/' + Date.strftime('%Y') + Date.strftime('%m')+ '/' + filename
+                    #print(FTP_name)   
                 if Version == 2:
-                    FTP_name = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_timeseries/' + Date.strftime('%Y') + '/' + Date.strftime('%Y') + Date.strftime('%m')+ '/' + filename
-
-                        
+                    #FTP_name = 'https://nomads.ncdc.noaa.gov/modeldata/cfsv2_analysis_timeseries/' + Date.strftime('%Y') + '/' + Date.strftime('%Y') + Date.strftime('%m')+ '/' + filename
+                    FTP_name = 'https://www.ncei.noaa.gov/data/climate-forecast-system/access/operational-analysis/time-series/' + Date.strftime('%Y') + '/' + Date.strftime('%Y') + Date.strftime('%m')+ '/' + filename
+                    #print(FTP_name)   
+                     
                 curl = pycurl.Curl()
                 curl.setopt(pycurl.URL, FTP_name)
                 fp = open(local_filename, "wb")

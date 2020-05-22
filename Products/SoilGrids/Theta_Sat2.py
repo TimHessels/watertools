@@ -98,6 +98,11 @@ def Calc_Property(Dir, latlim, lonlim, SL):
         
 
         Clay = np.float_(Clay)
+        try:
+           Clay = RC.gap_filling(Clay, 0, method = 1)
+        except:
+            pass
+        
         Clay[Clay>100]=np.nan
         #OM = np.float_(OM)
         #OM[OM<0]=np.nan  
