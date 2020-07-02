@@ -75,6 +75,8 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out = None, AOI = None):
         if not os.path.exists(Dir_out):
             os.makedirs(Dir_out)
 
+        Year_data = Year_data/12
+
         # Define output name
         output_name = os.path.join(Dir_out, file_one_year.replace('monthly', 'yearly').replace('month','year'))
         output_name = output_name[:-14] + '%d.01.01.tif' %(date.year)

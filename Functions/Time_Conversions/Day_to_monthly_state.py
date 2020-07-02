@@ -78,11 +78,11 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out=None):
             file_path = os.path.join(Dir_in, file_one_year)
 
             Day_data = RC.Open_tiff_array(file_path)
-            Day_data[np.isnan(Day_data)] = 0.0
-            Day_data[Day_data == -9999] = 0.0
-            Month_data[i, :, :] = Day_data
+            Day_data[Day_data == -9999] = np.nan
+            Month_data[i, :, :] = Day_data[None, :, :]
+            i+=1
             
-        Month_data = np.nanmean(Month_data, axis = 1)
+        Month_data = np.nanmean(Month_data, axis = 0)
 
         # Define output name
         output_name = os.path.join(Dir_out, file_one_year

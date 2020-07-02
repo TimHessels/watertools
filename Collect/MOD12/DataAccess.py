@@ -268,12 +268,12 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, LC_Type, hdf_
                 # Open .hdf only band with LC and collect all tiles to one array
                 dataset = gdal.Open(file_name)
                 sdsdict = dataset.GetMetadata('SUBDATASETS')
-                sdslist = [sdsdict[k] for k in sdsdict.keys() if '_%d_NAME' %int(LC_Type + 8) in k]
+                sdslist = [sdsdict[k] for k in sdsdict.keys() if '_%d_NAME' %int(LC_Type) in k]
                 sds = []
 
                 for n in sdslist:
                     sds.append(gdal.Open(n))
-                    full_layer = [i for i in sdslist if 'LC_Prop%d' %int(int(LC_Type)) in i]
+                    full_layer = [i for i in sdslist if 'LC_Type%d' %int(int(LC_Type)) in i]
                     idx = sdslist.index(full_layer[0])
                     if Horizontal == TilesHorizontal[0] and Vertical == TilesVertical[0]:
                         geo_t = sds[idx].GetGeoTransform()
