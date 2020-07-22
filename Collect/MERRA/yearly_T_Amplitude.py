@@ -24,7 +24,7 @@ def main(Dir, Years, latlim, lonlim, Waitbar = 1):
             print('\nDownloading yearly MERRA t2m amplitude data for the period %s till %s' %(Startdate, Enddate))
 
         # Download data
-        DownloadData(Dir, 't2m', Startdate, Enddate, latlim, lonlim, "yearly", Period = '', username = '', password = '', Waitbar = 1)
+        DownloadData(Dir, 't2m', Startdate, Enddate, latlim, lonlim, "yearly", Period = '', Waitbar = 1)
 
 if __name__ == '__main__':
     main(sys.argv)

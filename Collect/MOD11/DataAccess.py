@@ -26,12 +26,12 @@ if sys.version_info[0] == 2:
     import urllib2
 
 # Water Accounting modules
-import watertools
 import watertools.General.raster_conversions as RC
 import watertools.General.data_conversions as DC
 from watertools import WebAccounts
+import watertools
 
-def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cores, hdf_library, remove_hdf):
+def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cores, hdf_library, remove_hdf, angle_info = 0, time_info = 0):
     """
     This function downloads MOD13 16-daily data
 
@@ -87,7 +87,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cor
     TilesVertical, TilesHorizontal = watertools.Collect.MOD15.DataAccess.Get_tiles_from_txt(output_folder, hdf_library, latlim, lonlim)
 
     # Pass variables to parallel function and run
-    args = [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library]
+    args = [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library, angle_info, time_info]
     if not cores:
         for Date in Dates:
             RetrieveData(Date, args)
@@ -124,20 +124,33 @@ def RetrieveData(Date, args):
     args -- A list of parameters defined in the DownloadData function.
     """
     # Argument
-    [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library] = args
+    [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library, angle_info, time_info] = args
 
     if TimeStep == 8:
         LSTfileNamePart = os.path.join(output_folder, 'LST_MOD11A2_K_8-daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
     if TimeStep == 1:
         LSTfileNamePart = os.path.join(output_folder, 'LST_MOD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.*.tif')
+    if angle_info == 1:
+        OnsangfileNamePart = os.path.join(output_folder, 'Angle_MOD11A1_degrees_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
+    if time_info == 1:
+        TimefileNamePart = os.path.join(output_folder, 'Time_MOD11A1_hour_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
   
     filesMOD = glob.glob(LSTfileNamePart)
-
-    if not len(filesMOD) == 1:
+    if angle_info == 1:
+        filesANGLE = glob.glob(OnsangfileNamePart)
+    else:
+        filesANGLE = ["not_required"]
+        
+    if time_info == 1:
+        filesTime = glob.glob(TimefileNamePart)
+    else:
+        filesTime = ["not_required"]    
+        
+    if not (len(filesMOD) == 1 and len(filesANGLE) == 1 and len(filesTime) == 1):
 
         # Collect the data from the MODIS webpage and returns the data and lat and long in meters of those tiles
         try:
-            Collect_data(TilesHorizontal, TilesVertical, Date, output_folder, TimeStep, hdf_library)
+            Collect_data(TilesHorizontal, TilesVertical, Date, output_folder, TimeStep, hdf_library, angle_info)
         except:
             print("Was not able to download the file")
         try:
@@ -169,7 +182,21 @@ def RetrieveData(Date, args):
                 LSTfileName = os.path.join(output_folder, 'LST_MOD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.%02d%02d.tif'%(hour_GMT,minutes_GMT))
                 os.remove(name_collect_time)
                 os.remove(name_reprojected_time) 
-        
+                if time_info == 1: 
+                    TimefileName = os.path.join(output_folder, 'Time_MOD11A1_hour_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
+                    DC.Save_as_tiff(name=TimefileName, data=data_time, geo=geo, projection='WGS84')
+
+                if angle_info == 1:
+                    name_collect_angle = os.path.join(output_folder, 'Merged_Obsang.tif')
+                    name_reprojected_angle = RC.reproject_MODIS(name_collect_angle, epsg_to) 
+                    data_angle, geo = RC.clip_data(name_reprojected_angle, latlim, lonlim)
+                    data_angle[data_angle==25.5] = np.nan
+                    OnsangfileName = os.path.join(output_folder, 'Angle_MOD11A1_degrees_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
+                    data_angle[data_angle==0.] = -9999
+                    DC.Save_as_tiff(name=OnsangfileName, data=data_angle, geo=geo, projection='WGS84')
+                    os.remove(name_collect_angle)
+                    os.remove(name_reprojected_angle) 
+                    
             data[data==0.] = -9999
             DC.Save_as_tiff(name=LSTfileName, data=data, geo=geo, projection='WGS84')
         
@@ -217,28 +244,28 @@ def Make_TimeStamps(Startdate,Enddate):
     # If the startday is not in the same year as the enddate
     if AmountOfYear > 0:
         for i in range(0, AmountOfYear+1):
-            if i is 0:
+            if i == 0:
                 Startdate1 = Startdate
                 Enddate1 = YearEndDate[0]
                 Dates = pd.date_range(Startdate1, Enddate1, freq = '8D')
-            if i is AmountOfYear:
+            if i == AmountOfYear:
                 Startdate1 = YearStartDate[-1]
                 Enddate1 = Enddate
                 Dates1 = pd.date_range(Startdate1, Enddate1, freq = '8D')
                 Dates = Dates.union(Dates1)
-            if (i is not AmountOfYear and i is not 0):
+            if (i != AmountOfYear and i != 0):
                 Startdate1 = YearStartDate[i-AmountOfYear-1]
                 Enddate1 = YearEndDate[i]
                 Dates1 = pd.date_range(Startdate1, Enddate1, freq = '8D')
                 Dates = Dates.union(Dates1)
 
     # If the startday is in the same year as the enddate
-    if AmountOfYear is 0:
+    if AmountOfYear == 0:
         Dates = pd.date_range(Startdate, Enddate, freq = '8D')
 
     return(Dates)
 
-def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf_library):
+def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf_library, angle_info = 0):
     '''
     This function downloads all the needed MODIS tiles from http://e4ftl01.cr.usgs.gov/MOLT/MOD13Q1.006/ as a hdf file.
 
@@ -253,6 +280,8 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
     sizeX = int((TilesHorizontal[1] - TilesHorizontal[0] + 1) * 1200)
     sizeY = int((TilesVertical[1] - TilesVertical[0] + 1) * 1200)
     DataTot = np.zeros((sizeY, sizeX))
+    if angle_info == 1:
+        DataTot_ObsAng = np.zeros((sizeY, sizeX))        
     if TimeStep == 1:    
         DataTot_Time = np.zeros((sizeY, sizeX))
         
@@ -362,9 +391,10 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
                 # Open .hdf only band with NDVI and collect all tiles to one array
                 dataset = gdal.Open(file_name)
                 sdsdict = dataset.GetMetadata('SUBDATASETS')
-                sdslist = [sdsdict[k] for k in sdsdict.keys() if (('SUBDATASET_1_NAME') in k or ('SUBDATASET_3_NAME') in k)]
+                sdslist = [sdsdict[k] for k in sdsdict.keys() if (('SUBDATASET_1_NAME') in k or ('SUBDATASET_3_NAME') in k or ('SUBDATASET_4_NAME') in k)]
                 sds = []
                 sds_time = []
+                sds_obsang = []
                 
                 for n in sdslist:
                     sds.append(gdal.Open(n))
@@ -389,6 +419,14 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
                     DataTot_Time[int((countYdata - 1) * 1200):int(countYdata * 1200), int((countX - 1) * 1200):int(countX * 1200)]=data_time * 0.1
                     del data_time
 
+                if angle_info == 1:
+                    full_layer_obsang = [i for i in sdslist if 'Day_view_angl' in i]
+                    idx_obsang = sdslist.index(full_layer_obsang[0])
+                    sds_obsang.append(gdal.Open(sdslist[idx_obsang]))            
+                    data_obsang = sds_obsang[0].ReadAsArray()
+                    DataTot_ObsAng[int((countYdata - 1) * 1200):int(countYdata * 1200), int((countX - 1) * 1200):int(countX * 1200)]= data_obsang                 
+                    del data_obsang
+
 
             # if the tile not exists or cannot be opened, create a nan array with the right projection
             except:
@@ -401,13 +439,23 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
                 proj='PROJCS["unnamed",GEOGCS["Unknown datum based upon the custom spheroid",DATUM["Not specified (based on custom spheroid)",SPHEROID["Custom spheroid",6371007.181,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Sinusoidal"],PARAMETER["longitude_of_center",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1]]'
                 data=np.ones((1200,1200)) * (-9999/0.02)
                 countYdata=(TilesVertical[1] - TilesVertical[0] + 2) - countY
-                DataTot[(countYdata - 1) * 1200:countYdata * 1200,(countX - 1) * 1200:countX * 4800] = data * 0.02
+                DataTot[int((countYdata - 1) * 1200):int(countYdata * 1200),int((countX - 1) * 1200):int(countX * 1200)] = data * 0.02
                 DataTot[DataTot < 1] = -9999
                 
                 if TimeStep == 1:
                     data_time=np.ones((1200,1200)) * (-9999/0.1)
-                    DataTot_Time[(countYdata - 1) * 1200:countYdata * 1200,(countX - 1) * 1200:countX * 4800] = data_time * 0.1
-                    
+                    DataTot_Time[int((countYdata - 1) * 1200):int(countYdata * 1200),int((countX - 1) * 1200):int(countX * 1200)] = data_time * 0.1
+
+                if angle_info == 1:
+                    data_obsang=np.ones((1200,1200)) * (-9999)
+                    DataTot_ObsAng[int((countYdata - 1) * 1200):int(countYdata * 1200),int((countX - 1) * 1200):int(countX * 1200)] = data_obsang
+
+    # set limits
+    if angle_info == 1:
+        DataTot_ObsAng[DataTot_ObsAng<255] = DataTot_ObsAng[DataTot_ObsAng<255] - 65
+        DataTot_ObsAng[DataTot_ObsAng==255] = -9999
+        DataTot_ObsAng[DataTot_ObsAng>255] = DataTot_ObsAng[DataTot_ObsAng>255] - 256
+
 
     # Make geotiff file
     DataTot[DataTot < 1] = -9999    
@@ -451,5 +499,25 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
         dst_ds.GetRasterBand(1).WriteArray(DataTot_Time)
         dst_ds = None
         sds = None        
+
+    if angle_info == 1:
+        name_out_obsang = os.path.join(output_folder, 'Merged_Obsang.tif')
+        driver = gdal.GetDriverByName("GTiff")
+        dst_ds = driver.Create(name_out_obsang, DataTot_ObsAng.shape[1], DataTot_ObsAng.shape[0], 1, gdal.GDT_Float32, ['COMPRESS=LZW'])
+        try:
+             dst_ds.SetProjection(proj)
+        except:
+            proj='PROJCS["unnamed",GEOGCS["Unknown datum based upon the custom spheroid",DATUM["Not specified (based on custom spheroid)",SPHEROID["Custom spheroid",6371007.181,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Sinusoidal"],PARAMETER["longitude_of_center",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1]]'
+            x1 = (TilesHorizontal[0] - 18) * 1200 * Distance
+            x4 = (TilesVertical[0] - 9) * 1200 * -1 * Distance
+            geo = [x1, Distance, 0.0, x4, 0.0, -Distance]
+            geo_t = tuple(geo)
+            dst_ds.SetProjection(proj)
     
+        dst_ds.GetRasterBand(1).SetNoDataValue(-9999)
+        dst_ds.SetGeoTransform(geo_t)
+        dst_ds.GetRasterBand(1).WriteArray(DataTot_ObsAng)
+        dst_ds = None
+        sds = None    
+
     return()

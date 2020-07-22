@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import urllib
 
-def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period, Waitbar):
+def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period, Waitbar, data_type = ["mean"]):
 
 	# WAPOR modules
     import watertools.General.data_conversions as DC
@@ -62,15 +62,27 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
             IDz_start = IDz_end = int(((Date - pd.Timestamp("2017-12-01")).days) * 8) + (Period - 1)
             Hour = int((Period - 1) * 3)
             output_name = os.path.join(output_folder, "%s_GEOS_%s_3-hourly_%d.%02d.%02d_H%02d.M00.tif"%(Var, unit, Date.year, Date.month, Date.day, Hour))
-    
+            output_name_min = output_folder
+            output_name_max = output_folder
+            
         if TimeStep == "daily":
             IDz_start = int(((Date - pd.Timestamp("2017-12-01")).days) * 8) 
             IDz_end = IDz_start + 7
-            output_name = os.path.join(output_folder, "%s_GEOS_%s_daily_%d.%02d.%02d.tif"%(Var, unit, Date.year, Date.month, Date.day))
-    
-            
-        if not os.path.exists(output_name):
-            
+            if "mean" in data_type:
+                output_name = os.path.join(output_folder, "%s_GEOS_%s_daily_%d.%02d.%02d.tif"%(Var, unit, Date.year, Date.month, Date.day))
+            else:
+                output_name = output_folder
+            if "min" in data_type:
+                output_name_min = os.path.join(output_folder, "min", "%smin_GEOS_%s_daily_%d.%02d.%02d.tif"%(Var, unit, Date.year, Date.month, Date.day))
+            else:
+                output_name_min = output_folder
+            if "max" in data_type:
+                output_name_max = os.path.join(output_folder, "max", "%smax_GEOS_%s_daily_%d.%02d.%02d.tif"%(Var, unit, Date.year, Date.month, Date.day))
+            else:
+                output_name_max = output_folder
+                
+        if not (os.path.exists(output_name) and os.path.exists(output_name_min) and os.path.exists(output_name_max)):
+
             # define total url
             url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/inst3_2d_asm_Nx."
             url_GEOS = url_start + 'ascii?%s[%s:1:%s][%s:1:%s][%s:1:%s]' %(Var, IDz_start,IDz_end, int(IDy[0]),int(IDy[1]),int(IDx[0]),int(IDx[1]))
@@ -100,29 +112,58 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                     os.remove(pathtext)
     
                     # Set no data value
-                    data_end[data_end>1000000] = -9999
+                    data_end[data_end>1000000] = np.nan
                     
                     if TimeStep == "daily":
-                        if types == "state":
-                            data_end = np.nanmean(data_end, 0)
-                        else:
-                            data_end = np.nansum(data_end, 0)                        
+
+                        if "min" in data_type:
+                            data_min = np.nanmin(data_end, 0)                            
+                        if "max" in data_type:    
+                            data_max = np.nanmax(data_end, 0)                        
+                        if "mean" in data_type:
+                            if types == "state":
+                                data_end = np.nanmean(data_end, 0)
+                            else:
+                                data_end = np.nansum(data_end, 0)                        
     
                     # Add the VarFactor
                     if VarInfo.factors[Var] < 0:
-                        data_end[data_end != -9999] = data_end[data_end != -9999] + VarInfo.factors[Var]
+                        if "mean" in data_type:                        
+                            data_end[data_end != -9999] = data_end[data_end != -9999] + VarInfo.factors[Var]
+                            data_end[data_end < -9999] = -9999
+                            data_end = np.flipud(data_end)
+                        if "min" in data_type:
+                            data_min[data_min != -9999] = data_min[data_min != -9999] + VarInfo.factors[Var]
+                            data_min[data_min < -9999] = -9999
+                            data_min = np.flipud(data_min)                                 
+                        if "max" in data_type:
+                            data_max[data_max != -9999] = data_max[data_max != -9999] + VarInfo.factors[Var]      
+                            data_max[data_max < -9999] = -9999
+                            data_max = np.flipud(data_max)                        
+                                                    
                     else:
-                        data_end[data_end != -9999] = data_end[data_end != -9999] * VarInfo.factors[Var]
-                    data_end[data_end < -9999] = -9999
+                        if "mean" in data_type: 
+                            data_end[data_end != -9999] = data_end[data_end != -9999] * VarInfo.factors[Var]
+                            data_end[data_end < -9999] = -9999
+                            data_end = np.flipud(data_end)
+                        if "min" in data_type:
+                            data_min[data_min != -9999] = data_min[data_min != -9999] * VarInfo.factors[Var]
+                            data_min[data_min < -9999] = -9999
+                            data_min = np.flipud(data_min)                            
+                        if "max" in data_type:
+                            data_max[data_max != -9999] = data_max[data_max != -9999] * VarInfo.factors[Var]                          
+                            data_max[data_max < -9999] = -9999
+                            data_max = np.flipud(data_max)   
     
+                    if "mean" in data_type: 
+                        DC.Save_as_tiff(output_name, data_end, geo_out, proj)
+                    if "min" in data_type:
+                        DC.Save_as_tiff(output_name_min, data_min, geo_out, proj)
+                    if "max" in data_type:
+                        DC.Save_as_tiff(output_name_max, data_max, geo_out, proj)
+                        
                     # Download was succesfull
-                    downloaded = 1
-    
-                    # twist the data                
-                    data_end = np.flipud(data_end)
-            
-                    # Save as tiff file
-                    DC.Save_as_tiff(output_name, data_end, geo_out, proj)
+                    downloaded = 1                        
             
                 # If download was not succesfull
                 except:

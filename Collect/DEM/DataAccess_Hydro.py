@@ -149,7 +149,7 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
                 SignVer = 1
                 
                 # If the sign before the filename is a south sign than latitude is negative
-                if SignV is "s":
+                if SignV == "s":
                     SignVer = -1
                 Bound2 = int(SignVer)*int(Vfile)
 
@@ -158,7 +158,7 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
                 SignH = str(nameFile)[3]
                 SignHor = 1
                 # If the sign before the filename is a west sign than longitude is negative
-                if SignH is "w":
+                if SignH == "w":
                     SignHor = -1
                 Bound1 = int(SignHor) * int(Hfile)
 
@@ -197,7 +197,7 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
                 SignV = str(file_name)[0]
                 SignVer = 1
                 # If the sign before the filename is a south sign than latitude is negative
-                if SignV is "s":
+                if SignV == "s":
                     SignVer = -1
                 Bound2 = int(SignVer)*int(Vfile)
 
@@ -206,7 +206,7 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
                 SignH = str(file_name)[3]
                 SignHor = 1
                 # If the sign before the filename is a west sign than longitude is negative
-                if SignH is "w":
+                if SignH == "w":
                     SignHor = -1
                 Bound1 = int(SignHor) * int(Hfile)
 
@@ -353,6 +353,9 @@ def Merge_DEM_15s_30s(output_folder_trash,output_file_merged,latlim, lonlim, res
         lat_data_tot_position = int(np.round((latmax - latmax_clip)/ resolution_geo))
 
         Data[Data<-9999.] = -9999.
+        if tiff_file.find("dir")>0:
+            Data[Data==247] = -9999.      
+            
         data_tot[lat_data_tot_position:lat_data_tot_position+size_y_clip,lon_data_tot_position:lon_data_tot_position+size_x_clip][data_tot[lat_data_tot_position:lat_data_tot_position+size_y_clip,lon_data_tot_position:lon_data_tot_position+size_x_clip]==-9999]= Data[lat_tiff_position:lat_tiff_position+size_y_clip,lon_tiff_position:lon_tiff_position+size_x_clip][data_tot[lat_data_tot_position:lat_data_tot_position+size_y_clip,lon_data_tot_position:lon_data_tot_position+size_x_clip]==-9999]
 
     geo_out = [lonmin, resolution_geo, 0.0, latmax, 0.0, -1 * resolution_geo]
@@ -498,12 +501,12 @@ def Find_Document_names_15s_30s(latlim, lonlim, parameter, resolution):
 
     for continent in continents:
         extent = DEM_15s_extents.Continent[continent]
-        if (extent[0] < lonlim[0] and extent[1] > lonlim[0] and extent[2] < latlim[0] and extent[3] > latlim[0]) and (extent[0] < lonlim[1] and extent[1] > lonlim[1] and extent[2] < latlim[1] and extent[3] > latlim[1]) == True:
+        if (extent[0] < lonlim[0] and extent[1] > lonlim[0] and extent[2] < latlim[0] and extent[3] > latlim[0]) or (extent[0] < lonlim[1] and extent[1] > lonlim[1] and extent[2] < latlim[1] and extent[3] > latlim[1]) == True:
             if resolution == "15s":
                 name = '%s_%s_%s_grid.zip' %(continent, parameter, resolution)
             if resolution =="30s":
                 name = '%s_%s_%s_bil.zip' %(continent, parameter, resolution)                
-            continents_download = np.append(continents_download,name)
+            continents_download = np.append(continents_download, name)
 
     return(continents_download)
 

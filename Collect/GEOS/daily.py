@@ -3,7 +3,7 @@ import sys
 from watertools.Collect.GEOS.DataAccess import DownloadData
 
 
-def main(Dir, Vars, Startdate, Enddate, latlim, lonlim, Waitbar = 1):
+def main(Dir, Vars, Startdate, Enddate, latlim, lonlim, Waitbar = 1, data_type = ["mean"]):
     """
     This function downloads GEOS daily data for a given variable, time
     interval, and spatial extent.
@@ -23,7 +23,7 @@ def main(Dir, Vars, Startdate, Enddate, latlim, lonlim, Waitbar = 1):
             print('\nDownloading daily GEOS %s data for the period %s till %s' %(Var, Startdate, Enddate))
 
         # Download data
-        DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, "daily", Period = '', Waitbar = 1)
+        DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, "daily", '', Waitbar, data_type)
 
 if __name__ == '__main__':
     main(sys.argv)

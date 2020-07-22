@@ -74,7 +74,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_li
 
     # Make directory for the MODIS NDVI data
     Dir = Dir.replace("/", os.sep)
-    output_folder = os.path.join(Dir, 'NDVI', 'MOD13')
+    output_folder = os.path.join(Dir, 'NDVI', 'MYD13')
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -120,7 +120,7 @@ def RetrieveData(Date, args):
     # Argument
     [output_folder, TilesVertical, TilesHorizontal, latlim, lonlim, hdf_library] = args
 
-    NDVIfileName = os.path.join(output_folder, 'NDVI_MOD13Q1_-_16-daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
+    NDVIfileName = os.path.join(output_folder, 'NDVI_MYD13Q1_-_16-daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
 
     if not os.path.exists(NDVIfileName):
 
@@ -240,12 +240,12 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
             N=0
 
             # Download the MODIS NDVI data
-            url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD13Q1.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            url = 'https://e4ftl01.cr.usgs.gov/MOLA/MYD13Q1.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
 	         # Check the library given by user
             if hdf_library is not None:
                 os.chdir(hdf_library)
-                hdf_name = glob.glob("MOD13Q1.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
+                hdf_name = glob.glob("MYD13Q1.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
 
                 if len(hdf_name) == 1:
                     hdf_file = os.path.join(hdf_library, hdf_name[0])

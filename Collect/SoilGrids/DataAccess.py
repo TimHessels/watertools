@@ -50,9 +50,9 @@ def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
         level_str = dict_levels[level]     
         conversion = 0.01         #cg/kg to g/kg        
     if dataset == "SOC":
-        nameEnd = os.path.join(output_folder, 'SoilOrganicCarbonContent_sl1_SoilGrids_g_kg.tif')        
-        parameter = "ocs"
-        level_str = "0-30"    
+        nameEnd = os.path.join(output_folder, 'SoilOrganicCarbonContent_%s_SoilGrids_g_kg.tif' %level)          
+        parameter = "soc"
+        level_str = dict_levels[level]      
         conversion = 0.1         #dg/kg to g/kg
     if dataset == "SOD":
         nameEnd = os.path.join(output_folder, 'SoilOrganicCarbonDensity_%s_SoilGrids_g_kg.tif' %level)        

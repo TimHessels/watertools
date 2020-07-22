@@ -26,7 +26,7 @@ def main(Dir, Vars, Startdate, Enddate, latlim, lonlim, Periods = [1,2,3,4,5,6,7
                 print('\nDownloading 3-hourly GEOS %s data for the period %s till %s, Period = %s' %(Var, Startdate, Enddate, Period))
 
             # Download data
-            DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, "three_hourly", Period, Waitbar)
+            DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, "three_hourly", Period, Waitbar, data_type = ["mean"])
 
 if __name__ == '__main__':
     main(sys.argv)

@@ -2,7 +2,7 @@ import sys
 from watertools.Collect.MOD11.DataAccess import DownloadData
 
 
-def main(Dir, Startdate, Enddate, latlim, lonlim, cores=False, Waitbar = 1, hdf_library = None, remove_hdf = 1):
+def main(Dir, Startdate, Enddate, latlim, lonlim, cores=False, Waitbar = 1, hdf_library = None, remove_hdf = 1, angle_info = 0, time_info = 0):
     """
     This function downloads MOD11 daily data for the specified time
     interval, and spatial extent.
@@ -19,7 +19,7 @@ def main(Dir, Startdate, Enddate, latlim, lonlim, cores=False, Waitbar = 1, hdf_
 
     print('\nDownload daily MODIS land surface temperature data for period %s till %s' %(Startdate, Enddate))
     TimeStep = 1
-    DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cores, hdf_library, remove_hdf)
+    DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cores, hdf_library, remove_hdf, angle_info, time_info)
 
 if __name__ == '__main__':
     main(sys.argv)
