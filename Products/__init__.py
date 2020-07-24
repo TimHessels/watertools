@@ -21,7 +21,8 @@ dir(Products)
 from watertools.Products import ETref
 from watertools.Products import ETens
 from watertools.Products import SoilGrids
+from watertools.Products import RH
 
-__all__ = ['ETref', 'ETens', 'SoilGrids']
+__all__ = ['ETref', 'ETens', 'SoilGrids', 'RH']
 
 __version__ = '0.1'

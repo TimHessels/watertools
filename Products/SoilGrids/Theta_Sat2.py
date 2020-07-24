@@ -13,7 +13,7 @@ import numpy as np
 from watertools.General import data_conversions as DC
 from watertools.General import raster_conversions as RC
 
-def Topsoil(Dir, latlim, lonlim):
+def Topsoil(Dir, latlim, lonlim, GF = True):
     """
     This function calculates the topsoil saturated soil characteristic (15cm)
 
@@ -28,11 +28,11 @@ def Topsoil(Dir, latlim, lonlim):
     # Define parameters to define the topsoil
     SL = "sl3"
 	
-    Calc_Property(Dir, latlim, lonlim, SL)
+    Calc_Property(Dir, latlim, lonlim, SL, GF)
 	
     return
 
-def Subsoil(Dir, latlim, lonlim):
+def Subsoil(Dir, latlim, lonlim, GF = True):
     """
     This function calculates the subsoil saturated soil characteristic (100cm)
 
@@ -47,11 +47,11 @@ def Subsoil(Dir, latlim, lonlim):
 	# Define parameters to define the subsoil	
     SL = "sl6"
 	
-    Calc_Property(Dir, latlim, lonlim, SL)
+    Calc_Property(Dir, latlim, lonlim, SL, GF)
 	
     return
 	
-def Calc_Property(Dir, latlim, lonlim, SL):	
+def Calc_Property(Dir, latlim, lonlim, SL, GF = True):	
 	
     import watertools.Collect.SoilGrids as SG
 
@@ -101,45 +101,53 @@ def Calc_Property(Dir, latlim, lonlim, SL):
         Silt = dest_silt.GetRasterBand(1).ReadAsArray()        
 
         Clay = np.float_(Clay)
+        '''
         try:
            Clay = RC.gap_filling(Clay, 0, method = 1)
         except:
             pass
-        
+        '''        
         OM = np.float_(OM)
+        '''
         try:
            OM = RC.gap_filling(OM, 0, method = 1)
         except:
             pass
-
+        '''
         Silt = np.float_(Silt)
+        '''        
         try:
            Silt = RC.gap_filling(Silt, 0, method = 1)
         except:
             pass
-        
+        '''        
         Clay[Clay>100]=np.nan                
         Silt[Silt>100]=np.nan
         OM = OM/1000
         
+        Clay[Clay==0]=np.nan  
+        Silt[Silt==0]=np.nan  
+        OM[OM==0]=np.nan  
         
         # Calculate bulk density
-
         bulk_dens1 = dest_bulk.GetRasterBand(1).ReadAsArray()
         bulk_dens1 = bulk_dens1/1000 
         bulk_dens1 = np.float_(bulk_dens1)
+        '''           
         try:
            bulk_dens1 = RC.gap_filling(bulk_dens1, 0, method = 1)
         except:
             pass
-                
+        '''                   
         bulk_dens2 = 1/(0.6117 + 0.3601 * Clay/100 + 0.002172 * np.power(OM * 100, 2)+ 0.01715 * np.log(OM * 100))
+    
+        '''           
         try:
            bulk_dens2 = RC.gap_filling(bulk_dens2, 0, method = 1)
         except:
             pass       
-        
-        bulk_dens = np.maximum(bulk_dens1, bulk_dens2)
+        '''           
+        bulk_dens = np.where(bulk_dens1>bulk_dens2, bulk_dens1, bulk_dens2)
         
         '''
         # Oude methode gebaseerd op Schenost, Sinowski & Priesack (1996) 
@@ -155,7 +163,13 @@ def Calc_Property(Dir, latlim, lonlim, SL):
         
         # Calculate theta sat
         theta_sat = 0.8308 - 0.28217 * bulk_dens + 0.02728 * Clay/100 + 0.0187 * Silt_fraction
-        
+        theta_sat[Clay==0] = -9999
+        if GF == True:
+            try:
+               theta_sat = RC.gap_filling(theta_sat, -9999, method = 1)
+            except:
+                pass   
+
         # Save data
         #DC.Save_as_tiff(filename_out_densbulk, bulk_dens, geo_out, "WGS84")
         DC.Save_as_tiff(filename_out_thetasat, theta_sat, geo_out, "WGS84")
