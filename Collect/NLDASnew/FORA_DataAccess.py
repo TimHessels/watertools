@@ -209,19 +209,19 @@ def RetrieveData_hourly(Date, args):
                         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                         dataset = requests.get(url_NLDAS, allow_redirects=False,stream = True, verify = False)
                     
-
+                    '''
                     try:
                         get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True)
                     except:
                         from requests.packages.urllib3.exceptions import InsecureRequestWarning
                         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                         get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True, verify = False)
-
+                    '''
                     # download data (first save as text file)
                     pathtext = os.path.join(path, 'temp%s.txt' % zID)
 
                     z = open(pathtext, 'w')
-                    z.write(get_dataset.text)
+                    z.write(dataset.text)
                     z.close()
 
                     # Open text file and remove header and footer
@@ -323,19 +323,19 @@ def RetrieveData_daily(Date, args):
                         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                         dataset = requests.get(url_NLDAS, allow_redirects=False,stream = True, verify = False)
                         
-
+                    '''
                     try:
                         get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True)
                     except:
                         from requests.packages.urllib3.exceptions import InsecureRequestWarning
                         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                         get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True, verify = False)
-
+                    '''
                     
                     # download data (first save as text file)
                     pathtext = os.path.join(path[T],'temp%s.txt' %str(zID_start))
                     z = open(pathtext,'w')
-                    z.write(get_dataset.text)
+                    z.write(dataset.text)
                     z.close()
 
                     # Reshape data
@@ -442,19 +442,19 @@ def RetrieveData_monthly(Date, args):
                     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                     dataset = requests.get(url_NLDAS, allow_redirects=False,stream = True, verify = False)
                     
-
+                '''
                 try:
                     get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True)
                 except:
                     from requests.packages.urllib3.exceptions import InsecureRequestWarning
                     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                     get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True, verify = False)
-
+                '''
                 
                 # download data (first save as text file)
                 pathtext = os.path.join(path,'temp%s.txt' %str(zID))
                 z = open(pathtext,'w')
-                z.write(get_dataset.text)
+                z.write(dataset.text)
                 z.close()
 
                 # Open text file and remove header and footer

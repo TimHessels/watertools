@@ -213,7 +213,7 @@ def RetrieveData_three_hourly(Date, args):
                         from requests.packages.urllib3.exceptions import InsecureRequestWarning
                         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                         dataset = requests.get(url_GLDAS, allow_redirects=False,stream = True, verify = False)
-
+                    
                     try:
                         get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True)
                     except:
@@ -255,6 +255,7 @@ def RetrieveData_three_hourly(Date, args):
                     # Stop trying after 10 times
                     if N == 10:
                         print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
+                        print(url_GLDAS)
                         downloaded = 1
 
             # define geo
@@ -332,13 +333,14 @@ def RetrieveData_daily(Date, args):
                         from requests.packages.urllib3.exceptions import InsecureRequestWarning
                         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                         dataset = requests.get(url_GLDAS, allow_redirects=False,stream = True, verify = False)
+
                     try:
                         get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True)
                     except:
                         from requests.packages.urllib3.exceptions import InsecureRequestWarning
                         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                         get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True, verify = False)
-
+                    
                     # download data (first save as text file)
                     pathtext = os.path.join(path[T],'temp%s.txt' %str(zID_start))
                     z = open(pathtext,'w')
@@ -375,6 +377,7 @@ def RetrieveData_daily(Date, args):
                     # Stop trying after 10 times
                     if N == 10:
                         print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
+                        print(url_GLDAS)
                         downloaded = 1
 
             try:
@@ -451,13 +454,14 @@ def RetrieveData_monthly(Date, args):
                     from requests.packages.urllib3.exceptions import InsecureRequestWarning
                     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                     dataset = requests.get(url_GLDAS, allow_redirects=False,stream = True, verify = False)
+
                 try:
                     get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True)
                 except:
                     from requests.packages.urllib3.exceptions import InsecureRequestWarning
                     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                     get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True, verify = False)
-
+                
                 # download data (first save as text file)
                 pathtext = os.path.join(path,'temp%s.txt' %str(zID))
                 z = open(pathtext,'w')
@@ -492,6 +496,7 @@ def RetrieveData_monthly(Date, args):
                 # Stop trying after 10 times
                 if N == 10:
                     print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
+                    print(url_GLDAS)
                     downloaded = 1
 
             # define geo

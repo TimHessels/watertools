@@ -1133,20 +1133,24 @@ def Create_Buffer(Data_In, Buffer_area = 2):
    return(Data_Out)
    
 def getWKT_PRJ(epsg_code):   
-    
-    if sys.version_info[0] == 3:
-        import urllib
-        wkt = urllib.request.urlopen("http://spatialreference.org/ref/epsg/{0}/prettywkt/".format(epsg_code))
-        input_str = wkt.read().decode('utf-8')
-        #replace_slash = input_str.replace("\\", " ") 
-        remove_space = input_str.replace(" ","")     
-        output = remove_space.replace("\n", "")    
 
-    if sys.version_info[0] == 2:
-        import urllib2
-        wkt = urllib2.urlopen("http://spatialreference.org/ref/epsg/{0}/prettywkt/".format(epsg_code))
-        remove_spaces = wkt.read().replace(" ","")
-        output = remove_spaces.replace("\n", "")   
+    if epsg_code == str(900913) or epsg_code == str(3857):
+        output = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    
+    else:
+        if sys.version_info[0] == 3:
+            import urllib
+            wkt = urllib.request.urlopen("http://spatialreference.org/ref/epsg/{0}/prettywkt/".format(epsg_code))
+            input_str = wkt.read().decode('utf-8')
+            #replace_slash = input_str.replace("\\", " ") 
+            remove_space = input_str.replace(" ","")     
+            output = remove_space.replace("\n", "")    
+    
+        if sys.version_info[0] == 2:
+            import urllib2
+            wkt = urllib2.urlopen("http://spatialreference.org/ref/epsg/{0}/prettywkt/".format(epsg_code))
+            remove_spaces = wkt.read().replace(" ","")
+            output = remove_spaces.replace("\n", "")   
 
     return output   
 

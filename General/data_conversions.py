@@ -574,6 +574,7 @@ def Convert_dict_to_array(River_dict, Array_dict, Reference_data):
         for river_pixel in range(1,len(River_dict[river_part])):
             river_pixel_ID = River_dict[river_part][river_pixel]
             if len(np.argwhere(ID_Matrix == river_pixel_ID))>0:
+                #print(np.argwhere(ID_Matrix == river_pixel_ID))
                 row, col = np.argwhere(ID_Matrix == river_pixel_ID)[0][:]
                 DataCube[:,row,col] = Array_dict[river_part][:,river_pixel]
 

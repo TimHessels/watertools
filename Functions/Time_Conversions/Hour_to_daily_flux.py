@@ -37,7 +37,7 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out=None):
     os.chdir(Dir_in)
 
     # Define end and start date
-    Dates = pd.date_range(Startdate, Enddate, freq='MS')
+    Dates = pd.date_range(Startdate, Enddate, freq='D')
 
     # Find all hourly files
     files = glob.glob('*hourly*.tif')
