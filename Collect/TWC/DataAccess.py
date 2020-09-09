@@ -29,7 +29,7 @@ import os
 from ftplib import FTP
 
 # Water Accounting Modules
-import watertools.WebAccounts as WebAccounts
+import watertools
 import watertools.General.raster_conversions as RC
 import watertools.General.data_conversions as DC
 
@@ -85,7 +85,7 @@ def Download_GWF_from_WA_FTP(output_folder, filename_Out, lonlim, latlim):
 
     try:
         # Collect account and FTP information
-        username, password = WebAccounts.Accounts(Type = 'FTP_WA')
+        username, password = watertools.Functions.Random.Get_Username_PWD.GET("FTP_WA")
         ftpserver = "ftp.wateraccounting.unesco-ihe.org"
 
         # Set the file names and directories

@@ -13,6 +13,7 @@ import requests
 import calendar
 from joblib import Parallel, delayed
 
+import watertools
 import watertools.General.data_conversions as DC
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCase):
@@ -108,9 +109,8 @@ def RetrieveData(Date, args):
     month= Date.month
     day = Date.day
 
-    from watertools import WebAccounts
-    username, password = WebAccounts.Accounts(Type = 'NASA')
-
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET('NASA')
+    
     # Create https
     if TimeCase == 'daily':
         URL = 'https://gpm1.gesdisc.eosdis.nasa.gov/opendap/GPM_L3/GPM_3IMERGDF.05/%d/%02d/3B-DAY.MS.MRG.3IMERG.%d%02d%02d-S000000-E235959.V05.nc4.ascii?precipitationCal[%d:1:%d][%d:1:%d]'  %(year, month, year, month, day, xID[0], xID[1]-1, yID[0], yID[1]-1)

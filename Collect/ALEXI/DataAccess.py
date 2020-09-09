@@ -29,7 +29,7 @@ import math
 import glob
 
 # Water Accounting Modules
-import watertools.WebAccounts as WebAccounts
+import watertools
 import watertools.General.raster_conversions as RC
 import watertools.General.data_conversions as DC
 
@@ -240,22 +240,22 @@ def Download_ALEXI_from_WA_FTP(local_filename, DirFile, filename, lonlim, latlim
     """
 
     # Collect account and FTP information
-    username, password = WebAccounts.Accounts(Type = 'FTP_WA')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET('FTP_WA')
     ftpserver = "ftp.wateraccounting.unesco-ihe.org"
 
     # Download data from FTP
     ftp=FTP(ftpserver)
     ftp.login(username,password)
-    if TimeStep is "weekly":
+    if TimeStep == "weekly":
         directory="/WaterAccounting/Data_Satellite/Evaporation/ALEXI/World/"
-    if TimeStep is "daily":
+    if TimeStep == "daily":
         directory="/WaterAccounting/Data_Satellite/Evaporation/ALEXI/World_05182018/"
     ftp.cwd(directory)
     lf = open(local_filename, "wb")
     ftp.retrbinary("RETR " + filename, lf.write)
     lf.close()
 
-    if TimeStep is "weekly":
+    if TimeStep == "weekly":
 
         # Open global ALEXI data
         dataset = RC.Open_tiff_array(local_filename)
@@ -264,7 +264,7 @@ def Download_ALEXI_from_WA_FTP(local_filename, DirFile, filename, lonlim, latlim
         data = dataset[yID[0]:yID[1],xID[0]:xID[1]]
         data[data < 0] = -9999
 
-    if TimeStep is "daily":
+    if TimeStep == "daily":
 
         DC.Extract_Data_gz(local_filename, os.path.splitext(local_filename)[0])
 

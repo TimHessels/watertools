@@ -27,7 +27,7 @@ import re
 from bs4 import BeautifulSoup
 
 # Water Accounting Modules
-import watertools.WebAccounts as WebAccounts
+import watertools
 import watertools.General.data_conversions as DC
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, type_PROBAV, type_Bands = ['SM','B1','B2','B3','B4']):
@@ -81,7 +81,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, type_PROBAV, 
         
     # amount of Dates weekly
     Dates = pd.date_range(Startdate, Enddate, freq="D")
-    if type_time is not "daily":
+    if type_time != "daily":
         Dates = [date for date in Dates if date.day in list_days]
 
     # Create Waitbar
@@ -169,7 +169,7 @@ def Download_PROBAV_from_VITO(End_filename, output_folder_temp, Date, latlim, lo
     Band_numbers = {'SM':7,'B1':8,'B2':10,'B3':9,'B4':11}
  
     # Get passwords
-    username, password = WebAccounts.Accounts(Type='VITO')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET('VITO')
     
     # Download all the needed tiles
     for X_tile in X_tiles:

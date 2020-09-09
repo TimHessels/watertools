@@ -30,7 +30,7 @@ if sys.version_info[0] == 3:
 if sys.version_info[0] == 2:
     import urllib
 # Water Accounting Modules
-import watertools.WebAccounts as WebAccounts
+import watertools
 import watertools.General.raster_conversions as RC
 import watertools.General.data_conversions as DC
 
@@ -214,7 +214,7 @@ def Download_SSEBop_from_WA_FTP(local_filename, Filename_dir):
     """
 
     # Collect account and FTP information
-    username, password = WebAccounts.Accounts(Type = 'FTP_WA')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET("FTP_WA")
     ftpserver = "ftp.wateraccounting.unesco-ihe.org"
 
     # Download data from FTP

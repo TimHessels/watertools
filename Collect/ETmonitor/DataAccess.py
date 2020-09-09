@@ -26,7 +26,6 @@ import pandas as pd
 from ftplib import FTP
 
 # Water Accounting Modules
-import watertools.WebAccounts as WebAccounts
 import watertools.General.raster_conversions as RC
 
 
@@ -160,7 +159,7 @@ def Download_ETmonitor_from_WA_FTP(local_filename, Filename_in, Type):
     """
 
     # Collect account and FTP information
-    username, password = WebAccounts.Accounts(Type = 'FTP_WA')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET('FTP_WA')
     ftpserver = "ftp.wateraccounting.unesco-ihe.org"
 
     # Download data from FTP

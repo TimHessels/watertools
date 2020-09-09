@@ -13,7 +13,7 @@ import urllib
 import requests
 from netCDF4 import Dataset
 
-import watertools.WebAccounts as WebAccounts
+import watertools
 
 def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period, Waitbar, data_type = ["mean"]):
 
@@ -182,8 +182,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
             downloaded = 0
             N = 0
 
-            username = WebAccounts.Accounts(Type = "NASA")[0]
-            password = WebAccounts.Accounts(Type = "NASA")[1]
+            username, password = watertools.Functions.Random.Get_Username_PWD.GET("NASA")
 
             # if not downloaded try to download file
             while downloaded == 0:

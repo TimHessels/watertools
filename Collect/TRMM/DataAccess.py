@@ -14,6 +14,7 @@ import requests
 import calendar
 from joblib import Parallel, delayed
 
+import watertools
 import watertools.General.data_conversions as DC
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCase):
@@ -109,8 +110,7 @@ def RetrieveData(Date, args):
     month= Date.month
     day = Date.day
 
-    from watertools import WebAccounts
-    username, password = WebAccounts.Accounts(Type = 'NASA')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET('NASA')
 
     # Create https
     if TimeCase == 'daily':

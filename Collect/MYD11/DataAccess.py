@@ -106,9 +106,9 @@ def RetrieveData(Date, args):
     """
     
     # watertools modules
+    import watertools
     import watertools.General.raster_conversions as RC
     import watertools.General.data_conversions as DC
-    from watertools import WebAccounts
     
     # Argument
     [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library, angle_info, time_info] = args
@@ -125,7 +125,7 @@ def RetrieveData(Date, args):
         filesANGLE = ["not_required"]    
 
     # Load accounts
-    username, password = WebAccounts.Accounts(Type = 'NASA')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET('NASA')
 
     if time_info == 1:
         TimefileNamePart = os.path.join(output_folder, 'Time_MYD11A1_hour_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    

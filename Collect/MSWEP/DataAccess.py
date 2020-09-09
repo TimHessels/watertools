@@ -8,7 +8,6 @@ import requests
 from joblib import Parallel, delayed
 
 # Water Accounting modules
-from watertools import WebAccounts
 import watertools.General.data_conversions as DC
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCase):
@@ -27,7 +26,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCa
     """
 
     # Load factors / unit / type of variables / accounts
-    username, password = WebAccounts.Accounts(Type = 'MSWEP')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET('MSWEP')
 
     # Set required data for the daily option
     if TimeCase == 'daily':

@@ -14,7 +14,7 @@ import pycurl
 import shutil
 
 # WA+ modules
-import watertools.WebAccounts as WebAccounts
+import watertools
 from watertools.General import data_conversions as DC
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar):
@@ -125,7 +125,7 @@ def Download_ETens_from_WA_FTP(output_folder, Lat_tiles, Lon_tiles):
             if not os.path.exists(os.path.join(output_folder,Tilename)):
                 try:
                     # Collect account and FTP information
-                    username, password = WebAccounts.Accounts(Type = 'FTP_WA')
+                    username, password = watertools.Functions.Random.Get_Username_PWD.GET("FTP_WA")
                     FTP_name = "ftp://ftp.wateraccounting.unesco-ihe.org//WaterAccounting_Guest/ETensV1.0/%s" % Tilename
                     local_filename = os.path.join(output_folder, Tilename)
 

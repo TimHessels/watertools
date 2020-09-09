@@ -9,7 +9,7 @@ import requests
 from joblib import Parallel, delayed
 
 # Water Accounting modules
-from watertools import WebAccounts
+import watertools
 import watertools.General.data_conversions as DC
 
 def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, Waitbar, cores,
@@ -30,7 +30,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, Waitbar, cores,
 
     # Load factors / unit / type of variables / accounts
     VarInfo = VariablesInfo(TimeCase)
-    username, password = WebAccounts.Accounts(Type = 'NASA')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET("NASA")
 
     # Set required data for the three hourly option
     if TimeCase == 'hourly':

@@ -6,8 +6,8 @@ Module: watertools/Functions/Area_Conversions
 """
 
 
-from watertools.Functions.Random import WaitbarConsole
+from watertools.Functions.Random import WaitbarConsole, Get_Username_PWD
 
-__all__ = ['WaitbarConsole']
+__all__ = ['WaitbarConsole', 'Get_Username_PWD']
 
 __version__ = '0.1'

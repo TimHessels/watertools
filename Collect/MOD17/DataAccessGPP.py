@@ -29,7 +29,6 @@ if sys.version_info[0] == 2:
 import watertools
 import watertools.General.raster_conversions as RC
 import watertools.General.data_conversions as DC
-from watertools import WebAccounts
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_library, remove_hdf):
     """
@@ -185,23 +184,23 @@ def Make_TimeStamps(Startdate,Enddate):
     # If the startday is not in the same year as the enddate
     if AmountOfYear > 0:
         for i in range(0, AmountOfYear+1):
-            if i is 0:
+            if i == 0:
                 Startdate1 = Startdate
                 Enddate1 = YearEndDate[0]
                 Dates = pd.date_range(Startdate1, Enddate1, freq = '8D')
-            if i is AmountOfYear:
+            if i == AmountOfYear:
                 Startdate1 = YearStartDate[-1]
                 Enddate1 = Enddate
                 Dates1 = pd.date_range(Startdate1, Enddate1, freq = '8D')
                 Dates = Dates.union(Dates1)
-            if (i is not AmountOfYear and i is not 0):
+            if (i != AmountOfYear and i != 0):
                 Startdate1 = YearStartDate[i-AmountOfYear-1]
                 Enddate1 = YearEndDate[i]
                 Dates1 = pd.date_range(Startdate1, Enddate1, freq = '8D')
                 Dates = Dates.union(Dates1)
 
     # If the startday is in the same year as the enddate
-    if AmountOfYear is 0:
+    if AmountOfYear == 0:
         Dates = pd.date_range(Startdate, Enddate, freq = '8D')
 
     return(Dates)
@@ -224,7 +223,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
     DataTot = np.zeros((sizeY, sizeX))
 
     # Load accounts
-    username, password = WebAccounts.Accounts(Type = 'NASA')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET('NASA')
 
     # Create the Lat and Long of the MODIS tile in meters
     for Vertical in range(int(TilesVertical[0]), int(TilesVertical[1])+1):

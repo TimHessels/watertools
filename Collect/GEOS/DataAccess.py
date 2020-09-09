@@ -50,7 +50,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
     
     # Create Waitbar
     if Waitbar == 1:
-        import pyWAPOR.Functions.WaitbarConsole as WaitbarConsole
+        import watertools.Functions.Random.WaitbarConsole as WaitbarConsole
         total_amount = len(Dates)
         amount = 0
         WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
@@ -99,6 +99,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                     pathtext = os.path.join(output_folder,'temp%s.txt' %str(IDz_start))
                     
                     # Download the data
+                    #print(url_GEOS)
                     urllib.request.urlretrieve(url_GEOS, filename=pathtext)
     
                     # Reshape data

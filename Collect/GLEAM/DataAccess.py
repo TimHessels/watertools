@@ -17,7 +17,6 @@ from netCDF4 import Dataset
 
 # Water Accounting modules
 import watertools.General.data_conversions as DC
-from watertools import WebAccounts
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCase, Product):
     """
@@ -238,7 +237,7 @@ def Collect_data(FTPprefix,Years,output_folder, Waitbar, Product):
     server='hydras.ugent.be'
     portnumber=2225
 
-    username, password = WebAccounts.Accounts(Type='GLEAM')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET("GLEAM")
 
     # Create Waitbar
     print('\nDownload GLEAM data')

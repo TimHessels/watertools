@@ -27,7 +27,7 @@ from ftplib import FTP
 import scipy.io as spio
 
 # Water Accounting Modules
-import watertools.WebAccounts as WebAccounts
+import watertools
 import watertools.General.data_conversions as DC
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar):
@@ -123,7 +123,7 @@ def Download_SEBS_from_WA_FTP(local_filename, Filename_in):
     """
 
     # Collect account and FTP information
-    username, password = WebAccounts.Accounts(Type = 'FTP_WA')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET('FTP_WA')
     ftpserver = "ftp.wateraccounting.unesco-ihe.org"
 
     # Download data from FTP

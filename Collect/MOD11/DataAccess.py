@@ -28,7 +28,6 @@ if sys.version_info[0] == 2:
 # Water Accounting modules
 import watertools.General.raster_conversions as RC
 import watertools.General.data_conversions as DC
-from watertools import WebAccounts
 import watertools
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cores, hdf_library, remove_hdf, angle_info = 0, time_info = 0):
@@ -286,7 +285,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
         DataTot_Time = np.zeros((sizeY, sizeX))
         
     # Load accounts
-    username, password = WebAccounts.Accounts(Type = 'NASA')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET('NASA')
 
     # Create the Lat and Long of the MODIS tile in meters
     for Vertical in range(int(TilesVertical[0]), int(TilesVertical[1])+1):

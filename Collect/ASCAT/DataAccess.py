@@ -22,7 +22,7 @@ import shutil
 from netCDF4 import Dataset
 
 # Water Accounting Modules
-import watertools.WebAccounts as WebAccounts
+import watertools
 import watertools.General.data_conversions as DC
 
 
@@ -146,7 +146,7 @@ def Download_ASCAT_from_VITO(End_filename, output_folder_temp, Date, yID, xID):
     ASCAT_filename = "c_gls_SWI_%s_GLOBE_ASCAT_V3.1.1.nc" % ASCAT_date
 
     # Collect account and FTP information
-    username, password = WebAccounts.Accounts(Type='Copernicus')
+    username, password = watertools.Functions.Random.Get_Username_PWD.GET("Copernicus")
     URL = "https://land.copernicus.vgt.vito.be/PDF/datapool/Vegetation/Soil_Water/SWI_V3/%s/%s/%s/%s/%s" % (year_data, month_data, day_data,
                                           ASCAT_name, ASCAT_filename)
 
