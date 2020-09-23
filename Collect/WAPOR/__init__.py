@@ -24,8 +24,8 @@ import watertools
 watertools.Collect.WAPOR.Get_Layer(r"G:\Project_MetaMeta\Input_Data2", "2011-01-01", "2011-02-01", [8.2, 8.7], [39, 39.5], "L2_T_D")
 """
 
-from watertools.Collect.WAPOR import Get_Layer, DataAccess
+from .Get_Layer import main as Get_Layer
 
 
-__all__ = ['Get_Layer', 'DataAccess']
+__all__ = ['Get_Layer']
 __version__ = '0.0.0'

@@ -25,7 +25,6 @@ def main(output_folder, Startdate, Enddate, latlim, lonlim, Parameter, Area = No
 
     """
     
-    
     print('\nDownload WAPOR %s data for period %s till %s' %(Parameter, Startdate, Enddate))
     WAPOR(output_folder, Startdate, Enddate, latlim, lonlim, Parameter, Area = None, Version = "2")
 

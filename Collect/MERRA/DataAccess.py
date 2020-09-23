@@ -242,13 +242,13 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                         
                         if TimeStep == "daily":
  
-                            if data_type in "min":
+                            if "min" in data_type:
                                 data_min = np.nanmin(data_end, 0)                            
                             
-                            if data_type in "max":
+                            if "max" in data_type:
                                 data_max = np.nanmax(data_end, 0)                            
                             
-                            if data_type in "mean":
+                            if "mean" in data_type:
                             
                                 if types == "state":
                                     data_end = np.nanmean(data_end, 0)
@@ -344,7 +344,7 @@ def Get_NC_data_end(file_name,Var, TimeStep, Period, IDy, IDx, VarInfo):
             
         data[data==-9999] = np.nan
         data_min = np.nanmin(data, 0)
-        data_max = np.nanmin(data, 0)     
+        data_max = np.nanmax(data, 0)     
         
     return(data_end, data_min, data_max)
 

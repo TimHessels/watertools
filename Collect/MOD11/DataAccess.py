@@ -176,8 +176,8 @@ def RetrieveData(Date, args):
                     hour_GMT = int(np.floor(data_time_ave))
                     minutes_GMT = int((data_time_ave - np.floor(data_time_ave))*60)    
                 except:
-                    hour_GMT = int(12)
-                    minutes_GMT = int(0)
+                    hour_GMT = int(10)
+                    minutes_GMT = int(30)
                 LSTfileName = os.path.join(output_folder, 'LST_MOD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.%02d%02d.tif'%(hour_GMT,minutes_GMT))
                 os.remove(name_collect_time)
                 os.remove(name_reprojected_time) 

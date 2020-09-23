@@ -4,7 +4,9 @@ Created on Tue Jul  7 12:29:05 2020
 
 @author: timhe
 """
+import os
 import gdal
+import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -21,8 +23,13 @@ def Show_tif(image_file, Limits = None, Color = None):
         User can define the wanted colormap, all options are listed here:
         https://matplotlib.org/examples/color/colormaps_reference.html
     """    
-    dest = gdal.Open(image_file)
+    directory = os.path.dirname(image_file)
+    os.chdir(directory)
+    file = glob.glob(image_file)[0]
+    
+    dest = gdal.Open(os.path.join(directory, file))
     Array = dest.GetRasterBand(1).ReadAsArray()
+    Array = np.float_(Array)
     Array[Array==-9999] = np.nan
     if Limits == None:
         Limits = [np.nanmin(Array), np.nanmax(Array)]

@@ -11,6 +11,7 @@ import pandas as pd
 import gdal
 import urllib
 from bs4 import BeautifulSoup
+from joblib import Parallel, delayed
 import re
 import glob
 import requests
@@ -22,7 +23,7 @@ if sys.version_info[0] == 2:
     import urlparse
     import urllib2
 
-def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, hdf_library, remove_hdf, angle_info = 0, time_info = 0):
+def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cores, hdf_library, remove_hdf, angle_info = 0, time_info = 0):
     """
     This function downloads MYD11 daily LST data
 
@@ -45,16 +46,6 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, hdf
     if not Enddate:
         Enddate = pd.Timestamp('Now')
 
-    # Make an array of the days of which the LST is taken
-    Dates = pd.date_range(Startdate, Enddate, freq = 'D')
-
-    # Create Waitbar
-    if Waitbar == 1:
-        import watertools.Functions.Random.WaitbarConsole as WaitbarConsole
-        total_amount = len(Dates)
-        amount = 0
-        WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
-
     # Check the latitude and longitude and otherwise set lat or lon on greatest extent
     if latlim[0] < -90 or latlim[1] > 90:
         print('Latitude above 90N or below 90S is not possible. Value set to maximum')
@@ -65,9 +56,24 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, hdf
         lonlim[0] = np.max(lonlim[0], -180)
         lonlim[1] = np.min(lonlim[1], 180)
 
+    # Make an array of the days of which the LST is taken
+    if TimeStep == 8:
+        Dates = watertools.Collect.MOD11.DataAccess.Make_TimeStamps(Startdate,Enddate)
+        TimeStepName = '8_Daily'
+    if TimeStep == 1:
+        Dates = pd.date_range(Startdate,Enddate,freq = 'D')
+        TimeStepName = 'Daily'
+
+    # Create Waitbar
+    if Waitbar == 1:
+        import watertools.Functions.Random.WaitbarConsole as WaitbarConsole
+        total_amount = len(Dates)
+        amount = 0
+        WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
+
     # Make directory for the MODIS NDVI data
     Dir = Dir.replace("/", os.sep)
-    output_folder = os.path.join(Dir, 'LST', 'MYD11', 'Daily')
+    output_folder = os.path.join(Dir, 'LST', 'MYD11', TimeStepName)
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -75,12 +81,18 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, hdf
     TilesVertical, TilesHorizontal = watertools.Collect.MOD15.DataAccess.Get_tiles_from_txt(output_folder, hdf_library, latlim, lonlim)
 
     # Pass variables to parallel function and run
+    # Pass variables to parallel function and run
     args = [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library, angle_info, time_info]
-    for Date in Dates:
-        RetrieveData(Date, args)
-        if Waitbar == 1:
-            amount += 1
-            WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
+    if not cores:
+        for Date in Dates:
+            RetrieveData(Date, args)
+            if Waitbar == 1:
+                amount += 1
+                WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
+        results = True
+    else:
+        results = Parallel(n_jobs=cores)(delayed(RetrieveData)(Date, args)
+                                         for Date in Dates)
 
     # Remove all .hdf files
     if remove_hdf == 1:
@@ -114,11 +126,14 @@ def RetrieveData(Date, args):
     [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library, angle_info, time_info] = args
     
     # Define output names
-    LSTfileNamePart = os.path.join(output_folder, 'LST_MYD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '*.tif')
+    if TimeStep == 8:
+        LSTfileNamePart = os.path.join(output_folder, 'LST_MYD11A2_K_8-daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
+    if TimeStep == 1:
+        LSTfileNamePart = os.path.join(output_folder, 'LST_MYD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '*.tif')
+    filesMOD = glob.glob(LSTfileNamePart)
+    
     if angle_info == 1:
         OnsangfileNamePart = os.path.join(output_folder, 'Angle_MYD11A1_degrees_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
-
-    filesMOD = glob.glob(LSTfileNamePart)
     if angle_info == 1:
         filesANGLE = glob.glob(OnsangfileNamePart)
     else:
@@ -141,54 +156,57 @@ def RetrieveData(Date, args):
         except:
             print("Was not able to download the file")   
         try:   
+            
             # Define the output name of the collect data function
             name_collect = os.path.join(output_folder, 'Merged.tif')
-            name_collect_time = os.path.join(output_folder, 'Merged_Time.tif')
-            
+        
             # Reproject the MODIS product to epsg_to
             epsg_to ='4326'
             name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
-            name_reprojected_time = RC.reproject_MODIS(name_collect_time, epsg_to)
         
             # Clip the data to the users extend
             data, geo = RC.clip_data(name_reprojected, latlim, lonlim)
-            data_time, geo = RC.clip_data(name_reprojected_time, latlim, lonlim)
-            
-            # remove wrong values
+                
+            # Save results as Gtiff
+            if TimeStep == 8:
+                LSTfileName = os.path.join(output_folder, 'LST_MYD11A2_K_8-daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
+            if TimeStep == 1:
+                name_collect_time = os.path.join(output_folder, 'Merged_Time.tif')
+                name_reprojected_time = RC.reproject_MODIS(name_collect_time, epsg_to) 
+                data_time, geo = RC.clip_data(name_reprojected_time, latlim, lonlim)
+                data_time[data_time==25.5] = np.nan
+                data_time_ave = np.nanmean(data_time)
+                try:
+                    hour_GMT = int(np.floor(data_time_ave))
+                    minutes_GMT = int((data_time_ave - np.floor(data_time_ave))*60)    
+                except:
+                    hour_GMT = int(13)
+                    minutes_GMT = int(30)
+                LSTfileName = os.path.join(output_folder, 'LST_MYD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.%02d%02d.tif'%(hour_GMT,minutes_GMT))
+                os.remove(name_collect_time)
+                os.remove(name_reprojected_time) 
+                if time_info == 1: 
+                    TimefileName = os.path.join(output_folder, 'Time_MYD11A1_hour_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
+                    DC.Save_as_tiff(name=TimefileName, data=data_time, geo=geo, projection='WGS84')
+
+                if angle_info == 1:
+                    name_collect_angle = os.path.join(output_folder, 'Merged_Obsang.tif')
+                    name_reprojected_angle = RC.reproject_MODIS(name_collect_angle, epsg_to) 
+                    data_angle, geo = RC.clip_data(name_reprojected_angle, latlim, lonlim)
+                    data_angle[data_angle==25.5] = np.nan
+                    OnsangfileName = os.path.join(output_folder, 'Angle_MYD11A1_degrees_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
+                    data_angle[data_angle==0.] = -9999
+                    DC.Save_as_tiff(name=OnsangfileName, data=data_angle, geo=geo, projection='WGS84')
+                    os.remove(name_collect_angle)
+                    os.remove(name_reprojected_angle) 
+                    
             data[data==0.] = -9999
-            data_time[data_time==25.5] = np.nan
-            data_time_ave = np.nanmean(data_time)
-            try:
-                hour_GMT = int(np.floor(data_time_ave))
-                minutes_GMT = int((data_time_ave - np.floor(data_time_ave))*60)    
-            except:
-                hour_GMT = int(12)
-                minutes_GMT = int(0)         
-            LSTfileName = os.path.join(output_folder, 'LST_MYD11A1_K_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.%02d%02d.tif'%(hour_GMT,minutes_GMT))
-     
-            # Save results as Gtiff 
             DC.Save_as_tiff(name=LSTfileName, data=data, geo=geo, projection='WGS84')
-            
-            if angle_info == 1:
-                name_collect_angle = os.path.join(output_folder, 'Merged_Obsang.tif')
-                name_reprojected_angle = RC.reproject_MODIS(name_collect_angle, epsg_to) 
-                data_angle, geo = RC.clip_data(name_reprojected_angle, latlim, lonlim)
-                data_angle[data_angle==25.5] = np.nan
-                OnsangfileName = os.path.join(output_folder, 'Angle_MYD11A1_degrees_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
-                os.remove(name_collect_angle)
-                os.remove(name_reprojected_angle)
-                data_angle[data_angle==0.] = -9999
-                DC.Save_as_tiff(name=OnsangfileName, data=data_angle, geo=geo, projection='WGS84')
-    
-            if time_info == 1: 
-                TimefileName = os.path.join(output_folder, 'Time_MYD11A1_hour_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
-                DC.Save_as_tiff(name=TimefileName, data=data_time, geo=geo, projection='WGS84')
         
             # remove the side products
-            os.remove(name_collect)
-            os.remove(name_reprojected)
-            os.remove(name_collect_time)
-            os.remove(name_reprojected_time) 
+            os.remove(os.path.join(output_folder, name_collect))
+            os.remove(os.path.join(output_folder, name_reprojected))
+            
         except:
             print("Failed for date: %s" %Date)
             
@@ -225,7 +243,10 @@ def Collect_data(TilesHorizontal, TilesVertical, Date, username, password, outpu
             countX=Horizontal - TilesHorizontal[0] + 1
 
             # Create the URL to the LST MODIS data
-            url = 'https://e4ftl01.cr.usgs.gov/MOLA/MYD11A1.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            if TimeStep == 8:
+                url = 'https://e4ftl01.cr.usgs.gov/MOLA/MYD11A2.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            if TimeStep == 1:
+                url = 'https://e4ftl01.cr.usgs.gov/MOLA/MYD11A1.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
 		    # Reset the begin parameters for downloading
             downloaded = 0
@@ -234,7 +255,10 @@ def Collect_data(TilesHorizontal, TilesVertical, Date, username, password, outpu
 			# Check the library given by user if the file is already there
             if hdf_library is not None:
                 os.chdir(hdf_library)
-                hdf_name = glob.glob("MYD11A1.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
+                if TimeStep == 8:
+                    hdf_name = glob.glob("MYD11A2.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
+                if TimeStep == 1:
+                    hdf_name = glob.glob("MYD11A1.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
 
                 if len(hdf_name) == 1:
                     hdf_file = os.path.join(hdf_library, hdf_name[0])

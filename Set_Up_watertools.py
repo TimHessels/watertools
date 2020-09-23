@@ -27,12 +27,14 @@ def set_up_account(account="ALL"):
     key_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "wa_key.txt")
     json_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "keys.json")
     
+    if not os.path.exists(key_filename):
+        create_key()
+    
     f = open(key_filename,"r")
     key = f.read()
     f.close()
     
     cipher_suite = Fernet(key.encode('utf-8'))
-    
 
     if os.path.exists(json_filename):
     

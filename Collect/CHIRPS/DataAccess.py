@@ -6,6 +6,7 @@ Module: Collect/CHIRPS
 
 # import general python modules
 import os
+import urllib
 import numpy as np
 import pandas as pd
 from ftplib import FTP
@@ -119,31 +120,40 @@ def RetrieveData(Date, args):
 
     if not os.path.exists(DirFileEnd):
 
-        # open ftp server
-        ftp = FTP("chg-ftpout.geog.ucsb.edu", "", "")
-        ftp.login()
-    
-    	# Define FTP path to directory
-        if TimeCase == 'daily':
-            pathFTP = 'pub/org/chg/products/CHIRPS-2.0/global_daily/tifs/p05/%s/' %Date.strftime('%Y')
-        elif TimeCase == 'monthly':
-            pathFTP = 'pub/org/chg/products/CHIRPS-2.0/global_monthly/tifs/'
-        else:
-            raise KeyError("The input time interval is not supported")
-    
-        # find the document name in this directory
-        ftp.cwd(pathFTP)
-        listing = []
-    
-    	# read all the file names in the directory
-        ftp.retrlines("LIST", listing.append)
-    
-        # download the global rainfall file
         try:
+            # open ftp server
+            ftp = FTP("chg-ftpout.geog.ucsb.edu", "", "")
+            ftp.login()
+        
+        	# Define FTP path to directory
+            if TimeCase == 'daily':
+                pathFTP = 'pub/org/chg/products/CHIRPS-2.0/global_daily/tifs/p05/%s/' %Date.strftime('%Y')
+            elif TimeCase == 'monthly':
+                pathFTP = 'pub/org/chg/products/CHIRPS-2.0/global_monthly/tifs/'
+            else:
+                raise KeyError("The input time interval is not supported")
+        
+            # find the document name in this directory
+            ftp.cwd(pathFTP)
+            listing = []
+        
+        	# read all the file names in the directory
+            ftp.retrlines("LIST", listing.append)
+    
+            # download the global rainfall file
             local_filename = os.path.join(output_folder, filename)
             lf = open(local_filename, "wb")
             ftp.retrbinary("RETR " + filename, lf.write, 8192)
             lf.close()
+            
+        except:
+            
+            url = os.path.join("https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_daily/tifs/p05/%s/" %Date.strftime('%Y'), filename)
+            local_filename = os.path.join(output_folder, filename)
+            urllib.request.urlretrieve(url, filename=local_filename)
+            
+            
+        try:
     
             # unzip the file
             zip_filename = os.path.join(output_folder, filename)
