@@ -889,7 +889,7 @@ def gap_filling(dataset, NoDataValue, method = 1):
         Save_as_tiff = 0
 
     # fill the no data values
-    if NoDataValue is np.nan:
+    if NoDataValue == np.nan:
         mask = ~(np.isnan(data))
     else:
         mask = ~(data==NoDataValue)

@@ -223,8 +223,14 @@ def Save_as_tiff(name='', data='', geo='', projection=''):
     dir_name = os.path.dirname(name)
     
     if not os.path.exists(dir_name):
-        os.makedirs(dir_name)
-        
+        success = 0
+        while success == 0:
+            try:
+                os.makedirs(dir_name)
+                success = 1
+            except:
+                time.sleep(1)
+            
     # save as a geotiff
     driver = gdal.GetDriverByName("GTiff")
     dst_ds = driver.Create(name, int(data.shape[1]), int(data.shape[0]), 1, gdal.GDT_Float32, ['COMPRESS=LZW'])
