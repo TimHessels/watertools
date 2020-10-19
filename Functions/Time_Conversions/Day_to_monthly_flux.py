@@ -12,7 +12,7 @@ import gdal
 import calendar
 
 
-def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out=None):
+def Nearest_Interpolate(Dir_in, Startdate, Enddate, format_in = None, format_out = None, Dir_out = None, AOI = None):
     """
     This functions calculates monthly tiff files based on the daily tiff files.
     (will calculate the total sum)
@@ -40,7 +40,10 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out=None):
     Dates = pd.date_range(Startdate, Enddate, freq='MS')
 
     # Find all monthly files
-    files = glob.glob('*daily*.tif')
+    if format_in == None:
+        files = glob.glob('*daily*.tif')
+    else:
+        files = glob.glob(format_in.replace(":02d","").format(yyyy= "*", mm = "*", dd = "*"))    
 
     # Get array information and define projection
     geo_out, proj, size_X, size_Y = RC.Open_array_info(files[0])
@@ -62,7 +65,10 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out=None):
     for date in Dates:
         Year = date.year
         Month = date.month
-        files_one_year = glob.glob('*daily*%d.%02d*.tif' % (Year, Month))
+        if format_in == None:
+            files_one_year = glob.glob('*daily*%d.%02d*.tif' % (Year, Month))
+        else:
+            files_one_year = glob.glob(format_in.replace(":02d","").format(yyyy=Year, mm = "%02d" %Month, dd = "*"))
 
         # Create empty arrays
         Month_data = np.zeros([size_Y, size_X])
@@ -72,6 +78,7 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out=None):
 
         if len(files_one_year) is not Amount_days_in_month:
             print("One day is missing!!! month %s year %s" %(Month, Year))
+            print("Days found = %d" %len(files_one_year))
 
         for file_one_year in files_one_year:
             file_path = os.path.join(Dir_in, file_one_year)
@@ -80,13 +87,19 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out=None):
             Day_data[np.isnan(Day_data)] = 0.0
             Day_data[Day_data == -9999] = 0.0
             Month_data += Day_data
-
+            
+        if str(type(AOI)) == "<class 'numpy.ndarray'>":
+            Month_data = Month_data * AOI
+            
         # Define output name
-        output_name = os.path.join(Dir_out, file_one_year
-                                   .replace('daily', 'monthly')
-                                   .replace('day', 'month'))
-
-        output_name = output_name[:-14] + '%d.%02d.01.tif' % (date.year, date.month)
+        if format_out == None:
+            output_name = os.path.join(Dir_out, file_one_year
+                                       .replace('daily', 'monthly')
+                                       .replace('day', 'month'))
+    
+            output_name = output_name[:-14] + '%d.%02d.01.tif' % (date.year, date.month)
+        else:
+            output_name = os.path.join(Dir_out, format_out.format(yyyy = date.year,  mm = date.month, dd = 1))
 
         # Save tiff file
         DC.Save_as_tiff(output_name, Month_data, geo_out, proj)

@@ -10,7 +10,7 @@ import glob
 import pandas as pd
 import gdal
 
-def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out = None, AOI = None):
+def Nearest_Interpolate(Dir_in, Startdate, Enddate, format_in = None, format_out = None, Dir_out = None, AOI = None):
     """
     This functions calculates yearly tiff files based on the monthly tiff files. (will calculate the total sum)
 
@@ -37,7 +37,10 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out = None, AOI = None):
     Dates = pd.date_range(Startdate, Enddate, freq='AS')
 
     # Find all monthly files
-    files = glob.glob('*monthly*.tif')
+    if format_in == None:
+        files = glob.glob('*monthly*.tif')
+    else:
+        files = glob.glob(format_in.replace(":02d","").format(yyyy= "*", mm = "*", dd = "*"))
 
     # Get array information and define projection
     geo_out, proj, size_X, size_Y = RC.Open_array_info(files[0])
@@ -50,7 +53,11 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out = None, AOI = None):
 
     for date in Dates:
         Year = date.year
-        files_one_year = glob.glob('*monthly*%d*.tif' %Year)
+        
+        if format_in == None:
+            files_one_year = glob.glob('*monthly*%d*.tif' %Year)
+        else:
+            files_one_year = glob.glob(format_in.replace(":02d","").format(yyyy=Year, mm = "*", dd = "*"))
 
         # Create empty arrays
         Year_data = np.zeros([size_Y, size_X])
@@ -76,13 +83,17 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out = None, AOI = None):
             os.makedirs(Dir_out)
 
         # Define output name
-        output_name = os.path.join(Dir_out, file_one_year.replace('monthly', 'yearly').replace('month','year'))
-        output_name = output_name[:-14] + '%d.01.01.tif' %(date.year)
+        if format_out == None:
+            output_name = os.path.join(Dir_out, file_one_year.replace('monthly', 'yearly').replace('month','year'))
+            output_name = output_name[:-14] + '%d.01.01.tif' %(date.year)
+        else:
+            output_name = os.path.join(Dir_out, format_out.format(yyyy = date.year,  mm = 1, dd = 1))
 
         # Save tiff file
         DC.Save_as_tiff(output_name, Year_data, geo_out, proj)
 
     return
+
 
 
 

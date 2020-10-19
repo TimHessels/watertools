@@ -25,6 +25,7 @@ if sys.version_info[0] == 2:
     import urllib2
 
 # Water Accounting modules
+import watertools
 import watertools.General.raster_conversions as RC
 import watertools.General.data_conversions as DC
 
