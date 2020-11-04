@@ -63,9 +63,9 @@ def Convert_nc_to_tiff(input_nc, output_folder):
     return()
 
 def Convert_grb2_to_nc(input_wgrib, output_nc, band):
-
+    '''
     import watertools.General.raster_conversions as RC
-
+    
     # Get environmental variable
     WA_env_paths = os.environ["WA_PATHS"].split(';')
     GDAL_env_path = WA_env_paths[0]
@@ -75,6 +75,12 @@ def Convert_grb2_to_nc(input_wgrib, output_nc, band):
     fullCmd = ' '.join(['"%s" -of netcdf -b %d' %(GDAL_TRANSLATE_PATH, band), input_wgrib, output_nc])  # -r {nearest}
 
     RC.Run_command_window(fullCmd)
+    '''
+    
+    options_list = ['-of netcdf -b %d' %band]
+    options_string = " ".join(options_list)
+    gdal.UseExceptions()
+    gdal.Translate(output_nc, input_wgrib, options = options_string)    
 
     return()
 
@@ -85,7 +91,7 @@ def Convert_adf_to_tiff(input_adf, output_tiff):
     Keyword Arguments:
     input_adf -- name, name of the adf file
     output_tiff -- Name of the output tiff file
-    """
+
     import watertools.General.raster_conversions as RC
 
     # Get environmental variable
@@ -98,6 +104,12 @@ def Convert_adf_to_tiff(input_adf, output_tiff):
                    'ZLEVEL=1 -of GTiff %s %s') % (GDAL_TRANSLATE_PATH, input_adf, output_tiff)
 
     RC.Run_command_window(fullCmd)
+    """
+    
+    options_list = ['-co COMPRESS=DEFLATE -co PREDICTOR=1 -co ZLEVEL=1']
+    options_string = " ".join(options_list)
+    gdal.UseExceptions()
+    gdal.Translate(output_tiff, input_adf, options = options_string)
 
     return(output_tiff)
     

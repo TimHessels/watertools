@@ -47,6 +47,9 @@ def Calc_Humidity(Temp_format, P_format, Hum_format, output_format, Startdate, E
         Tdata = RC.gap_filling(Tdata,-9999)
         Pdata = RC.gap_filling(Pdata,-9999)
         Hdata = RC.gap_filling(Hdata,-9999)
+        
+        if "_K_" in Temp_format:
+            Tdata = Tdata - 273.15
     
         Esdata = 0.6108*np.exp((17.27*Tdata)/(Tdata+237.3))
         HumData = np.minimum((1.6077717*Hdata*Pdata/Esdata),1)*100
