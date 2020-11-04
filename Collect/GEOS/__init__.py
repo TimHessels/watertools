@@ -21,7 +21,8 @@ GEOS.three_hourly(Dir='C:/Temp/', Vars =["t2m", "v2m"], Startdate='1999-02-01', 
 
 from .daily import main as daily
 from .three_hourly import main as three_hourly
+from .hourly import main as hourly
 
-__all__ = ['daily', 'three_hourly']
+__all__ = ['daily', 'three_hourly', 'hourly']
 
 __version__ = '0.1'
