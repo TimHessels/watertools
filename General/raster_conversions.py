@@ -27,6 +27,7 @@ def Run_command_window(argument):
     """
     if os.name == 'posix':
         argument = argument.replace(".exe","")
+        argument = argument.replace(".bat","")
         os.system(argument)
 
     else:
