@@ -424,6 +424,58 @@ def clip_data(input_file, latlim, lonlim, band = 1):
 
     return(data, Geo_out)
 
+def clip_data_shp(input_file, shp_filename, IDname = "OBJECTID", number_shp = 1, band = 1):
+    """
+    Clip the data to the defined extend of the user (latlim, lonlim) or to the
+    extend of the DEM tile
+
+    Keyword Arguments:
+    input_file -- output data, output of the clipped dataset
+    latlim -- [ymin, ymax]
+    lonlim -- [xmin, xmax]
+    """
+    try:
+        if input_file.split('.')[-1] == 'tif':
+            dest_in = gdal.Open(input_file)
+        else:
+            dest_in = input_file
+    except:
+        dest_in = input_file
+
+    Raster_Basin = Vector_to_Raster(shp_filename, input_file, IDname)
+    
+    # Create Mask
+    MASK = np.where(Raster_Basin == number_shp, 1, np.nan)
+    
+    # Find IDy
+    SumY = np.nansum(MASK, axis = 1)
+    IDygood = np.argwhere(SumY>0)
+    IDy = [IDygood[0][0], int(IDygood[-1][0]+1)]
+
+    # Find IDX
+    SumX = np.nansum(MASK, axis = 0)
+    IDxgood = np.argwhere(SumX>0)   
+    IDx = [IDxgood[0][0], int(IDxgood[-1][0]+1)]    
+
+    # Get new geotransform
+    geo_start = dest_in.GetGeoTransform()
+    proj = dest_in.GetProjection()
+    
+    # Create new geo
+    geo_new = tuple([geo_start[0] + geo_start[1] * IDx[0], geo_start[1], 0.0, geo_start[3] + geo_start[5] * IDy[0], 0.0, geo_start[5]])
+
+    # Open Array
+    data_in = dest_in.GetRasterBand(band).ReadAsArray()
+
+    # Mask data
+    data_temp = data_in * MASK
+
+    # clip data
+    data_end = data_temp[IDy[0]:IDy[1],IDx[0]:IDx[1]]
+
+    return(data_end, geo_new, proj)
+
+
 def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
     """
     A sample function to reproject and resample a GDAL dataset from within
@@ -1010,7 +1062,7 @@ def Get3Darray_time_series_monthly(Data_Path, Startdate, Enddate, Example_data =
 
     return(dataTot)
 
-def Vector_to_Raster(shapefile_name, dest_ex, Attribute_name):
+def Vector_to_Raster(shapefile_name, filename, Attribute_name):
     """
     This function creates a raster of a shp file
 
@@ -1021,6 +1073,14 @@ def Vector_to_Raster(shapefile_name, dest_ex, Attribute_name):
 
     """
     from osgeo import gdal, ogr
+
+    try:
+        if filename.split('.')[-1] == 'tif':
+            dest_ex = gdal.Open(r"%s" %filename)
+        else:
+            dest_ex = filename
+    except:
+            dest_ex = filename      
 
     proj = Get_epsg(dest_ex)
     geo = dest_ex.GetGeoTransform()
