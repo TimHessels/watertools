@@ -59,7 +59,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
         
         # Define the IDz
         if TimeStep == "hourly":
-            IDz_start = IDz_end = int(((Date - pd.Timestamp("2017-12-01")).days) * 8) + (Period - 1)
+            IDz_start = IDz_end = int(((Date - pd.Timestamp("2017-12-01")).days) * 24) + (Period - 1)
             Hour = int((Period - 1))
             output_name = os.path.join(output_folder, "%s_GEOS_%s_hourly_%d.%02d.%02d_H%02d.M00.tif"%(Var, unit, Date.year, Date.month, Date.day, Hour))
             output_name_min = output_folder
