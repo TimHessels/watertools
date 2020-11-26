@@ -382,7 +382,7 @@ def Clip_Dataset_GDAL(input_name, output_name, latlim, lonlim):
 
     return()
 
-def clip_data(input_file, latlim, lonlim, band = 1):
+def clip_data(input_file, latlim, lonlim, epsg_clip = 4326, band = 1):
     """
     Clip the data to the defined extend of the user (latlim, lonlim) or to the
     extend of the DEM tile
@@ -402,6 +402,17 @@ def clip_data(input_file, latlim, lonlim, band = 1):
 
     # Open Array
     data_in = dest_in.GetRasterBand(band).ReadAsArray()
+    Proj_out = Get_epsg(dest_in)
+    
+    if Proj_out != epsg_clip:
+     
+        inProj = Proj(init='epsg:%d' %epsg_clip)
+        outProj = Proj(init='epsg:%d' %Proj_out)
+    
+        # Up to here, all  the projection have been defined, as well as a
+        # transformation from the from to the to
+        lonlim[0], latlim[0] = transform(inProj,outProj,lonlim[0], latlim[0])
+        lonlim[1], latlim[1] = transform(inProj,outProj,lonlim[1], latlim[1])       
 
     # Define the array that must remain
     Geo_in = dest_in.GetGeoTransform()
@@ -417,12 +428,12 @@ def clip_data(input_file, latlim, lonlim, band = 1):
     Geo_in[3] = Geo_in[3] + Start_y * Geo_in[5]
     Geo_out = tuple(Geo_in)
 
-    data = np.zeros([End_y - Start_y, End_x - Start_x])
+    data = np.ones([End_y - Start_y, End_x - Start_x])*np.nan
 
     data = data_in[Start_y:End_y,Start_x:End_x]
     dest_in = None
 
-    return(data, Geo_out)
+    return(data, Geo_out, Proj_out)
 
 def clip_data_shp(input_file, shp_filename, IDname = "OBJECTID", number_shp = 1, band = 1):
     """

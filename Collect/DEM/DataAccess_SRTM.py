@@ -132,7 +132,7 @@ def DownloadData(output_folder, latlim, lonlim):
 
 
         # clip data
-        Data, Geo_data = RC.clip_data(destDEM, latlim, lonlim)
+        Data, Geo_data, Proj_out = RC.clip_data(destDEM, latlim, lonlim)
         size_Y_out = int(np.shape(Data)[0])
         size_X_out = int(np.shape(Data)[1])
 

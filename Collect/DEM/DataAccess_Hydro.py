@@ -225,7 +225,7 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
         if resolution =='3s':
 
             # clip data
-            Data, Geo_data = RC.clip_data(output_tiff, latlim, lonlim)
+            Data, Geo_data, Proj_out = RC.clip_data(output_tiff, latlim, lonlim)
             size_Y_out = int(np.shape(Data)[0])
             size_X_out = int(np.shape(Data)[1])
 

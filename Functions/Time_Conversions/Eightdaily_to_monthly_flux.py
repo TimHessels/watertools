@@ -140,7 +140,7 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, format_in = None, format_out
             Data = RC.Open_tiff_array(input_name)
 
             # Remove NDV
-            Weight[Data == NDV] = 0
+            Weight[np.logical_or(Data == NDV, np.isnan(Data))] = 0
             Data[Data == NDV] = np.nan
 
             # Multiply weight time data
@@ -155,7 +155,8 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, format_in = None, format_out
 
         # Calculate the average and multiply by the amount of days
         Data_one_month[Weight_tot != 0.] = Monthly[Weight_tot != 0.] / Weight_tot[Weight_tot != 0.] * month_range
-
+        Data_one_month[Weight_tot == 0] = np.nan
+        
         # Define output directory
         if Dir_out == None:
             Dir_out = Dir_in

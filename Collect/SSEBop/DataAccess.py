@@ -164,7 +164,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Prod
                     Array_ETpot = Array_ETpot/100
                     Geo_out = tuple([-180.5, 1, 0, 90.5, 0, -1])
                     dest = DC.Save_as_MEM(Array_ETpot, Geo_out, "WGS84")
-                    data, Geo_out = RC.clip_data(dest, latlim, lonlim)
+                    data, Geo_out, proj = RC.clip_data(dest, latlim, lonlim)
                     DC.Save_as_tiff(Filename_out, data, Geo_out, "WGS84")
                     
                 if Product == "ETact":    

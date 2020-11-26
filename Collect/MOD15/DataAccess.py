@@ -146,7 +146,7 @@ def RetrieveData(Date, args):
             name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
         
             # Clip the data to the users extend
-            data, geo = RC.clip_data(name_reprojected, latlim, lonlim)
+            data, geo, proj = RC.clip_data(name_reprojected, latlim, lonlim)
         
             # Save the file as tiff
             DC.Save_as_tiff(name=FPARfileName, data=data, geo=geo, projection='WGS84')
