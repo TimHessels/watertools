@@ -162,7 +162,6 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, format_in = None, format_out
             Dir_out = Dir_in
 
         # Define output name
-         # Define output name
         if format_out == None:
             output_name = os.path.join(Dir_out, files[int(row)].replace('8-daily', 'monthly'))
             output_name = output_name[:-9] + '%02d.01.tif' %(date.month)

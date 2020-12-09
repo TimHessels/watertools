@@ -11,6 +11,7 @@ import urllib
 import shutil
 import gdal
 import sys
+import socket
 
 # WA+ modules
 import watertools.General.data_conversions as DC
@@ -259,6 +260,7 @@ def Download_Data(nameFile, output_folder_trash):
     url= "http://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF/%s" %(nameFile) 
     
     try:    
+        socket.setdefaulttimeout(300)
         file_name = url.split('/')[-1]
         output_file = os.path.join(output_folder_trash, file_name)
         if sys.version_info[0] == 3:

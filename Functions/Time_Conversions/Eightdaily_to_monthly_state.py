@@ -9,9 +9,10 @@ import os
 import glob
 import pandas as pd
 import gdal
+import datetime
 import calendar
 
-def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out = None):
+def Nearest_Interpolate(Dir_in, Startdate, Enddate, format_in = None, format_out = None, Dir_out = None, AOI = None):
     """
     This functions calculates monthly tiff files based on the 8 daily tiff files. (will calculate the average)
 
@@ -33,22 +34,31 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out = None):
 
     # Change working directory
     os.chdir(Dir_in)
-
+    
     # Find all eight daily files
-    files = glob.glob('*8-daily*.tif')
+    if format_in == None:
+        files = glob.glob('*8-daily*.tif')
+    else:
+        files = glob.glob(format_in.replace(":02d","").format(yyyy= "*", mm = "*", dd = "*"))    
 
     # Create array with filename and keys (DOY and year) of all the 8 daily files
     i = 0
     DOY_Year = np.zeros([len(files),3])
     for File in files:
 
-        # Get the time characteristics from the filename
-        year = File.split('.')[-4][-4:]
-        month = File.split('.')[-3]
-        day = File.split('.')[-2]
+        if format_in == None:
+            # Get the time characteristics from the filename
+            year = File.split('.')[-4][-4:]
+            month = File.split('.')[-3]
+            day = File.split('.')[-2]
+        else:
+            Date = datetime.datetime.strptime(File, format_in.replace("{yyyy}", "%Y").replace("{mm:02d}", "%m").replace("{dd:02d}", "%d"))        
+            year = Date.year
+            month = Date.month
+            day = Date.day
 
         # Create pandas Timestamp
-        date_file = '%s-%02s-%02s' %(year, month, day)
+        date_file = '%d-%02d-%02d' %(year, month, day)
         Datum = pd.Timestamp(date_file)
 
         # Get day of year
@@ -150,8 +160,14 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out = None):
             Dir_out = Dir_in
 
         # Define output name
-        output_name = os.path.join(Dir_out, files[int(row)].replace('8-daily', 'monthly'))
-        output_name = output_name[:-9] + '%02d.01.tif' %(date.month)
+        if format_out == None:
+            output_name = os.path.join(Dir_out, files[int(row)].replace('8-daily', 'monthly'))
+            output_name = output_name[:-9] + '%02d.01.tif' %(date.month)
+        else:
+            output_name = os.path.join(Dir_out, format_out.format(yyyy = date.year,  mm = date.month, dd = 1))       
+
+        if str(type(AOI)) == "<class 'numpy.ndarray'>":
+            Data_one_month = Data_one_month * AOI
 
         # Save tiff file
         DC.Save_as_tiff(output_name, Data_one_month, geo_out, proj)
