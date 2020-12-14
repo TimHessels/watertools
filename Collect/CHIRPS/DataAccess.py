@@ -147,8 +147,13 @@ def RetrieveData(Date, args):
             lf.close()
             
         except:
-            
-            url = os.path.join("https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_daily/tifs/p05/%s/" %Date.strftime('%Y'), filename)
+            if TimeCase == 'daily':
+                url = os.path.join("https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_daily/tifs/p05/%s/" %Date.strftime('%Y'), filename)
+            elif TimeCase == 'monthly':
+                url = os.path.join('https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_monthly/tifs/', filename) 
+            else:
+                raise KeyError("The input time interval is not supported")
+                
             local_filename = os.path.join(output_folder, filename)
             urllib.request.urlretrieve(url, filename=local_filename)
             
