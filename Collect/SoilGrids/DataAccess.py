@@ -86,7 +86,7 @@ def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
                     
             url = "https://maps.isric.org/mapserv?map=/map/%s.map&SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=%s_%scm_mean&FORMAT=image/tiff&SUBSET=long(%f,%f)&SUBSET=lat(%f,%f)&SUBSETTINGCRS=http://www.opengis.net/def/crs/EPSG/0/4326&OUTPUTCRS=http://www.opengis.net/def/crs/EPSG/0/4326"  %(parameter, parameter, level_str, lonlim[0], lonlim[1], latlim[0], latlim[1])      
             #url = "http://85.214.241.121:8080/geoserver/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=%s_M_%s250m&subset=Long(%f,%f)&subset=Lat(%f,%f)" %(dataset, level_name, lonlim[0], lonlim[1], latlim[0], latlim[1])
-            #print(url)
+            print(url)
             urllib.request.urlretrieve(url, filename=nameEnd)
             
             if "conversion" in locals():

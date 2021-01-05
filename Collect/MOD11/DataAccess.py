@@ -169,7 +169,7 @@ def RetrieveData(Date, args):
             if TimeStep == 1:
                 name_collect_time = os.path.join(output_folder, 'Merged_Time.tif')
                 name_reprojected_time = RC.reproject_MODIS(name_collect_time, epsg_to) 
-                data_time, geo = RC.clip_data(name_reprojected_time, latlim, lonlim)
+                data_time, geo, proj = RC.clip_data(name_reprojected_time, latlim, lonlim)
                 data_time[data_time==25.5] = np.nan
                 data_time_ave = np.nanmean(data_time)
                 try:
@@ -188,7 +188,7 @@ def RetrieveData(Date, args):
                 if angle_info == 1:
                     name_collect_angle = os.path.join(output_folder, 'Merged_Obsang.tif')
                     name_reprojected_angle = RC.reproject_MODIS(name_collect_angle, epsg_to) 
-                    data_angle, geo = RC.clip_data(name_reprojected_angle, latlim, lonlim)
+                    data_angle, geo, proj = RC.clip_data(name_reprojected_angle, latlim, lonlim)
                     data_angle[data_angle==25.5] = np.nan
                     OnsangfileName = os.path.join(output_folder, 'Angle_MOD11A1_degrees_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
                     data_angle[data_angle==0.] = -9999
@@ -203,8 +203,9 @@ def RetrieveData(Date, args):
             os.remove(os.path.join(output_folder, name_collect))
             os.remove(os.path.join(output_folder, name_reprojected))
             
-        except:
+        except Exception as e:
             print("Failed for date: %s" %Date)
+            print(e)
             
     return True
 
