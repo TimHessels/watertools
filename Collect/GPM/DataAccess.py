@@ -118,14 +118,15 @@ def RetrieveData(Date, args):
         Scaling = 1
 
     if TimeCase == 'monthly':
-        URL = 'https://gpm1.gesdisc.eosdis.nasa.gov/opendap/GPM_L3/GPM_3IMERGM.06/%d/3B-MO.MS.MRG.3IMERG.%d%02d01-S000000-E235959.%02d.V06B.HDF5?precipitation[0:1:0][%d:1:%d][%d:1:%d]'  %(year, year, month, month, xID[0], xID[1]-1, yID[0], yID[1]-1)
+        URL = 'https://gpm1.gesdisc.eosdis.nasa.gov/opendap/hyrax/GPM_L3/GPM_3IMERGM.06/%d/3B-MO.MS.MRG.3IMERG.%d%02d01-S000000-E235959.%02d.V06B.HDF5?precipitation[0:1:0][%d:1:%d][%d:1:%d]'  %(year, year, month, month, xID[0], xID[1]-1, yID[0], yID[1]-1)
         Scaling = calendar.monthrange(year,month)[1] * 24
         DirFile = os.path.join(output_folder, "P_GPM.IMERG_mm-month-1_monthly_%d.%02d.01.tif" %(year, month))
 
     if not os.path.isfile(DirFile):
-        dataset = requests.get(URL, allow_redirects=False,stream = True)
+        session = requests.Session()
+        dataset = session.get(URL, allow_redirects=False,stream = True)
         try:
-            get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True)
+            get_dataset = session.get(dataset, auth = (username,password),stream = True)
         except:
             from requests.packages.urllib3.exceptions import InsecureRequestWarning
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
