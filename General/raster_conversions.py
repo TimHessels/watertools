@@ -1120,15 +1120,16 @@ def Vector_to_Raster(shapefile_name, filename, Attribute_name):
     x_max = geo[0] + size_X * geo[1]
     y_min = geo[3] + size_Y * geo[5]
     y_max = geo[3]
-    pixel_size = geo[1]
-
+    pixel_size_x = geo[1]
+    pixel_size_y = -geo[5]
+    
     # Open the data source and read in the extent
     source_ds = ogr.Open(shapefile_name)
     source_layer = source_ds.GetLayer()
 
     # Create the destination data source
-    x_res = int(round((x_max - x_min) / pixel_size))
-    y_res = int(round((y_max - y_min) / pixel_size))
+    x_res = int(round((x_max - x_min) / pixel_size_x))
+    y_res = int(round((y_max - y_min) / pixel_size_y))
 
     # Create tiff file
     target_ds = gdal.GetDriverByName('MEM').Create('', x_res, y_res, 1, gdal.GDT_Float32)
