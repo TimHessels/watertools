@@ -196,21 +196,33 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                             # make contact with server
                             x = requests.get(url_MERRA, allow_redirects = False)
                             try:
-                                y = requests.get(x.headers['location'], auth = (username, password))
-                            except:
-                                from requests.packages.urllib3.exceptions import InsecureRequestWarning
-                                requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-                                y = requests.get(x.headers['location'], auth = (username, password), verify = False)
+                                try:
+                                    y = requests.get(x.headers['location'], auth = (username, password))
+                                except:
+                                    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+                                    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+                                    y = requests.get(x.headers['location'], auth = (username, password), verify = False)
     
-                            
-                            # Write the download in the output directory
-                            z = open(file_name, 'wb')
-                            z.write(y.content)
-                            z.close()
-                            statinfo = os.stat(file_name)
-                            # Say that download was succesfull
-                            if int(statinfo.st_size) > 1000:
-                                 downloaded = 1  
+                                
+                                # Write the download in the output directory
+                                z = open(file_name, 'wb')
+                                z.write(y.content)
+                                z.close()
+                                statinfo = os.stat(file_name)
+                                # Say that download was succesfull
+                                if int(statinfo.st_size) > 1000:
+                                     downloaded = 1  
+                            except: 
+                                
+                                # Write the download in the output directory
+                                z = open(file_name, 'wb')
+                                z.write(x.content)
+                                z.close()
+                                statinfo = os.stat(file_name)
+                                # Say that download was succesfull
+                                if int(statinfo.st_size) > 1000:
+                                     downloaded = 1                                                      
+                                    
                         else:
                             downloaded = 1                             
                         
@@ -306,8 +318,8 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                     # Try another time
                     N = N + 1
     
-                    # Stop trying after 10 times
-                    if N == 10:
+                    # Stop trying after 3 times
+                    if N == 4:
                         print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
                         downloaded = 1
     

@@ -589,11 +589,13 @@ def Convert_dict_to_array(River_dict, Array_dict, Reference_data):
     DataCube = np.ones([time_dimension, size_Y, size_X]) * np.nan
 
     for river_part in River_dict.keys():
+        #print("river part %s" %river_part)
         for river_pixel in range(1,len(River_dict[river_part])):
             river_pixel_ID = River_dict[river_part][river_pixel]
             if len(np.argwhere(ID_Matrix == river_pixel_ID))>0:
                 #print(np.argwhere(ID_Matrix == river_pixel_ID))
                 row, col = np.argwhere(ID_Matrix == river_pixel_ID)[0][:]
+                #print(np.max(Array_dict[river_part][:,river_pixel]))
                 DataCube[:,row,col] = Array_dict[river_part][:,river_pixel]
 
     return(DataCube)
