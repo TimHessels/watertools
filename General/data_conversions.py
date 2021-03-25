@@ -571,9 +571,17 @@ def Convert_dict_to_array(River_dict, Array_dict, Reference_data):
     import os
     import watertools.General.raster_conversions as RC
 
-    if os.path.splitext(Reference_data)[-1] == '.nc':
+     
+    if str(type(Reference_data)) == "<class 'osgeo.gdal.Dataset'>":    
+        geo_out = Reference_data.GetGeoTransform()
+        proj = Reference_data.GetProjection()
+        size_Y = Reference_data.RasterYSize
+        size_X = Reference_data.RasterXSize      
+
+    elif os.path.splitext(Reference_data)[-1] == '.nc':
         # Get raster information
         geo_out, proj, size_X, size_Y, size_Z, Time = RC.Open_nc_info(Reference_data)
+ 
     else:
         # Get raster information
         geo_out, proj, size_X, size_Y = RC.Open_array_info(Reference_data)
