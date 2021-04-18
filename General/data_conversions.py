@@ -571,6 +571,7 @@ def Convert_dict_to_array(River_dict, Array_dict, Reference_data):
     import os
     import watertools.General.raster_conversions as RC
 
+     
     if str(type(Reference_data)) == "<class 'osgeo.gdal.Dataset'>":    
         geo_out = Reference_data.GetGeoTransform()
         proj = Reference_data.GetProjection()
