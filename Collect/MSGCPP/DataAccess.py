@@ -61,13 +61,20 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', GMT_Offset 
             statinfo = os.stat(filename_out)
 
             if statinfo.st_size < 3000:
+
+                #url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server/?dataset=msgrt&service=wcs&request=getcoverage&coverage=surface_downwelling_shortwave_flux_in_air&FORMAT=GeoTIFF&CRS=EPSG%%3A4326&&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z"  %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
+                #print("new URL %s" %url)
                 url = r"http://msgcpp-ogc-realtime.knmi.nl/msgrt.cgi??&service=wcs&version=1.0.0&request=getcoverage&coverage=surface_downwelling_shortwave_flux_in_air&FORMAT=GeoTIFF&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
                 urllib.request.urlretrieve(url, filename=filename_out)         
                 statinfo = os.stat(filename_out)
 
             if statinfo.st_size < 300:
                 os.remove(filename_out)
+                
+                # maak hier nep file met nans
+                #0.04310344827586207&RESY=0.04418103448275862
            
+            
         
         if Waitbar == 1:
             amount += 1

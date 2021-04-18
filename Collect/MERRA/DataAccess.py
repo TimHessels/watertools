@@ -153,12 +153,17 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                     number = 3
                 else:
                     number = 4
+                    
+                if Date.month ==9 and Date.year==2020:
+                    number2 = 1
+                else:
+                    number2 = 0
                                
                 if Var == "swgnet":
-                    url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXRAD.5.12.4/%d/%02d/MERRA2_%s00.tavg1_2d_rad_Nx.%d%02d%02d.nc4" %(year, month, number, year, month, day)
+                    url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXRAD.5.12.4/%d/%02d/MERRA2_%s0%s.tavg1_2d_rad_Nx.%d%02d%02d.nc4" %(year, month, number, number2, year, month, day)
                     
                 else:    
-                    url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I1NXASM.5.12.4/%d/%02d/MERRA2_%s00.inst1_2d_asm_Nx.%d%02d%02d.nc4" %(year, month, number, year, month, day)
+                    url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I1NXASM.5.12.4/%d/%02d/MERRA2_%s0%s.inst1_2d_asm_Nx.%d%02d%02d.nc4" %(year, month, number, number2, year, month, day)
             
             if (TimeStep == "three_hourly" or TimeStep == "daily"):                
                 
