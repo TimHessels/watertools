@@ -169,7 +169,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Prod
                     
                 if Product == "ETact":    
                     # Clip dataset
-                    data, Geo_out = RC.clip_data(local_filename, latlim, lonlim)
+                    data, Geo_out, proj = RC.clip_data(local_filename, latlim, lonlim)
                     data[data<-9999] = -9999
                     DC.Save_as_tiff(Filename_out, data, Geo_out, "WGS84")
                     os.remove(local_filename)
