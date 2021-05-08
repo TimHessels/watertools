@@ -37,8 +37,8 @@ def Degrees_to_m2(Reference_data):
 
     except:
         geo_out = Reference_data.GetGeoTransform()
-        size_X = Reference_data.RasterXSize()
-        size_Y = Reference_data.RasterYSize()
+        size_X = Reference_data.RasterXSize
+        size_Y = Reference_data.RasterYSize
 
     # Calculate the difference in latitude and longitude in meters
     dlat, dlon = Calc_dlat_dlon(geo_out, size_X, size_Y)
