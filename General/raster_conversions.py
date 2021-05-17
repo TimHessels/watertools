@@ -15,6 +15,7 @@ import subprocess
 from pyproj import Proj, transform
 import scipy.interpolate
 import fiona
+import requests
 import pycurl
 import shapefile
 
@@ -1230,12 +1231,23 @@ def getWKT_PRJ(epsg_code):
     
     else:
         if sys.version_info[0] == 3:
-            import urllib
-            wkt = urllib.request.urlopen("http://spatialreference.org/ref/epsg/{0}/prettywkt/".format(epsg_code))
-            input_str = wkt.read().decode('utf-8')
-            #replace_slash = input_str.replace("\\", " ") 
-            remove_space = input_str.replace(" ","")     
-            output = remove_space.replace("\n", "")    
+            wkt = requests.get(
+                "http://spatialreference.org/ref/epsg/{0}/prettywkt/"
+                .format(epsg_code))
+            
+            if wkt.status_code == 502:
+                print("http://spatialreference.org is offline, osr is used to get"\
+                         "projection")
+
+                srs = osr.SpatialReference()
+                srs.ImportFromEPSG(int(epsg_code))
+                output = srs.ExportToWkt()
+                
+            else:
+                input_str = wkt.content.decode('utf-8')
+                remove_space = input_str.replace(" ","")     
+                output = remove_space.replace("\n", "")                    
+                        
     
         if sys.version_info[0] == 2:
             import urllib2
