@@ -18,7 +18,7 @@ import watertools.General.data_conversions as DC
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCase):
     """
-    This function downloads CHIRPS daily or monthly data
+    This function downloads CHIRP daily or monthly data
 
     Keyword arguments:
     Dir -- 'C:/file/to/path/'
@@ -29,15 +29,12 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCa
     Waitbar -- 1 (Default) will print a waitbar
     cores -- The number of cores used to run the routine. It can be 'False'
              to avoid using parallel computing routines.
-    TimeCase -- String equal to 'daily' or 'monthly'
+    TimeCase -- String equal to 'daily'
     """
     # Define timestep for the timedates
     if TimeCase == 'daily':
         TimeFreq = 'D'
-        output_folder = os.path.join(Dir, 'Precipitation', 'CHIRPS', 'Daily')
-    elif TimeCase == 'monthly':
-        TimeFreq = 'MS'
-        output_folder = os.path.join(Dir, 'Precipitation', 'CHIRPS', 'Monthly')
+        output_folder = os.path.join(Dir, 'Precipitation', 'CHIRP', 'Daily')
     else:
         raise KeyError("The input time interval is not supported")
 
@@ -108,72 +105,26 @@ def RetrieveData(Date, args):
 
 	# create all the input name (filename) and output (outfilename, filetif, DiFileEnd) names
     if TimeCase == 'daily':
-        filename = 'chirps-v2.0.%s.%02s.%02s.tif.gz' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d'))
-        filename2 = 'chirps-v2.0.%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d'))        
-        outfilename = os.path.join(output_folder,'chirps-v2.0.%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
-        DirFileEnd = os.path.join(output_folder,'P_CHIRPS.v2.0_mm-day-1_daily_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
-    elif TimeCase == 'monthly':
-        filename = 'chirps-v2.0.%s.%02s.tif.gz' %(Date.strftime('%Y'), Date.strftime('%m'))
-        filename2 = 'chirps-v2.0.%s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'))
-        outfilename = os.path.join(output_folder,'chirps-v2.0.%s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m')))
-        DirFileEnd = os.path.join(output_folder,'P_CHIRPS.v2.0_mm-month-1_monthly_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
+        filename = 'chirp.%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d'))
+        DirFileEnd = os.path.join(output_folder,'P_CHIRP.v2.0_mm-day-1_daily_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
     else:
         raise KeyError("The input time interval is not supported")
 
     if not os.path.exists(DirFileEnd):
 
-        try:
-            # open ftp server
-            ftp = FTP("chg-ftpout.geog.ucsb.edu", "", "")
-            ftp.login()
-        
-        	# Define FTP path to directory
-            if TimeCase == 'daily':
-                pathFTP = 'pub/org/chg/products/CHIRPS-2.0/global_daily/tifs/p05/%s/' %Date.strftime('%Y')
-            elif TimeCase == 'monthly':
-                pathFTP = 'pub/org/chg/products/CHIRPS-2.0/global_monthly/tifs/'
-            else:
-                raise KeyError("The input time interval is not supported")
-        
-            # find the document name in this directory
-            ftp.cwd(pathFTP)
-            listing = []
-        
-        	# read all the file names in the directory
-            ftp.retrlines("LIST", listing.append)
-    
-            # download the global rainfall file
-            local_filename = os.path.join(output_folder, filename)
-            lf = open(local_filename, "wb")
-            ftp.retrbinary("RETR " + filename, lf.write, 8192)
-            lf.close()
+        if TimeCase == 'daily':
+            url = os.path.join("https://data.chc.ucsb.edu/products/CHIRP/daily/%s/" %Date.strftime('%Y'), filename)
+        else:
+            raise KeyError("The input time interval is not supported")
             
-        except:
-            if TimeCase == 'daily':
-                url = os.path.join("https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_daily/tifs/p05/%s/" %Date.strftime('%Y'), filename)
-            elif TimeCase == 'monthly':
-                url = os.path.join('https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_monthly/tifs/', filename) 
-            else:
-                raise KeyError("The input time interval is not supported")
-            
-            try:
-                local_filename = os.path.join(output_folder, filename)
-                urllib.request.urlretrieve(url, filename=local_filename)
-                no_extract = 0                
-            except:
-                local_filename = os.path.join(output_folder, filename2)
-                urllib.request.urlretrieve(url, filename=local_filename)
-                no_extract = 1
-            
+        local_filename = os.path.join(output_folder, filename)
+        urllib.request.urlretrieve(url, filename=local_filename)
+        
+        
         try:
     
-            if no_extract == 0:  
-                # unzip the file
-                zip_filename = os.path.join(output_folder, filename)
-                DC.Extract_Data_gz(zip_filename, outfilename)
-     
             # open tiff file
-            dataset = RC.Open_tiff_array(outfilename)
+            dataset = RC.Open_tiff_array(os.path.join(output_folder, filename))
     
             # clip dataset to the given extent
             data = dataset[yID[0]:yID[1], xID[0]:xID[1]]
@@ -184,7 +135,7 @@ def RetrieveData(Date, args):
             DC.Save_as_tiff(name=DirFileEnd, data=data, geo=geo, projection="WGS84")
     
             # delete old tif file
-            os.remove(outfilename)
+            os.remove(os.path.join(output_folder, filename))
     
         except:
             print("file not exists")
