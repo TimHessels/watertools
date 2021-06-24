@@ -5,7 +5,7 @@ Created on Tue Jul  7 12:29:05 2020
 @author: timhe
 """
 import os
-import gdal
+from osgeo import gdal
 import glob
 import numpy as np
 import matplotlib.pyplot as plt

@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import os
 import urllib
-import gdal
+from osgeo import gdal
 
 #S2_tile = "10SGE"
 #output_folder = "F:\Project_Jain\Case_California\Input_Data\L30"

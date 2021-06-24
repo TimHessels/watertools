@@ -6,10 +6,10 @@ Module: Products/SoilGrids
 
 # import general python modules
 import os
-import gdal
+from osgeo import gdal
 import numpy as np
 
-# import WA+ modules
+# import watertools modules
 from watertools.General import data_conversions as DC
 from watertools.General import raster_conversions as RC
 

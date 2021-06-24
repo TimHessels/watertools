@@ -8,7 +8,7 @@ Module: Products/ETref
 import os
 import numpy as np
 
-# import WA+ modules
+# import watertools modules
 from watertools.General import data_conversions as DC
 from watertools.General import raster_conversions as RC
 from watertools.Products.ETref.SlopeInfluence_ETref import SlopeInfluence

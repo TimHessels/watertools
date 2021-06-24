@@ -8,7 +8,7 @@ Module: Collect/MOD16
 import os
 import numpy as np
 import pandas as pd
-import gdal
+from osgeo import gdal
 import urllib
 import re
 import glob

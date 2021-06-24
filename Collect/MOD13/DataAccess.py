@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 """
 Authors: Tim Hessels
 Module: Collect/MOD13
@@ -9,7 +8,7 @@ Module: Collect/MOD13
 import os
 import numpy as np
 import pandas as pd
-import gdal
+from osgeo import gdal
 import urllib
 from bs4 import BeautifulSoup
 import re

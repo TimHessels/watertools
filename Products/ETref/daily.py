@@ -7,7 +7,7 @@ Module: Products/ETref
 import sys
 import numpy as np
 
-# import WA+ modules
+# import watertools modules
 from watertools.Products.ETref.CollectDataETref import CollectData
 from watertools.Products.ETref.CollectLANDSAFETref import CollectLANDSAF
 from watertools.Products.ETref.SetVarETref import SetVariables

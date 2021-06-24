@@ -6,7 +6,7 @@ Module: Products/ETref
 
 # import general python modules
 import os
-import gdal
+from osgeo import gdal
 import numpy as np
 import pandas as pd
 import subprocess
@@ -14,7 +14,7 @@ import osr
 import netCDF4
 import glob
 
-# import WA+ modules
+# import watertools modules
 from watertools.General import data_conversions as DC
 from watertools.General import raster_conversions as RC
 from watertools.Products.ETref.SlopeInfluence_ETref import SlopeInfluence

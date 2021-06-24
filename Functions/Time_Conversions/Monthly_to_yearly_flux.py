@@ -8,7 +8,7 @@ import numpy as np
 import os
 import glob
 import pandas as pd
-import gdal
+from osgeo import gdal
 
 def Nearest_Interpolate(Dir_in, Startdate, Enddate, format_in = None, format_out = None, Dir_out = None, AOI = None):
     """

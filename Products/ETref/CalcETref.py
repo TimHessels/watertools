@@ -4,10 +4,10 @@ Authors: Tim Hessels
 Module: Products/ETref
 '''
 # import general python modules
-import gdal
+from osgeo import gdal
 import numpy as np
 
-# import WA+ modules
+# import watertools modules
 from watertools.Products.ETref.Interpolate_Meteo_ETref import process_GLDAS, lapse_rate, adjust_P, slope_correct
 import watertools.General.raster_conversions as RC
 

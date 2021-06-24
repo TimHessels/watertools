@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import glob
 import os
-import gdal
+from osgeo import gdal
 
 import watertools.General.raster_conversions as RC
 

@@ -4,7 +4,7 @@ Authors: Tim Hessels
 Module: Products/ETref
 '''
 
-# import WA+ modules
+# import watertools modules
 from watertools.Collect import DEM
 from watertools.Collect import CFSR
 from watertools.Collect import GLDAS

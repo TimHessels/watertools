@@ -9,7 +9,7 @@ import numpy as np
 import os
 import urllib
 import shutil
-import gdal
+from osgeo import gdal
 import glob
 import sys
 

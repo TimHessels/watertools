@@ -8,7 +8,7 @@ import numpy as np
 import os
 import glob
 import pandas as pd
-import gdal
+from osgeo import gdal
 import datetime
 import calendar
 

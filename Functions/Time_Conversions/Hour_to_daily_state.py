@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jul 23 13:31:45 2020
-
-@author: timhe
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Thu Jul 23 13:24:54 2020
 
 @author: timhe
@@ -17,7 +10,7 @@ import numpy as np
 import os
 import glob
 import pandas as pd
-import gdal
+from osgeo import gdal
 
 def Nearest_Interpolate(Dir_in, Startdate, Enddate, Dir_out=None):
     """

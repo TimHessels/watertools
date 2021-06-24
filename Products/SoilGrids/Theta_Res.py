@@ -8,7 +8,7 @@ Module: Products/SoilGrids
 import os
 import numpy as np
 
-# import WA+ modules
+# import watertools modules
 from watertools.General import data_conversions as DC
 from watertools.General import raster_conversions as RC
 
@@ -17,7 +17,7 @@ def Topsoil(Dir, latlim, lonlim):
     This function calculates the topsoil Theta residual soil characteristic (15cm)
 
     Keyword arguments:
-    Dir -- 'C:/' path to the WA map
+    Dir -- 'C:/' path to the map
     Startdate -- 'yyyy-mm-dd'
     Enddate -- 'yyyy-mm-dd'
     """

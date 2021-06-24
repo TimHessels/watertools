@@ -7,7 +7,7 @@ Created on Sun Dec 18 13:07:32 2016
 import gzip
 import zipfile
 import tarfile
-import gdal
+from osgeo import gdal
 import osr
 import os
 import pandas as pd

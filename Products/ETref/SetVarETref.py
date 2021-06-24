@@ -8,7 +8,7 @@ import os
 import pandas as pd
 from joblib import Parallel, delayed
 
-# import WA+ modules
+# import watertools modules
 from watertools.General import raster_conversions as RC
 from watertools.General import data_conversions as DC
 from watertools.Products.ETref.CalcETref import calc_ETref

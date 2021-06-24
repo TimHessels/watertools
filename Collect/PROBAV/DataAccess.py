@@ -22,7 +22,7 @@ import pandas as pd
 import requests
 from requests.auth import HTTPBasicAuth
 import shutil
-import gdal
+from osgeo import gdal
 import re
 from bs4 import BeautifulSoup
 

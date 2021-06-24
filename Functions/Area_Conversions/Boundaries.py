@@ -7,7 +7,7 @@ Created on Thu Jan 19 09:22:07 2017
 
 import numpy as np
 import shapefile
-import gdal
+from osgeo import gdal
 import os
 
 def Determine(Basin, Home_folder):

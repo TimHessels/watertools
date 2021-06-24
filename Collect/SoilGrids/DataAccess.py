@@ -9,7 +9,7 @@ import os
 from ftplib import FTP
 import urllib
 import numpy as np
-import gdal
+from osgeo import gdal
 import time
 
 import watertools.General.data_conversions as DC

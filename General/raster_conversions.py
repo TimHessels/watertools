@@ -6,7 +6,7 @@ Created on Fri Dec 16 19:04:22 2016
 """
 import pandas as pd
 import glob
-import gdal
+from osgeo import gdal
 import osr
 import os
 import sys
@@ -1102,8 +1102,6 @@ def Vector_to_Raster(shapefile_name, filename, Attribute_name):
     reference_raster_data_name -- destination file as example file
 
     """
-    from osgeo import gdal, ogr
-
     try:
         if filename.split('.')[-1] == 'tif':
             dest_ex = gdal.Open(r"%s" %filename)

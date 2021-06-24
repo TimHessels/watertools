@@ -9,9 +9,9 @@ import pandas as pd
 import numpy as np
 import calendar
 import os
-import gdal
+from osgeo import gdal
 
-# import WA+ modules
+# import watertools modules
 from watertools.General import raster_conversions as RC
 from watertools.General import data_conversions as DC
 from watertools.Products.ETref import daily
