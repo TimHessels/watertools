@@ -137,12 +137,13 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, format_in = None, format_out
 
             # Open the array of current file
             input_name = os.path.join(Dir_in, files[int(row)])
+            #print(input_name)
             Data = RC.Open_tiff_array(input_name)
 
             # Remove NDV
             Weight[np.logical_or(Data == NDV, np.isnan(Data))] = 0
             Data[Data == NDV] = np.nan
-
+            #print(Data[4115, 2352])
             # Multiply weight time data
             Data = Data * Weight
 

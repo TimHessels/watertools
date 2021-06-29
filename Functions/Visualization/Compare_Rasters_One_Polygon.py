@@ -70,7 +70,7 @@ def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop =
     MASK[MASK==Shp_value] = 1
 
     for Date in Dates:
-
+        print(Date)
         Day = Date.day
         Month = Date.month
         Year = Date.year
@@ -94,7 +94,8 @@ def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop =
                     Value = np.nanmean(Array[MASK==1])
                 if Stats == "std":
                     Value = np.nanstd(Array[MASK==1])   
-                
+                if Stats == "max":
+                    Value = np.nanmax(Array[MASK==1])                   
             except:
                 dest = RC.reproject_dataset_example(mask_tiff, filename)
            
@@ -105,7 +106,8 @@ def Get_Dataset_Polygon(input_folder, input_format, Dates, input_shp, Shp_prop =
                     Value = np.nanmean(Array[MASK==1])
                 if Stats == "std":
                     Value = np.nanstd(Array[MASK==1])                
-                
+                if Stats == "max":
+                    Value = np.nanmax(Array[MASK==1])                  
                 
             Dataset[i,1] = Value
         i += 1
