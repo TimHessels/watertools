@@ -140,8 +140,10 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, format_in = None, format_out
 
             # Remove NDV
             Weight[Data == NDV] = 0
+            Weight[np.isnan(Data)] = 0            
             Data[Data == NDV] = np.nan
-
+            Data[np.isnan(Data)] = np.nan
+            
             # Multiply weight time data
             Data = Data * Weight
 
