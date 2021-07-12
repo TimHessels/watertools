@@ -6,8 +6,7 @@ Created on Fri Dec 16 19:04:22 2016
 """
 import pandas as pd
 import glob
-from osgeo import gdal, ogr
-import osr
+from osgeo import gdal, ogr, osr
 import os
 import sys
 import numpy as np

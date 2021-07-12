@@ -7,8 +7,7 @@ Created on Sun Dec 18 13:07:32 2016
 import gzip
 import zipfile
 import tarfile
-from osgeo import gdal
-import osr
+from osgeo import gdal, osr
 import os
 import pandas as pd
 import numpy as np
@@ -346,7 +345,7 @@ def Save_as_NC(namenc, DataCube, Var, Reference_filename,  Startdate = '', Endda
         nco.createDimension('latitude', size_Y)
 
         # Create time dimension if the parameter is time dependent
-        if Startdate is not '':
+        if Startdate != '':
             if Time_steps == 'monthly':
                 Dates = pd.date_range(Startdate,Enddate,freq = 'MS')
             if Time_steps == 'daily':
@@ -384,7 +383,7 @@ def Save_as_NC(namenc, DataCube, Var, Reference_filename,  Startdate = '', Endda
         crso.geo_reference = geo_out
 
         # Create the data variable
-        if Startdate is not '':
+        if Startdate != '':
             preco = nco.createVariable('%s' %Var, 'f8',  ('time', 'latitude', 'longitude'), zlib=True, least_significant_digit=1)
             timeo[:]=time_or
         else:
@@ -401,7 +400,7 @@ def Save_as_NC(namenc, DataCube, Var, Reference_filename,  Startdate = '', Endda
         lato[:] = lat
 
         # Set the data variable
-        if Startdate is not '':
+        if Startdate != '':
             for i in range(len(Dates)):
                 preco[i,:,:] = DataCube[i,:,:]*1./np.float(Scaling_factor)
         else:

@@ -8,8 +8,7 @@ import numpy as np
 import pandas as pd
 import glob
 import os
-from osgeo import gdal
-import osr
+from osgeo import gdal, osr
 from pyproj import Proj, transform
 
 #input_folders = [r"G:\SEBAL_Tadla\Daily_SEBAL\Dataset_out\PreSEBAL_SEBAL_out\NDVI",r"G:\SEBAL_Tadla\Daily_SEBAL\Dataset_out\NDVI_daily",""]

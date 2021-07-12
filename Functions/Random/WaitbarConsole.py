@@ -19,7 +19,6 @@ def printWaitBar(i, total, prefix = '', suffix = '', decimals = 1, length = 100,
     fill -- bar fill
     """
     import sys
-    import os
 
     # total can never be zero because we divide by total
     if total == 0:
