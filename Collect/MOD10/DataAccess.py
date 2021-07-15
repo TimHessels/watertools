@@ -29,7 +29,7 @@ import watertools
 import watertools.General.raster_conversions as RC
 import watertools.General.data_conversions as DC
 
-def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_library, remove_hdf):
+def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_library, remove_hdf, period = "8-daily"):
     """
     This function downloads MOD10 8-daily data
 
@@ -53,8 +53,11 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_li
 
 
     # Make an array of the days of which the FPAR is taken
-    Dates = Make_TimeStamps(Startdate,Enddate)
-
+    if period == "8-daily":
+        Dates = Make_TimeStamps(Startdate,Enddate)
+    if period == "daily":
+        Dates = pd.date_range(Startdate,Enddate,freq="D")
+        
     # Create Waitbar
     if Waitbar == 1:
         import watertools.Functions.Random.WaitbarConsole as WaitbarConsole
@@ -74,7 +77,11 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_li
 
     # Make directory for the MODIS FPAR data
     Dir = Dir.replace("/", os.sep)
-    output_folder = os.path.join(Dir, 'MOD10')
+    if period == "8-daily":
+        output_folder = os.path.join(Dir, 'MOD10')
+    if period == "daily":    
+        output_folder = os.path.join(Dir, 'MOD10', 'Daily')    
+
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -82,7 +89,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_li
     TilesVertical, TilesHorizontal = watertools.Collect.MOD15.DataAccess.Get_tiles_from_txt(output_folder, hdf_library, latlim, lonlim)
 
     # Pass variables to parallel function and run
-    args = [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, hdf_library]
+    args = [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, hdf_library, period]
     if not cores:
         for Date in Dates:
             RetrieveData(Date, args)
@@ -117,15 +124,18 @@ def RetrieveData(Date, args):
     args -- A list of parameters defined in the DownloadData function.
     """
     # Argument
-    [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, hdf_library] = args
-
-    FPARfileName = os.path.join(output_folder, 'SnowFrac_MOD10_-_8-daily_'  + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
+    [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, hdf_library, period] = args
+    
+    if period == "8-daily":
+        FPARfileName = os.path.join(output_folder, 'SnowFrac_MOD10_-_8-daily_'  + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
+    if period == "daily":
+        FPARfileName = os.path.join(output_folder, 'SnowFrac_MOD10_-_daily_'  + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
  
     if not os.path.exists(FPARfileName):
 
         # Collect the data from the MODIS webpage and returns the data and lat and long in meters of those tiles
         try:
-            Collect_data(TilesHorizontal, TilesVertical, Date, output_folder, hdf_library)
+            Collect_data(TilesHorizontal, TilesVertical, Date, output_folder, hdf_library, period)
         except:
             print("Was not able to download the file")
         try:
@@ -208,7 +218,7 @@ def Make_TimeStamps(Startdate,Enddate):
     return(Dates)
 
 
-def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
+def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library, period):
     '''
     This function downloads all the needed MODIS tiles from https://n5eil01u.ecs.nsidc.org/MOST/MOD10A2.006/ as a hdf file.
 
@@ -228,8 +238,11 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
     username, password = watertools.Functions.Random.Get_Username_PWD.GET('NASA')
 
     # Download the MODIS FPAR data
-    url = 'https://n5eil01u.ecs.nsidc.org/MOST/MOD10A2.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
-
+    if period == "8-daily":
+        url = 'https://n5eil01u.ecs.nsidc.org/MOST/MOD10A2.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+    if period == "daily":
+        url = 'https://n5eil01u.ecs.nsidc.org/MOST/MOD10A1.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+        
     dataset = requests.get(url, allow_redirects=False,stream = True)
     try:
         get_dataset = requests.get(dataset.headers['location'], auth = (username,password),stream = True).content
@@ -317,6 +330,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                         for n in sdslist:
                             sds.append(gdal.Open(n))
                             full_layer = [i for i in sdslist if 'MOD_Grid_Snow_500m' in i]
+
                             idx = sdslist.index(full_layer[0])
                             if Horizontal == TilesHorizontal[0] and Vertical == TilesVertical[0]:
                                 geo_t = sds[idx].GetGeoTransform()

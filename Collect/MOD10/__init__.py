@@ -16,7 +16,8 @@ MOD10.SnowMask_8daily(Dir='C:/Temp4/',Startdate='2003-12-01',Enddate='2003-12-20
 """
 
 from .SnowMask_8daily import main as SnowMask_8daily
+from .SnowMask_daily import main as SnowMask_daily
 
-__all__ = ['SnowMask_8daily']
+__all__ = ['SnowMask_8daily', 'SnowMask_daily']
 
 __version__ = '0.1'
