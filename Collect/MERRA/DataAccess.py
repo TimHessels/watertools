@@ -161,7 +161,8 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                                
                 if Var == "swgnet":
                     url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXRAD.5.12.4/%d/%02d/MERRA2_%s0%s.tavg1_2d_rad_Nx.%d%02d%02d.nc4" %(year, month, number, number2, year, month, day)
-                    
+                if Var == "prectotcorr":
+                    url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXFLX.5.12.4/%d/%02d/MERRA2_%s0%s.tavg1_2d_flx_Nx.%d%02d%02d.nc4" %(year, month, number, number2, year, month, day)   
                 else:    
                     url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I1NXASM.5.12.4/%d/%02d/MERRA2_%s0%s.inst1_2d_asm_Nx.%d%02d%02d.nc4" %(year, month, number, number2, year, month, day)
             
@@ -344,7 +345,8 @@ def Get_NC_data_end(file_name,Var, TimeStep, Period, IDy, IDx, VarInfo):
          'tpw': 'TQV',
          'ps': 'PS',
          'slp': 'SLP',
-         'swgnet': 'SWGDN'}  
+         'swgnet': 'SWGDN',
+         'prectotcorr': 'PRECTOTCORR'}  
       
     types  = VarInfo.types[Var]
     if TimeStep == "hourly_MERRA2":
@@ -376,7 +378,8 @@ class VariablesInfo:
              'tpw': 'Total_Precipitable_Water_Vapor',
              'ps': 'Surface_Pressure',
              'slp': 'Sea_Level_Pressure',
-             'swgnet': 'Surface_Net_Downward_Shortwave_Flux'
+             'swgnet': 'Surface_Net_Downward_Shortwave_Flux',
+             'prectotcorr': 'Total_Precipitation_Corrected'
              }
     
     descriptions = {'t2m': '2m Air Temperature',
@@ -386,7 +389,8 @@ class VariablesInfo:
              'tpw': 'Total Precipitable Water Vapor',
              'ps': 'Surface Pressure',
              'slp': 'Sea Level Pressure',
-             'swgnet': 'Surface Net Downward Shortwave Flux'
+             'swgnet': 'Surface Net Downward Shortwave Flux',
+             'prectotcorr': 'Total Precipitation Corrected'             
              }
     
     factors = {'t2m': 1,
@@ -396,8 +400,8 @@ class VariablesInfo:
              'tpw': 1,
              'ps': 0.001,
              'slp':  0.001,
-             'swgnet':  1
-             }
+             'swgnet':  1,
+             'prectotcorr':  86400 }
     
     types = {'t2m': 'state',
              'u2m': 'state',
@@ -406,7 +410,8 @@ class VariablesInfo:
              'tpw': 'state',
              'ps': 'state',
              'slp': 'state',
-             'swgnet': 'state'
+             'swgnet': 'state',
+             'prectotcorr': 'flux'
              }
 
     def __init__(self, step):
@@ -418,7 +423,8 @@ class VariablesInfo:
              'tpw': 'mm',
              'ps': 'kpa',
              'slp': 'kpa',
-             'swgnet': 'W-m-2'
+             'swgnet': 'W-m-2',
+             'prectotcorr': 'mm'
              }
             
         elif step == 'hourly_MERRA2':
@@ -429,7 +435,8 @@ class VariablesInfo:
              'tpw': 'mm',
              'ps': 'kpa',
              'slp': 'kpa',
-             'swgnet': 'W-m-2'
+             'swgnet': 'W-m-2',
+             'prectotcorr': 'mm'
              }    
             
         elif (step == 'daily' or step == 'daily_MERRA2'):
@@ -440,7 +447,8 @@ class VariablesInfo:
              'tpw': 'mm',
              'ps': 'kpa',
              'slp': 'kpa',
-             'swgnet': 'W-m-2'
+             'swgnet': 'W-m-2',
+             'prectotcorr': 'mm'
              }
             
         elif step == 'yearly':
@@ -451,7 +459,8 @@ class VariablesInfo:
              'tpw': 'mm',
              'ps': 'kpa',
              'slp': 'kpa',
-             'swgnet': 'W-m-2'
+             'swgnet': 'W-m-2',
+             'prectotcorr': 'mm'
              }
         else:
             raise KeyError("The input time step is not supported")
