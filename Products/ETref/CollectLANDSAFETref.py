@@ -6,11 +6,10 @@ Module: Products/ETref
 
 # import general python modules
 import os
-from osgeo import gdal
+from osgeo import gdal, osr
 import numpy as np
 import pandas as pd
 import subprocess
-import osr
 import netCDF4
 import glob
 
