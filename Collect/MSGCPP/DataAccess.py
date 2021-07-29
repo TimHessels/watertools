@@ -5,12 +5,15 @@ author: Tim Martijn Hessels
 Created on Tue Feb 19 07:10:44 2019
 """
 import os
-import urllib
+import requests
 import datetime
 import pandas as pd
 import numpy as np
+from netCDF4 import Dataset
 
-def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', GMT_Offset = 0, Waitbar = 1):
+import watertools.General.data_conversions as DC
+
+def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', GMT_Offset = 0, Waitbar = 1, Type = "SDS"):
     
     # Check the latitude and longitude and otherwise set lat or lon on greatest extent
     if latlim[0] < -90 or latlim[1] > 90:
@@ -22,7 +25,8 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', GMT_Offset 
         lonlim[0] = np.max(lonlim[0], -180)
         lonlim[1] = np.min(lonlim[1], 180)
     
-    output_folder = os.path.join(Dir, "MSGCPP", "SDS", "15min")
+    
+    output_folder = os.path.join(Dir, "MSGCPP", Type, "15min")
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     
@@ -50,31 +54,84 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', GMT_Offset 
             Hour = int(Time.split(':')[0])
             Minute = int(Time.split(':')[1])        
             Date = datetime.datetime(Date.year, Date.month, Date.day, Hour, Minute)
-        
-        filename_out = os.path.join(output_folder, "SDS_MSGCPP_W-m-2_15min_%d.%02d.%02d_H%02d.M%02d.tif" %(Date.year, Date.month, Date.day, Date.hour, Date.minute))
+            
+        if Type == 'SDS':
+            filename_out = os.path.join(output_folder, "SDS_MSGCPP_W-m-2_15min_%d.%02d.%02d_H%02d.M%02d.tif" %(Date.year, Date.month, Date.day, Date.hour, Date.minute))
+            filename_out_nc = os.path.join(output_folder, "SDS_MSGCPP_W-m-2_15min_%d.%02d.%02d_H%02d.M%02d.nc" %(Date.year, Date.month, Date.day, Date.hour, Date.minute))
+            parameter = 'sds'
+            
+        if Type == 'lwe_precipitation_rate':
+            filename_out = os.path.join(output_folder, "Precipitation_MSGCPP_mm-h-1_15min_%d.%02d.%02d_H%02d.M%02d.tif" %(Date.year, Date.month, Date.day, Date.hour, Date.minute))
+            filename_out_nc = os.path.join(output_folder, "Precipitation_MSGCPP_mm-h-1_15min_%d.%02d.%02d_H%02d.M%02d.nc" %(Date.year, Date.month, Date.day, Date.hour, Date.minute))
+            parameter = 'precip'
+            
+        if Type == 'lwe_precipitation_rate_ir':
+            filename_out = os.path.join(output_folder, "PrecipitationIR_MSGCPP_mm-h-1_15min_%d.%02d.%02d_H%02d.M%02d.tif" %(Date.year, Date.month, Date.day, Date.hour, Date.minute))
+            filename_out_nc = os.path.join(output_folder, "PrecipitationIR_MSGCPP_mm-h-1_15min_%d.%02d.%02d_H%02d.M%02d.nc" %(Date.year, Date.month, Date.day, Date.hour, Date.minute))
+            parameter = 'lwe_precipitation_rate_ir'
 
         if not os.path.exists(filename_out):
         
             # define url
-            url = r"http://msgcpp-ogc-archive.knmi.nl/msgar.cgi?&service=wcs&version=1.0.0&request=getcoverage&coverage=surface_downwelling_shortwave_flux_in_air&FORMAT=GeoTIFF&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
-            urllib.request.urlretrieve(url, filename=filename_out)
-            statinfo = os.stat(filename_out)
+            if Type == 'SDS':
+                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server/?dataset=msgrt&service=wcs&request=getcoverage&coverage=surface_downwelling_shortwave_flux_in_air&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
+            if Type == 'lwe_precipitation_rate':
+                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server/?dataset=msgrt&service=wcs&request=getcoverage&coverage=lwe_precipitation_rate&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
+            if Type == 'lwe_precipitation_rate_ir':
+                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server/?dataset=msgrt&service=wcs&request=getcoverage&coverage=lwe_precipitation_rate_ir&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
 
-            if statinfo.st_size < 3000:
-
-                #url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server/?dataset=msgrt&service=wcs&request=getcoverage&coverage=surface_downwelling_shortwave_flux_in_air&FORMAT=GeoTIFF&CRS=EPSG%%3A4326&&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z"  %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
-                #print("new URL %s" %url)
-                url = r"http://msgcpp-ogc-realtime.knmi.nl/msgrt.cgi??&service=wcs&version=1.0.0&request=getcoverage&coverage=surface_downwelling_shortwave_flux_in_air&FORMAT=GeoTIFF&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
-                urllib.request.urlretrieve(url, filename=filename_out)         
-                statinfo = os.stat(filename_out)
+            print(url)
+            success = 0
+            attempts = 0
+            while success == 0 and attempts<4:
+                try:
+                    request = requests.get(url, timeout=10, stream=True)
+                    with open(filename_out_nc, 'wb') as fh:
+                        # Walk through the request response in chunks of 1024 * 1024 bytes, so 1MiB
+                        for chunk in request.iter_content(1024 * 1024):
+                            # Write the chunk to the file
+                            fh.write(chunk)
+                            # Optionally we can check here if the download is taking too long                    
+                    #urllib.request.urlretrieve(url, filename=)
+                    statinfo = os.stat(filename_out_nc)
+                    if statinfo.st_size > 300:
+                        success = 1
+                        
+                    else:
+                        attempts +=1
+                        
+                        
+                except Exception as e:
+                    print("ERROR: %s" %e)     
+                    attempts +=1
 
             if statinfo.st_size < 300:
-                os.remove(filename_out)
+                os.remove(filename_out_nc)
                 
                 # maak hier nep file met nans
                 #0.04310344827586207&RESY=0.04418103448275862
-           
-            
+            else:
+                
+                fh = Dataset(filename_out_nc)
+                Array = np.array(fh[parameter][:,:].data.squeeze())
+                Array[Array<0] = np.nan
+                x = fh["x"][:]               
+                y = fh["y"][:]            
+                x_size = (np.nanmax(x) - np.nanmin(x))/(len(x)-1)
+                y_size = (np.nanmax(y) - np.nanmin(y))/(len(y)-1)
+                lon_start = np.nanmin(x) - x_size/2
+                lat_start = np.nanmax(y) + y_size/2
+                proj = 4326
+                geo = tuple([lon_start, x_size, 0, lat_start, 0, -y_size])
+                
+                DC.Save_as_tiff(filename_out, Array, geo, proj)
+                
+                try:
+                    fh.close()
+                    os.remove(filename_out_nc)
+                except Exception as e:
+                    print("ERROR removing %s" %filename_out_nc)
+                    print("MESSAGE: %s" %e)               
         
         if Waitbar == 1:
             amount += 1
