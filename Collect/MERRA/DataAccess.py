@@ -405,7 +405,7 @@ class VariablesInfo:
              'slp':  0.001,
              'swgnet':  1,
              'swgdn':  1,
-             'prectotcorr':  86400 }
+             'prectotcorr':  86400}
     
     types = {'t2m': 'state',
              'u2m': 'state',
