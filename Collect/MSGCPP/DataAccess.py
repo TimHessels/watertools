@@ -68,7 +68,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', GMT_Offset 
         if Type == 'lwe_precipitation_rate_ir':
             filename_out = os.path.join(output_folder, "PrecipitationIR_MSGCPP_mm-h-1_15min_%d.%02d.%02d_H%02d.M%02d.tif" %(Date.year, Date.month, Date.day, Date.hour, Date.minute))
             filename_out_nc = os.path.join(output_folder, "PrecipitationIR_MSGCPP_mm-h-1_15min_%d.%02d.%02d_H%02d.M%02d.nc" %(Date.year, Date.month, Date.day, Date.hour, Date.minute))
-            parameter = 'lwe_precipitation_rate_ir'
+            parameter = 'precip_ir'
 
         if not os.path.exists(filename_out):
         
