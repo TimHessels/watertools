@@ -6,7 +6,7 @@ Module: Collect/CHIRPS
 
 # import general python modules
 import os
-import urllib
+import requests
 import numpy as np
 import pandas as pd
 from ftplib import FTP
@@ -158,11 +158,24 @@ def RetrieveData(Date, args):
             
             try:
                 local_filename = os.path.join(output_folder, filename)
-                urllib.request.urlretrieve(url, filename=local_filename)
+                session = requests.Session()
+                with session.get(url, stream=True) as r:
+                    r.raise_for_status()
+                    with open(local_filename, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size=1024 * 1024):
+                            if chunk:  # filter out keep-alive new chunks
+                                f.write(chunk)
+               
                 no_extract = 0                
             except:
                 local_filename = os.path.join(output_folder, filename2)
-                urllib.request.urlretrieve(url, filename=local_filename)
+                session = requests.Session()
+                with session.get(url, stream=True) as r:
+                    r.raise_for_status()
+                    with open(local_filename, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size=1024 * 1024):
+                            if chunk:  # filter out keep-alive new chunks
+                                f.write(chunk)
                 no_extract = 1
             
         try:
