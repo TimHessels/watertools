@@ -91,7 +91,7 @@ def RetrieveData(args):
     if len(Names_to_download) == 1:
         trash_folder = os.path.join(output_folder, "Trash")
         data_in = os.path.join(trash_folder, Names_to_download[0])
-        data_end, geo_end = RC.clip_data(data_in, latlim, lonlim)
+        data_end, geo_end, Proj_out = RC.clip_data(data_in, latlim, lonlim)
     else:
 
         data_end = np.zeros([int((latlim[1] - latlim[0])/0.00025), int((lonlim[1] - lonlim[0])/0.00025)])
@@ -107,7 +107,7 @@ def RetrieveData(args):
 
             lonmerge = [lon_min_merge, lon_max_merge]
             latmerge = [lat_min_merge, lat_max_merge]
-            data_one, geo_one = RC.clip_data(data_in, latmerge, lonmerge)
+            data_one, geo_one, proj_one = RC.clip_data(data_in, latmerge, lonmerge)
 
             Ystart = int((geo_one[3] - latlim[1])/geo_one[5])
             Yend = int(Ystart + np.shape(data_one)[0])
@@ -155,7 +155,7 @@ def Tiles_to_download(lonlim, latlim):
             else:
                 string_lat = "%sN" %lat_step
 
-            Name_to_download = "occurrence_%s_%s.tif" %(string_long, string_lat)
+            Name_to_download = "occurrence_%s_%sv1_3_2020.tif" %(string_long, string_lat)
             Names_to_download = np.append(Name_to_download, Names_to_download)
 
     return(Names_to_download)
@@ -185,7 +185,7 @@ def Collect_data(Names_to_download, output_folder):
            times = 0
            size = 0
            while times < 10 and size < 10000:
-               url = "http://storage.googleapis.com/global-surface-water/downloads/occurrence/" + Name_to_download
+               url = "http://storage.googleapis.com/global-surface-water/downloads2020/occurrence/" + Name_to_download
                if sys.version_info[0] == 3:
                    code = urllib.request.urlopen(url).getcode()                   
                if sys.version_info[0] == 2:                   

@@ -48,9 +48,9 @@ def Nearest_Interpolate(Dir_in, Startdate, Enddate, format_in = None, format_out
 
         if format_in == None:
             # Get the time characteristics from the filename
-            year = File.split('.')[-4][-4:]
-            month = File.split('.')[-3]
-            day = File.split('.')[-2]
+            year = int(File.split('.')[-4][-4:])
+            month = int(File.split('.')[-3])
+            day = int(File.split('.')[-2])
         else:
             Date = datetime.datetime.strptime(File, format_in.replace("{yyyy}", "%Y").replace("{mm:02d}", "%m").replace("{dd:02d}", "%d"))        
             year = Date.year

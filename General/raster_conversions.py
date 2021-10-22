@@ -904,9 +904,9 @@ def Get_epsg(g, extension = 'tiff'):
     try:
         if extension == 'tiff':
             # Get info of the dataset that is used for transforming
-            try:
+            if str(type(g)) != "<class 'osgeo.gdal.Dataset'>":
                 dest = gdal.Open(g)
-            except:
+            else:
                 dest = g
             g_proj = dest.GetProjection()
             Projection=g_proj.split('EPSG","')

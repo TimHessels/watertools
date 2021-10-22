@@ -65,7 +65,7 @@ def Get_Dataset_Point(input_folder, input_format, Dates, Coordinate):
         Hour = Date.hour
         Minute = Date.minute
         DOY = Date.dayofyear
-        Dataset[i,0] = '%d%02d%02d' %(Year, Month, Day)
+        Dataset[i,0] = '%d%02d%02d%02d%02d' %(Year, Month, Day, Hour, Minute)
         os.chdir(input_folder)
         filename = glob.glob(input_format.format(yyyy=Year, mm=Month, dd=Day, doy = DOY, HH = Hour, MM=Minute))
     
