@@ -1197,24 +1197,23 @@ def Create_Buffer(Data_In, Buffer_area = 2):
    Data_Out=np.empty((len(Data_In),len(Data_In[1])))
    Data_Out[:,:] = Data_In
    for ypixel in range(0,Buffer_area + 1):
+        if ypixel==0:
+             for xpixel in range(1,Buffer_area + 1):
+                 Data_Out[:,0:-xpixel] += Data_In[:,xpixel:]
+                 Data_Out[:,xpixel:] += Data_In[:,:-xpixel]
 
-        for xpixel in range(1,Buffer_area + 1):
+             for ypixel in range(1,Buffer_area + 1):
 
-           if ypixel==0:
-                for xpixel in range(1,Buffer_area + 1):
-                    Data_Out[:,0:-xpixel] += Data_In[:,xpixel:]
-                    Data_Out[:,xpixel:] += Data_In[:,:-xpixel]
+                 Data_Out[ypixel:,:] += Data_In[:-ypixel,:]
+                 Data_Out[0:-ypixel,:] += Data_In[ypixel:,:]
 
-                for ypixel in range(1,Buffer_area + 1):
+        else:
+            for xpixel in range(1,Buffer_area + 1):
 
-                    Data_Out[ypixel:,:] += Data_In[:-ypixel,:]
-                    Data_Out[0:-ypixel,:] += Data_In[ypixel:,:]
-
-           else:
-               Data_Out[0:-xpixel,ypixel:] += Data_In[xpixel:,:-ypixel]
-               Data_Out[xpixel:,ypixel:] += Data_In[:-xpixel,:-ypixel]
-               Data_Out[0:-xpixel,0:-ypixel] += Data_In[xpixel:,ypixel:]
-               Data_Out[xpixel:,0:-ypixel] += Data_In[:-xpixel,ypixel:]
+                Data_Out[0:-xpixel,ypixel:] += Data_In[xpixel:,:-ypixel]
+                Data_Out[xpixel:,ypixel:] += Data_In[:-xpixel,:-ypixel]
+                Data_Out[0:-xpixel,0:-ypixel] += Data_In[xpixel:,ypixel:]
+                Data_Out[xpixel:,0:-ypixel] += Data_In[:-xpixel,ypixel:]
 
    Data_Out[Data_Out>0.1] = 1
    Data_Out[Data_Out<=0.1] = 0
