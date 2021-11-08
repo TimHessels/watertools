@@ -168,6 +168,14 @@ def RetrieveData(Date, args):
                
                 no_extract = 0                
             except:
+                
+                if TimeCase == 'daily':
+                    url = os.path.join("https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_daily/tifs/p05/%s/" %Date.strftime('%Y'), filename2)
+                elif TimeCase == 'monthly':
+                    url = os.path.join('https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_monthly/tifs/', filename2) 
+                else:
+                    raise KeyError("The input time interval is not supported")    
+                
                 local_filename = os.path.join(output_folder, filename2)
                 session = requests.Session()
                 with session.get(url, stream=True) as r:
