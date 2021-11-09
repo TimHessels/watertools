@@ -6,7 +6,7 @@ Module: Collect/CHIRPS
 
 # import general python modules
 import os
-import urllib
+import requests
 import numpy as np
 import pandas as pd
 from ftplib import FTP
@@ -102,29 +102,85 @@ def RetrieveData(Date, args):
     """
     # Argument
     [output_folder, TimeCase, xID, yID, lonlim, latlim] = args
-
-	# create all the input name (filename) and output (outfilename, filetif, DiFileEnd) names
-    if TimeCase == 'daily':
-        filename = 'chirp.%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d'))
+    
+ 	# create all the input name (filename) and output (outfilename, filetif, DiFileEnd) names
+    if TimeCase == 'daily':        
+        filename = 'chirp.%s.%02s.%02s.tif.gz' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d'))
+        filename2 = 'chirp.%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d'))        
+        outfilename = os.path.join(output_folder,'chirp.%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
         DirFileEnd = os.path.join(output_folder,'P_CHIRP.v2.0_mm-day-1_daily_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
     else:
         raise KeyError("The input time interval is not supported")
 
     if not os.path.exists(DirFileEnd):
 
-        if TimeCase == 'daily':
-            url = os.path.join("https://data.chc.ucsb.edu/products/CHIRP/daily/%s/" %Date.strftime('%Y'), filename)
-        else:
-            raise KeyError("The input time interval is not supported")
+        try:
+            # open ftp server
+            ftp = FTP("chg-ftpout.geog.ucsb.edu", "", "")
+            ftp.login()
+        
+        	# Define FTP path to directory
+            if TimeCase == 'daily':
+                pathFTP = "https://data.chc.ucsb.edu/products/CHIRP/daily/%s/" %Date.strftime('%Y')
+            else:
+                raise KeyError("The input time interval is not supported")
+        
+            # find the document name in this directory
+            ftp.cwd(pathFTP)
+            listing = []
+        
+        	# read all the file names in the directory
+            ftp.retrlines("LIST", listing.append)
+    
+            # download the global rainfall file
+            local_filename = os.path.join(output_folder, filename)
+            lf = open(local_filename, "wb")
+            ftp.retrbinary("RETR " + filename, lf.write, 8192)
+            lf.close()
             
-        local_filename = os.path.join(output_folder, filename)
-        urllib.request.urlretrieve(url, filename=local_filename)
-        
-        
+        except:
+            if TimeCase == 'daily':
+                url = os.path.join("https://data.chc.ucsb.edu/products/CHIRP/daily/%s/"  %Date.strftime('%Y'), filename)
+            else:
+                raise KeyError("The input time interval is not supported")
+            
+            try:
+                local_filename = os.path.join(output_folder, filename)
+                session = requests.Session()
+                with session.get(url, stream=True) as r:
+                    r.raise_for_status()
+                    with open(local_filename, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size=1024 * 1024):
+                            if chunk:  # filter out keep-alive new chunks
+                                f.write(chunk)
+               
+                no_extract = 0                
+            except:
+                
+                if TimeCase == 'daily':
+                    url = os.path.join("https://data.chc.ucsb.edu/products/CHIRP/daily/%s/" %Date.strftime('%Y'), filename2)
+                else:
+                    raise KeyError("The input time interval is not supported")    
+                
+                local_filename = os.path.join(output_folder, filename2)
+                session = requests.Session()
+                with session.get(url, stream=True) as r:
+                    r.raise_for_status()
+                    with open(local_filename, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size=1024 * 1024):
+                            if chunk:  # filter out keep-alive new chunks
+                                f.write(chunk)
+                no_extract = 1
+            
         try:
     
+            if no_extract == 0:  
+                # unzip the file
+                zip_filename = os.path.join(output_folder, filename)
+                DC.Extract_Data_gz(zip_filename, outfilename)
+     
             # open tiff file
-            dataset = RC.Open_tiff_array(os.path.join(output_folder, filename))
+            dataset = RC.Open_tiff_array(outfilename)
     
             # clip dataset to the given extent
             data = dataset[yID[0]:yID[1], xID[0]:xID[1]]
@@ -135,9 +191,9 @@ def RetrieveData(Date, args):
             DC.Save_as_tiff(name=DirFileEnd, data=data, geo=geo, projection="WGS84")
     
             # delete old tif file
-            os.remove(os.path.join(output_folder, filename))
+            os.remove(outfilename)
     
         except:
-            print("file not exists")
-            
+            print("file not exists")   
+                
     return True
