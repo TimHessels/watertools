@@ -218,6 +218,21 @@ def Extract_Data_tar_gz(zip_filename, output_folder):
     tar = tarfile.open(zip_filename, "r:gz")
     tar.extractall()
     tar.close()
+
+def Extract_Data_tar(zip_filename, output_folder):
+    """
+    This function extract the tar files
+
+    Keyword Arguments:
+    zip_filename -- name, name of the file that must be unzipped
+    output_folder -- Dir, directory where the unzipped data must be
+                           stored
+    """
+
+    os.chdir(output_folder)
+    tar = tarfile.open(zip_filename, "r")
+    tar.extractall()
+    tar.close()
     
 def Save_as_tiff(name='', data='', geo='', projection=''):
     """
