@@ -19,7 +19,8 @@ MSGCPP.SDS(Dir='C:/Temp/', Startdate='1999-02-01', Enddate='1999-02-03',
 
 from .SDS import main as SDS
 from .Precipitation import main as Precipitation
+from .Cloud import main as Cloud
 
-__all__ = ['SDS', "Precipitation"]
+__all__ = ['SDS', "Precipitation", "Cloud"]
 
 __version__ = '0.1'

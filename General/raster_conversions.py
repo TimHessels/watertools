@@ -1148,6 +1148,50 @@ def Vector_to_Raster(shapefile_name, filename, Attribute_name):
     
     return(Raster_Basin)
 
+def Raster_to_Vector(filename, shapefile_name):
+    """
+    This function creates a vector of a raster file
+
+    Keyword arguments:
+    shapefile_name -- 'C:/....../.shp'
+        str: Path from the shape file
+    reference_raster_data_name -- destination file as example file
+
+    """
+    try:
+        if filename.split('.')[-1] == 'tif':
+            src_ds = gdal.Open(r"%s" %filename)
+        else:
+            src_ds = filename
+    except:
+            src_ds = filename      
+
+    proj = Get_epsg(src_ds)
+    # geo = src_ds.GetGeoTransform()
+    # size_X = src_ds.RasterXSize
+    # size_Y = src_ds.RasterYSize
+ 
+    srs = osr.SpatialReference()
+    srs.ImportFromWkt(src_ds.GetProjection())
+    srcband = src_ds.GetRasterBand(1)
+    dst_layername = "PolyFtr"
+    drv = ogr.GetDriverByName("ESRI Shapefile")
+    dst_ds = drv.CreateDataSource(shapefile_name)
+    dst_layer = dst_ds.CreateLayer(dst_layername, srs = None)
+    newField = ogr.FieldDefn('DN', ogr.OFTInteger)
+    dst_layer.CreateField(newField)
+    gdal.Polygonize(srcband, None, dst_layer, 0, [], 
+    callback=None )    
+    dst_ds.Destroy() 
+    
+    proj_filename =  os.path.join(os.path.dirname(shapefile_name), os.path.basename(shapefile_name).replace(".shp",".prj"))
+    prj = open(proj_filename, "w")
+    epsg = getWKT_PRJ("%s" %proj)
+    prj.write(epsg)
+    prj.close()   
+    
+    return()
+
 def Moving_average(dataset, Moving_front, Moving_back):
     """
     This function applies the moving averages over a 3D matrix called dataset.
