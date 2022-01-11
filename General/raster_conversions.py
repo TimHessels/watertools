@@ -643,10 +643,12 @@ def reproject_MODIS(input_name, epsg_to):
 
     return(name_out)
 
-def reproject_shapefile(input_shp, epsg_to):
+def reproject_shapefile(input_shp, epsg_to, output_shp_name=False):
 
     input_shp_name_base, input_shp_name_ext= os.path.splitext(input_shp)
-    output_shp_name = ''.join([input_shp_name_base, "_EPSG%s" %epsg_to, input_shp_name_ext])
+    
+    if output_shp_name==False:
+        output_shp_name = ''.join([input_shp_name_base, "_EPSG%s" %epsg_to, input_shp_name_ext])
     
     shpf = shapefile.Reader(input_shp)
     wgs_shp = shapefile.Writer(output_shp_name, shapeType=5)
