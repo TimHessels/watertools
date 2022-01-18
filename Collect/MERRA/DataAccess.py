@@ -154,7 +154,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                 else:
                     number = 4
                     
-                if Date.month ==9 and Date.year==2020:
+                if Date.month ==9 and (Date.year==2020 or Date.year==2021):
                     number2 = 1
                 else:
                     number2 = 0
@@ -165,6 +165,8 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                     url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXFLX.5.12.4/%d/%02d/MERRA2_%s0%s.tavg1_2d_flx_Nx.%d%02d%02d.nc4" %(year, month, number, number2, year, month, day)   
                 else:    
                     url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I1NXASM.5.12.4/%d/%02d/MERRA2_%s0%s.inst1_2d_asm_Nx.%d%02d%02d.nc4" %(year, month, number, number2, year, month, day)
+            #https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I1NXASM.5.12.4/2021/01/MERRA2_400.inst1_2d_asm_Nx.20210101.nc4
+            #https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I1NXASM.5.12.4/2021/09/MERRA2_401.inst1_2d_asm_Nx.20210902.nc4
             
             if (TimeStep == "three_hourly" or TimeStep == "daily"):                
                 
