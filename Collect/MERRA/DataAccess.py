@@ -154,8 +154,10 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                 else:
                     number = 4
                     
-                if Date.month ==9 and (Date.year==2020 or Date.year==2021):
+                if Date.month ==9 and Date.year==2020:
                     number2 = 1
+                elif Date.month > 5 and Date.month < 10 and Date.year==2021:
+                    number2 = 1                      
                 else:
                     number2 = 0
                                
