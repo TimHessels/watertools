@@ -79,13 +79,13 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Time = '', GMT_Offset 
         
             # define url
             if Type == 'SDS':
-                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server/?dataset=msgrt&service=wcs&request=getcoverage&coverage=surface_downwelling_shortwave_flux_in_air&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
+                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server?dataset=msgrt&service=wcs&request=getcoverage&coverage=surface_downwelling_shortwave_flux_in_air&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
             if Type == 'lwe_precipitation_rate':
-                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server/?dataset=msgrt&service=wcs&request=getcoverage&coverage=lwe_precipitation_rate&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
+                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server?dataset=msgrt&service=wcs&request=getcoverage&coverage=lwe_precipitation_rate&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
             if Type == 'lwe_precipitation_rate_ir':
-                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server/?dataset=msgrt&service=wcs&request=getcoverage&coverage=lwe_precipitation_rate_ir&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
+                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server?dataset=msgrt&service=wcs&request=getcoverage&coverage=lwe_precipitation_rate_ir&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
             if Type == 'Cloud':
-                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server/?dataset=msgrt&service=wcs&request=getcoverage&coverage=cloud_area_fraction&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
+                url = r"https://msgcpp-adaguc.knmi.nl/adaguc-server?dataset=msgrt&service=wcs&request=getcoverage&coverage=cloud_area_fraction&FORMAT=NetCDF4&CRS=EPSG%%3A4326&BBOX=%s,%s,%s,%s&RESX=0.04310344827586207&RESY=0.04418103448275862&time=%d-%02d-%02dT%02d%%3A%02d%%3A00Z" %(lonlim[0],latlim[0], lonlim[1], latlim[1], Date.year, Date.month, Date.day, Date.hour, Date.minute)
 
             print(url)
             success = 0
