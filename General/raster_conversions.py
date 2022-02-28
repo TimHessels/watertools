@@ -643,6 +643,30 @@ def reproject_MODIS(input_name, epsg_to):
 
     return(name_out)
 
+def reproject_MODIS2(input_name, epsg_to):
+    '''
+    Reproject the merged data file by using gdalwarp. The input projection must be the MODIS projection.
+    The output projection can be defined by the user.
+    Keywords arguments:
+    input_name -- 'C:/file/to/path/file.tif'
+        string that defines the input tiff file
+    epsg_to -- integer
+        The EPSG code of the output dataset
+    '''
+    # Define the output name
+    name_out = ''.join(input_name.split(".")[:-1]) + '_reprojected.tif'
+
+    # Get environmental variable
+    #WA_env_paths = os.environ["WA_PATHS"].split(';')
+    #GDAL_env_path = WA_env_paths[0]
+    #GDALWARP_PATH = os.path.join(GDAL_env_path, 'gdalwarp.exe')
+
+    # find path to the executable
+    fullCmd = ' '.join(['gdalwarp -overwrite -s_srs "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs"', '-t_srs EPSG:%s -of GTiff' %(epsg_to), input_name, name_out])
+    Run_command_window(fullCmd)
+
+    return(name_out)
+
 def reproject_shapefile(input_shp, epsg_to, output_shp_name=False):
 
     input_shp_name_base, input_shp_name_ext= os.path.splitext(input_shp)

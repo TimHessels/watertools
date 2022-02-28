@@ -134,7 +134,7 @@ def RetrieveData(Date, args):
         
             # Reproject the MODIS product to epsg_to
             epsg_to ='4326'
-            name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
+            name_reprojected = RC.reproject_MODIS2(name_collect, epsg_to)
         
             # Clip the data to the users extend
             data, geo, proj = RC.clip_data(name_reprojected, latlim, lonlim)
@@ -143,8 +143,8 @@ def RetrieveData(Date, args):
             DC.Save_as_tiff(name=NDVIfileName, data=data, geo=geo, projection='WGS84')
         
             # remove the side products
-            os.remove(os.path.join(output_folder, name_collect))
-            os.remove(os.path.join(output_folder, name_reprojected))
+            #os.remove(os.path.join(output_folder, name_collect))
+            #os.remove(os.path.join(output_folder, name_reprojected))
         except:
             print("Failed for date: %s" %Date)
             
