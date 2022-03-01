@@ -143,7 +143,7 @@ def RetrieveData(Date, args):
         
             # Reproject the MODIS product to epsg_to
             epsg_to ='4326'
-            name_reprojected = RC.reproject_MODIS(name_collect, epsg_to)
+            name_reprojected = RC.reproject_MODIS(name_collect, epsg_to, resolution = 0.005)
         
             # Clip the data to the users extend
             data, geo, proj = RC.clip_data(name_reprojected, latlim, lonlim)

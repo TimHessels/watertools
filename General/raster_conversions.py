@@ -607,7 +607,47 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
 
     return dest_end, ulx, lry, lrx, uly, epsg_to
 
-def reproject_MODIS(input_name, epsg_to):
+def reproject_MODIS(input_name, epsg_to, resolution = 0.0025):
+    '''
+    Reproject the merged data file by using gdalwarp. The input projection must be the MODIS projection.
+    The output projection can be defined by the user.
+
+    Keywords arguments:
+    input_name -- 'C:/file/to/path/file.tif'
+        string that defines the input tiff file
+    epsg_to -- integer
+        The EPSG code of the output dataset
+    '''
+    
+    # Define the output name
+    name_out = ''.join(input_name.split(".")[:-1]) + '_reprojected.tif'
+   
+    # src_ds = gdal.Open(input_name)
+    
+    # # Define target SRS
+    # dst_srs = osr.SpatialReference()
+    # dst_srs.ImportFromEPSG(int(epsg_to))
+    # dst_wkt = dst_srs.ExportToWkt()
+    
+    # error_threshold = 0.125  # error threshold --> use same value as in gdalwarp
+    # resampling = gdal.GRA_NearestNeighbour
+    
+    # # Call AutoCreateWarpedVRT() to fetch default values for target raster dimensions and geotransform
+    # tmp_ds = gdal.AutoCreateWarpedVRT( src_ds,
+    #                                None, # src_wkt : left to default value --> will use the one from source
+    #                                dst_wkt,
+    #                                resampling,
+    #                                error_threshold )
+    
+    
+    dst_ds = gdal.Warp(name_out, input_name, dstSRS='EPSG:%s' %int(epsg_to) , format='VRT',
+               outputType=gdal.GDT_Float64 , xRes=resolution, yRes=resolution)
+    
+    dst_ds = None 
+
+    return(name_out)
+
+def reproject_MODIS2(input_name, epsg_to):
     '''
     Reproject the merged data file by using gdalwarp. The input projection must be the MODIS projection.
     The output projection can be defined by the user.
@@ -643,6 +683,7 @@ def reproject_MODIS(input_name, epsg_to):
 
     return(name_out)
 
+
 def reproject_MODIS2(input_name, epsg_to):
     '''
     Reproject the merged data file by using gdalwarp. The input projection must be the MODIS projection.
@@ -653,6 +694,9 @@ def reproject_MODIS2(input_name, epsg_to):
     epsg_to -- integer
         The EPSG code of the output dataset
     '''
+    
+    print("Takes the right one")
+    
     # Define the output name
     name_out = ''.join(input_name.split(".")[:-1]) + '_reprojected.tif'
 
@@ -662,7 +706,7 @@ def reproject_MODIS2(input_name, epsg_to):
     #GDALWARP_PATH = os.path.join(GDAL_env_path, 'gdalwarp.exe')
 
     # find path to the executable
-    fullCmd = ' '.join(['gdalwarp -overwrite -s_srs "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs"', '-t_srs EPSG:%s -of GTiff' %(epsg_to), input_name, name_out])
+    fullCmd = ' '.join(['gdalwarp -overwrite -s_srs "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs"', '-t_srs EPSG:%s -of GTiff -tr 0.0025 0.0025' %(epsg_to), input_name, name_out])
     Run_command_window(fullCmd)
 
     return(name_out)
