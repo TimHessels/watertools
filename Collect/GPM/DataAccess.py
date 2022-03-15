@@ -113,12 +113,12 @@ def RetrieveData(Date, args):
     
     # Create https
     if TimeCase == 'daily':
-        URL = 'https://gpm1.gesdisc.eosdis.nasa.gov/opendap/GPM_L3/GPM_3IMERGDL.06/%d/%02d/3B-DAY-L.MS.MRG.3IMERG.%d%02d%02d-S000000-E235959.V06.nc4.ascii?precipitationCal[%d:1:%d][%d:1:%d]'  %(year, month, year, month, day, xID[0], xID[1]-1, yID[0], yID[1]-1)
-        DirFile = os.path.join(output_folder, "P_TRMM3B42.V7_mm-day-1_daily_%d.%02d.%02d.tif" %(year, month, day))
+        URL = 'https://gpm1.gesdisc.eosdis.nasa.gov/opendap/GPM_L3/GPM_3IMERGDL.06/%d/%02d/3B-DAY-L.MS.MRG.3IMERG.%d%02d%02d-S000000-E235959.V06.nc4.ascii?precipitationCal[0][%d:1:%d][%d:1:%d]'  %(year, month, year, month, day, xID[0], xID[1]-1, yID[0], yID[1]-1)
+        DirFile = os.path.join(output_folder, "P_GPM.IMERG_mm-day-1_daily_%d.%02d.%02d.tif" %(year, month, day))
         Scaling = 1
 
     if TimeCase == 'monthly':
-        URL = 'https://gpm1.gesdisc.eosdis.nasa.gov/opendap/hyrax/GPM_L3/GPM_3IMERGM.06/%d/3B-MO.MS.MRG.3IMERG.%d%02d01-S000000-E235959.%02d.V06B.HDF5?precipitation[0:1:0][%d:1:%d][%d:1:%d]'  %(year, year, month, month, xID[0], xID[1]-1, yID[0], yID[1]-1)
+        URL = 'https://gpm1.gesdisc.eosdis.nasa.gov/opendap/GPM_L3/GPM_3IMERGM.06/%d/3B-MO.MS.MRG.3IMERG.%d%02d01-S000000-E235959.%02d.V06B.HDF5.ascii?precipitation%%5B0%%5D%%5B%d:1:%d%%5D%%5B%d:1:%d%%5D'  %(year, year, month, month, xID[0], xID[1]-1, yID[0], yID[1]-1)
         Scaling = calendar.monthrange(year,month)[1] * 24
         DirFile = os.path.join(output_folder, "P_GPM.IMERG_mm-month-1_monthly_%d.%02d.01.tif" %(year, month))
 
