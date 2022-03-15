@@ -234,7 +234,10 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
             countX=Horizontal - TilesHorizontal[0] + 1
 
             # Download the MODIS GPP data
-            url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A2H.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            if Date.strftime('%Y') < 2021:
+                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A2H.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            else:
+                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A2H.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
     		   # Reset the begin parameters for downloading
             downloaded = 0

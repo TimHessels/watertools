@@ -244,9 +244,9 @@ def Collect_data(TilesHorizontal, TilesVertical, Date, username, password, outpu
 
             # Create the URL to the LST MODIS data
             if TimeStep == 8:
-                url = 'https://e4ftl01.cr.usgs.gov/MOLA/MYD11A2.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+                url = 'https://e4ftl01.cr.usgs.gov/MOLA/MYD11A2.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
             if TimeStep == 1:
-                url = 'https://e4ftl01.cr.usgs.gov/MOLA/MYD11A1.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+                url = 'https://e4ftl01.cr.usgs.gov/MOLA/MYD11A1.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
 		    # Reset the begin parameters for downloading
             downloaded = 0

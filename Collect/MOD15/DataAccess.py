@@ -316,7 +316,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, nameDownload,
             countX=Horizontal - TilesHorizontal[0] + 1
 
             # Download the MODIS FPAR data
-            url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD15A2H.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD15A2H.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
 		      # Reset the begin parameters for downloading
             downloaded = 0

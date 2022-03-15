@@ -299,9 +299,9 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
 
             # Download the MODIS NDVI data
             if TimeStep == 8:
-                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD11A2.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD11A2.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
             if TimeStep == 1:
-                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD11A1.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD11A1.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
 		    # Reset the begin parameters for downloading
             downloaded = 0

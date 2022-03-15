@@ -179,7 +179,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
             countX=Horizontal - TilesHorizontal[0] + 1
 
             # Download the MODIS NDVI data
-            url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD43A3.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD43A3.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
 		      # Reset the begin parameters for downloading
             downloaded = 0

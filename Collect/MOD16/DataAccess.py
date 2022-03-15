@@ -203,7 +203,11 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder,timestep, hdf_
                     url = 'http://files.ntsg.umt.edu/data/NTSG_Products/MOD16/MOD16A2_MONTHLY.MERRA_GMAO_1kmALB/Y%s/M%02s/' %(Date.strftime('%Y'), Date.strftime('%m'))
 
                 if timestep == '8-daily':
-                    url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD16A2.006/%d.%02d.%02d/' %(Date.year, Date.month, Date.day)
+                    if Date.year<2021:
+                        url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD16A2.006/%d.%02d.%02d/' %(Date.year, Date.month, Date.day)
+                    else:
+                        url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD16A2.061/%d.%02d.%02d/' %(Date.year, Date.month, Date.day)
+
 
                 try:
                     

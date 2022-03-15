@@ -182,8 +182,9 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
             # Download the MODIS NPP data
             #url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A3H.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
             #url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A3.055/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
-            url = 'http://files.ntsg.umt.edu/data/NTSG_Products/MOD17/MOD17A3/Y' + Date.strftime('%Y') + '/'
-
+            #url = 'http://files.ntsg.umt.edu/data/NTSG_Products/MOD17/MOD17A3/Y' + Date.strftime('%Y') + '/'
+            url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A3HGF.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            
 		      # Reset the begin parameters for downloading
             downloaded = 0
             N=0

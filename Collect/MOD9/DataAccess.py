@@ -190,10 +190,11 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
 
             # Download the MODIS NDVI data
             if resolution == "250m":
-                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD09GQ.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD09GQ.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+                letter = "Q"
             else:
-                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD09GA.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
-
+                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD09GA.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+                letter = "A"
 
 		      # Reset the begin parameters for downloading
             downloaded = 0
@@ -202,7 +203,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
 	         # Check the library given by user
             if hdf_library is not None:
                 os.chdir(hdf_library)
-                hdf_name = glob.glob("MOD09GA.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
+                hdf_name = glob.glob("MOD09G%s.A%s%03s.h%02dv%02d.*" %(letter, Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
 
                 if len(hdf_name) == 1:
                     hdf_file = os.path.join(hdf_library, hdf_name[0])

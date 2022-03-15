@@ -239,7 +239,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
             N=0
 
             # Download the MODIS NDVI data
-            url = 'https://e4ftl01.cr.usgs.gov/MOLA/MYD13Q1.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            url = 'https://e4ftl01.cr.usgs.gov/MOLA/MYD13Q1.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
 	         # Check the library given by user
             if hdf_library is not None:
