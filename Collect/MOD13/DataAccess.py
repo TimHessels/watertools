@@ -143,8 +143,8 @@ def RetrieveData(Date, args):
             DC.Save_as_tiff(name=NDVIfileName, data=data, geo=geo, projection='WGS84')
         
             # remove the side products
-            #os.remove(os.path.join(output_folder, name_collect))
-            #os.remove(os.path.join(output_folder, name_reprojected))
+            os.remove(os.path.join(output_folder, name_collect))
+            os.remove(os.path.join(output_folder, name_reprojected))
         except:
             print("Failed for date: %s" %Date)
             
