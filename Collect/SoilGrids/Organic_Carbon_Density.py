@@ -32,7 +32,7 @@ def main(Dir, latlim, lonlim, level = 'sl1', Waitbar = 1):
         os.makedirs(output_folder)
 
     # Define the output map and create this if not exists
-    nameEnd = os.path.join(output_folder, 'SoilOrganicCarbonDensity_%s_SoilGrids_g_kg.tif' %level)      
+    nameEnd = os.path.join(output_folder, 'SoilOrganicCarbonDensity_%s_SoilGrids_g_d.tif' %level)      
 
     if not os.path.exists(nameEnd):
 

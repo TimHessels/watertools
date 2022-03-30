@@ -123,7 +123,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         '''        
         Clay[Clay>100]=np.nan                
         Silt[Silt>100]=np.nan
-        OM = OM/1000
+        OM = OM/10  #g/kg to %
         
         Clay[Clay==0]=np.nan  
         Silt[Silt==0]=np.nan  
@@ -131,7 +131,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         
         # Calculate bulk density
         bulk_dens1 = dest_bulk.GetRasterBand(1).ReadAsArray()
-        bulk_dens1 = bulk_dens1/1000 
+        bulk_dens1 = bulk_dens1/1000 # kg/m2 to gr/cm3
         bulk_dens1 = np.float_(bulk_dens1)
         '''           
         try:
@@ -139,7 +139,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         except:
             pass
         '''                   
-        bulk_dens2 = 1/(0.6117 + 0.3601 * Clay/100 + 0.002172 * np.power(OM * 100, 2)+ 0.01715 * np.log(OM * 100))
+        bulk_dens2 = 1/(0.6117 + 0.3601 * Clay/100 + 0.002172 * np.power(Clay/100, 2)+ 0.01715 * np.log(OM))
     
         '''           
         try:

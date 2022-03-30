@@ -116,7 +116,15 @@ def RetrieveData(Date, args):
     # Argument
     [output_folder, TilesVertical, TilesHorizontal, lonlim, latlim, band, resolution, hdf_library] = args
 
-    ReffileName = os.path.join(output_folder, 'ReflectanceBand%d_MOD09GQ_-_daily_'%band + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
+    if resolution == "250m":
+        letter = "Q"
+    else:                
+        letter = "A"
+        
+    if band == "state":
+        ReffileName = os.path.join(output_folder, 'ReflectanceBand_%s_MOD09G%s_-_daily_'%(band, letter) + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')        
+    else:
+        ReffileName = os.path.join(output_folder, 'ReflectanceBand%d_MOD09G%s_-_daily_'%(band, letter) + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
 
     if not os.path.exists(ReffileName):    
         # Collect the data from the MODIS webpage and returns the data and lat and long in meters of those tiles
@@ -133,6 +141,8 @@ def RetrieveData(Date, args):
             
             if resolution == "250m":
                 resolution = 0.0025
+            elif resolution == "1000m":
+                resolution = 0.01 
             else:
                 resolution = 0.005                
                     
@@ -164,13 +174,21 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
     output_folder -- 'C:/file/to/path/'
     '''
     
-    if band>=3 and resolution == "250m":
-        sys.exit('Bands higher than 3, are only available in 500m resolution')
-        
-    if resolution == "250m":
-        size_factor = 1
+    if band =="state":
+        if resolution != "1000m":
+            sys.exit('Bands State, are only available in 1000m resolution')
+            
+        if resolution == "1000m":
+            size_factor = 4
+
     else:
-        size_factor = 2    
+        if band>=3 and resolution == "250m":
+            sys.exit('Bands higher than 3, are only available in 500m resolution')
+            
+        if resolution == "250m":
+            size_factor = 1
+        else:
+            size_factor = 2    
         
     # Make a new tile for the data
     sizeX = int((TilesHorizontal[1] - TilesHorizontal[0] + 1) * 4800/size_factor)
@@ -178,7 +196,29 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
     DataTot = np.zeros((sizeY, sizeX))
 
     # Load accounts
-    username, password = watertools.Functions.Random.Get_Username_PWD.GET('NASA')
+    BEARER = watertools.Functions.Random.Get_Username_PWD.GET('NASA_BEARER')
+
+    s = requests.Session()  
+    headers = {
+        'Authorization': 'Bearer %s'%BEARER[0]
+        }                
+
+    # Download the MODIS NDVI data
+    if resolution == "250m":
+        #url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD09GQ.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+        url = "https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD09GQ/%s/%03s" %(Date.strftime('%Y'),  Date.strftime('%j'))
+        letter = "Q"
+    else:                
+        #url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD09GA.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+        url = "https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD09GA/%s/%03s" %(Date.strftime('%Y'),  Date.strftime('%j'))
+        letter = "A"
+
+                    
+    r = s.get(''.join([url,'?fields=all&format=json']), headers=headers)
+    if r.status_code == 200:            
+        f = r.text 
+    else:
+        print("Got an ERROR 404 not connected!!!")
 
     # Create the Lat and Long of the MODIS tile in meters
     for Vertical in range(int(TilesVertical[0]), int(TilesVertical[1])+1):
@@ -188,15 +228,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
         for Horizontal in range(int(TilesHorizontal[0]), int(TilesHorizontal[1]) + 1):
             countX=Horizontal - TilesHorizontal[0] + 1
 
-            # Download the MODIS NDVI data
-            if resolution == "250m":
-                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD09GQ.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
-                letter = "Q"
-            else:
-                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD09GA.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
-                letter = "A"
-
-		      # Reset the begin parameters for downloading
+		    # Reset the begin parameters for downloading
             downloaded = 0
             N=0
 
@@ -212,25 +244,19 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
                         downloaded = 1
                         file_name = hdf_file
 
-
             if not downloaded == 1:
              
                 try:
-                    # Get files on FTP server
-                    if sys.version_info[0] == 3:
-                        f = urllib.request.urlopen(url)
-    
-                    if sys.version_info[0] == 2:
-                        f = urllib2.urlopen(url)
+
                     # Sum all the files on the server
                     soup = BeautifulSoup(f, "lxml")
                     for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
     
                         # Find the file with the wanted tile number
-                        Vfile=str(i)[30:32]
-                        Hfile=str(i)[27:29]
+                        Vfile=str(i)[80:82]
+                        Hfile=str(i)[77:79]
                         if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
-    
+                       
                             # Define the whole url name
                             if sys.version_info[0] == 3:
                                 full_url = urllib.parse.urljoin(url, i['href'])
@@ -247,16 +273,14 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
                                     if os.path.isfile(file_name):
                                         downloaded = 1
                                     else:
-                                        x = requests.get(nameDownload, allow_redirects = False)
-                                        try:
-                                            y = requests.get(x.headers['location'], auth = (username, password))
-                                        except:
-                                            from requests.packages.urllib3.exceptions import InsecureRequestWarning
-                                            requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-                                            y = requests.get(x.headers['location'], auth = (username, password), verify = False)
-                                        z = open(file_name, 'wb')
-                                        z.write(y.content)
-                                        z.close()
+                                                           
+                                        with s.get(nameDownload, headers=headers, stream=True) as r:
+                                            with open(file_name, 'wb') as f:
+                                                for chunk in r.iter_content(chunk_size=1024 * 1024):
+                                                    if chunk:  # filter out keep-alive new chunks
+                                                        f.write(chunk)
+                                                        # f.flush()                                       
+                                                                  
                                         statinfo = os.stat(file_name)
                                         # Say that download was succesfull
                                         if int(statinfo.st_size) > 10000:
@@ -281,14 +305,20 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
                 dataset = gdal.Open(file_name)
                 sdsdict = dataset.GetMetadata('SUBDATASETS')
                 if resolution =="250m":
-                    sdslist = [sdsdict[k] for k in sdsdict.keys() if 'SUBDATASET_%d_NAME'%int(band+1) in k]               
+                    sdslist = [sdsdict[k] for k in sdsdict.keys() if 'SUBDATASET_%d_NAME'%int(band+1) in k]  
+                elif resolution == "1000m":
+                    sdslist = [sdsdict[k] for k in sdsdict.keys() if 'SUBDATASET_2_NAME' in k]  
                 else:
                     sdslist = [sdsdict[k] for k in sdsdict.keys() if 'SUBDATASET_%d_NAME'%int(band+11) in k]
                 sds = []
 
                 for n in sdslist:
                     sds.append(gdal.Open(n))
-                    full_layer = [i for i in sdslist if 'sur_refl_b%02d_1'%band in i]                  
+                    if resolution != "1000m":
+                        full_layer = [i for i in sdslist if 'sur_refl_b%02d_1'%band in i]     
+                    else:
+                        full_layer = [i for i in sdslist if 'state_1km_1' in i]     
+                        
                     idx = sdslist.index(full_layer[0])
                     if Horizontal == TilesHorizontal[0] and Vertical == TilesVertical[0]:
                         geo_t = sds[idx].GetGeoTransform()
