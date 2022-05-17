@@ -161,7 +161,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                 else:
                     number2 = 0
                                
-                if Var == "swgnet" or Var == "swgdn":
+                if Var == "swgnet" or Var == "swgdn" or Var == "ts":
                     url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXRAD.5.12.4/%d/%02d/MERRA2_%s0%s.tavg1_2d_rad_Nx.%d%02d%02d.nc4" %(year, month, number, number2, year, month, day)
                 elif Var == "prectotcorr":
                     url_MERRA = r"https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXFLX.5.12.4/%d/%02d/MERRA2_%s0%s.tavg1_2d_flx_Nx.%d%02d%02d.nc4" %(year, month, number, number2, year, month, day)   
@@ -178,8 +178,8 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                 else:
                     url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/MERRAero/hourly/tavg3hr_2d_asm_Nx."
                 
-                url_MERRA = url_start + 'ascii?%s[%s:1:%s][%s:1:%s][%s:1:%s]' %(Var, IDz_start,IDz_end, int(IDy[0]),int(IDy[1]),int(IDx[0]),int(IDx[1]))
-                
+                url_MERRA = url_start + 'ascii?%s[%s:1:%s][%s:1:%s][%s:1:%s]' %(Var.replace("swgdn", "swgdwn"), IDz_start,IDz_end, int(IDy[0]),int(IDy[1]),int(IDx[0]),int(IDx[1]))
+                print(url_MERRA)
             if TimeStep == "yearly":
                 url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/MERRAero/monthly/tavg3hr_2d_asm_Nx."
                 url_MERRA = url_start + 'ascii?%s[%s:1:%s][%s:1:%s][%s:1:%s]' %(Var, IDz_start,IDz_end, int(IDy[0]),int(IDy[1]),int(IDx[0]),int(IDx[1]))
@@ -197,6 +197,8 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
             # if not downloaded try to download file
             while downloaded == 0:
                 try:
+                    N += 1
+                    
                     if (TimeStep == "hourly_MERRA2" or TimeStep == "daily_MERRA2"):
                                           
                         # Define the output name that is downloaded
@@ -204,14 +206,14 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                         if not os.path.exists(file_name):
                         
                             # make contact with server
-                            x = requests.get(url_MERRA, allow_redirects = False)
+                            x = requests.get(url_MERRA, allow_redirects = False, timeout = 120)
                             try:
                                 try:
-                                    y = requests.get(x.headers['location'], auth = (username, password))
+                                    y = requests.get(x.headers['location'], auth = (username, password), timeout = 120)
                                 except:
                                     from requests.packages.urllib3.exceptions import InsecureRequestWarning
                                     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-                                    y = requests.get(x.headers['location'], auth = (username, password), verify = False)
+                                    y = requests.get(x.headers['location'], auth = (username, password), verify = False, timeout = 120)
     
                                 
                                 # Write the download in the output directory
@@ -236,7 +238,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                         else:
                             downloaded = 1                             
                         
-                        data_end, data_min, data_max = Get_NC_data_end(file_name,Var, TimeStep, Period, IDy, IDx, VarInfo)
+                        data_end, data_min, data_max = Get_NC_data_end(file_name, Var, TimeStep, Period, IDy, IDx, VarInfo)
                         #os.remove(file_name)
                                   
                     else:    
@@ -245,7 +247,25 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                         pathtext = os.path.join(output_folder,'temp%s.txt' %str(IDz_start))
                         
                         # Download the data
-                        urllib.request.urlretrieve(url_MERRA, filename=pathtext)
+                        #urllib.request.urlretrieve(url_MERRA, filename=pathtext)       
+        
+                        if not os.path.exists(pathtext):
+                        
+                            # make contact with server
+                            x = requests.get(url_MERRA, allow_redirects = False, timeout = 120)
+            
+                            # Write the download in the output directory
+                            z = open(pathtext, 'wb')
+                            z.write(x.content)
+                            z.close()
+                            statinfo = os.stat(pathtext)
+                            # Say that download was succesfull
+                            if int(statinfo.st_size) > 100:
+                                 downloaded = 1                                                      
+                                    
+                        else:
+                            downloaded = 1                                     
+        
         
                         # Reshape data
                         datashape = [int(IDy[1] - IDy[0] + 1), int(IDx[1] - IDx[0] + 1)]
@@ -321,7 +341,12 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                         DC.Save_as_tiff(output_name_min, data_min, geo_out, proj)
                     if "max" in data_type:
                         DC.Save_as_tiff(output_name_max, data_max, geo_out, proj)
-                        
+                    
+                    # Stop trying after 3 times
+                    if N == 4 and downloaded == 0:
+                        print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
+                        downloaded = 1    
+                    
                 # If download was not succesfull
                 except:
     
@@ -351,7 +376,8 @@ def Get_NC_data_end(file_name,Var, TimeStep, Period, IDy, IDx, VarInfo):
          'slp': 'SLP',
          'swgnet': 'SWGDN',
          'swgdn': 'SWGDN',        
-         'prectotcorr': 'PRECTOTCORR'}  
+         'prectotcorr': 'PRECTOTCORR',
+         'ts': 'TS'}  
       
     types  = VarInfo.types[Var]
     if TimeStep == "hourly_MERRA2":
@@ -385,7 +411,8 @@ class VariablesInfo:
              'slp': 'Sea_Level_Pressure',
              'swgnet': 'Surface_Net_Downward_Shortwave_Flux',             
              'swgdn': 'Surface_Incoming_Shortwave_Flux',
-             'prectotcorr': 'Total_Precipitation_Corrected'
+             'prectotcorr': 'Total_Precipitation_Corrected',
+             'ts': 'Surface_Skin_Temperature'
              }
     
     descriptions = {'t2m': '2m Air Temperature',
@@ -397,7 +424,8 @@ class VariablesInfo:
              'slp': 'Sea Level Pressure',
              'swgnet': 'Surface Net Downward Shortwave Flux',
              'swgdn': 'Surface Incoming Shortwave Flux',             
-             'prectotcorr': 'Total Precipitation Corrected'             
+             'prectotcorr': 'Total Precipitation Corrected'  ,
+             'ts': 'Surface Skin Temperature'
              }
     
     factors = {'t2m': 1,
@@ -409,7 +437,8 @@ class VariablesInfo:
              'slp':  0.001,
              'swgnet':  1,
              'swgdn':  1,
-             'prectotcorr':  3600}
+             'prectotcorr':  3600,
+             'ts': 1}
     
     types = {'t2m': 'state',
              'u2m': 'state',
@@ -420,7 +449,8 @@ class VariablesInfo:
              'slp': 'state',
              'swgnet': 'state',
              'swgdn': 'state',
-             'prectotcorr': 'flux'
+             'prectotcorr': 'flux',
+             'ts':'state'
              }
 
     def __init__(self, step):
@@ -434,7 +464,8 @@ class VariablesInfo:
              'slp': 'kpa',
              'swgnet': 'W-m-2',
              'swgdn': 'W-m-2',             
-             'prectotcorr': 'mm'
+             'prectotcorr': 'mm',
+             'ts': 'K'
              }
             
         elif step == 'hourly_MERRA2':
@@ -447,7 +478,8 @@ class VariablesInfo:
              'slp': 'kpa',
              'swgnet': 'W-m-2',
              'swgdn': 'W-m-2',
-             'prectotcorr': 'mm'
+             'prectotcorr': 'mm',
+             'ts': 'K'             
              }    
             
         elif (step == 'daily' or step == 'daily_MERRA2'):
@@ -460,7 +492,8 @@ class VariablesInfo:
              'slp': 'kpa',
              'swgnet': 'W-m-2',
              'swgdn': 'W-m-2',             
-             'prectotcorr': 'mm'
+             'prectotcorr': 'mm',
+             'ts': 'K'             
              }
             
         elif step == 'yearly':
@@ -473,7 +506,8 @@ class VariablesInfo:
              'slp': 'kpa',
              'swgnet': 'W-m-2',
              'swgdn': 'W-m-2',             
-             'prectotcorr': 'mm'
+             'prectotcorr': 'mm',
+             'ts': 'K'             
              }
         else:
             raise KeyError("The input time step is not supported")
