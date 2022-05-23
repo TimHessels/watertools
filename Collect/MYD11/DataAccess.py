@@ -172,7 +172,7 @@ def RetrieveData(Date, args):
                 LSTfileName = os.path.join(output_folder, 'LST_MYD11A2_K_8-daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
             if TimeStep == 1:
                 name_collect_time = os.path.join(output_folder, 'Merged_Time.tif')
-                name_reprojected_time = RC.reproject_MODIS(name_collect_time, epsg_to) 
+                name_reprojected_time = RC.reproject_MODIS(name_collect_time, epsg_to, resolution = 0.01)
                 data_time, geo, proj = RC.clip_data(name_reprojected_time, latlim, lonlim)
                 data_time[data_time==25.5] = np.nan
                 data_time_ave = np.nanmean(data_time)
@@ -191,7 +191,7 @@ def RetrieveData(Date, args):
 
                 if angle_info == 1:
                     name_collect_angle = os.path.join(output_folder, 'Merged_Obsang.tif')
-                    name_reprojected_angle = RC.reproject_MODIS(name_collect_angle, epsg_to) 
+                    name_reprojected_angle = RC.reproject_MODIS(name_collect_angle, epsg_to, resolution = 0.01)
                     data_angle, geo, proj = RC.clip_data(name_reprojected_angle, latlim, lonlim)
                     data_angle[data_angle==25.5] = np.nan
                     OnsangfileName = os.path.join(output_folder, 'Angle_MYD11A1_degrees_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')    
