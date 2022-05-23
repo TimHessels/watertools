@@ -47,20 +47,20 @@ def set_up_account(account="ALL"):
         obj = {}
 
     if account == "ALL":
-        Servers = ["NASA", "GLEAM", "FTP_WA", "MSWEP", "Copernicus", "VITO", "WAPOR"]
+        Servers = ["NASA", "NASA_BEARER", "GLEAM", "FTP_WA", "MSWEP", "Copernicus", "VITO", "WAPOR"]
     else:
         Servers = [account]
     
     for Server in Servers:
         
-        if Server != "WAPOR":
+        if Server != "WAPOR" and Server != "NASA_BEARER":
             account_name = input("Type in your account username for %s" %Server)
             pwd = input("Type in your password for %s" %Server)        
             
             account_name_crypt = cipher_suite.encrypt(("%s" %account_name).encode('utf-8'))
             pwd_crypt = cipher_suite.encrypt(("%s" %pwd).encode('utf-8'))
             obj[Server] = ([str(account_name_crypt.decode("utf-8")), str(pwd_crypt.decode("utf-8"))])
-        if  Server == "WAPOR":
+        if  Server == "WAPOR" or Server == "NASA_BEARER":
             API_Key = input("Type in your API key for %s" %Server)
             API_Key_crypt = cipher_suite.encrypt(("%s" %API_Key).encode('utf-8'))
             obj[Server] = [str(API_Key_crypt.decode("utf-8"))]

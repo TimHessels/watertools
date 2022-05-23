@@ -63,7 +63,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
     
     # Define path to layers
     filename_clay = os.path.join(Dir, 'SoilGrids', 'Clay_Content' ,'ClayContentMassFraction_%s_SoilGrids_percentage.tif' %SL)
-    filename_om = os.path.join(Dir, 'SoilGrids', 'Soil_Organic_Carbon_Content' ,'SoilOrganicCarbonContent_%s_SoilGrids_g_kg.tif' %SL)
+    filename_soc = os.path.join(Dir, 'SoilGrids', 'Soil_Organic_Carbon_Content' ,'SoilOrganicCarbonContent_%s_SoilGrids_g_kg.tif' %SL)
     filename_bulkdensity = os.path.join(Dir, 'SoilGrids', 'Bulk_Density' ,'BulkDensity_%s_SoilGrids_kg-m-3.tif' %SL)
     filename_silt = os.path.join(Dir, 'SoilGrids', 'Silt_Content' ,'SiltContentMassFraction_%s_SoilGrids_percentage.tif' %SL)
     
@@ -88,7 +88,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         
         # Open datasets
         dest_clay = gdal.Open(filename_clay)
-        dest_om = gdal.Open(filename_om)
+        dest_soc = gdal.Open(filename_soc)
         dest_bulk = gdal.Open(filename_bulkdensity)
         dest_silt = gdal.Open(filename_silt)
 
@@ -97,7 +97,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         
         # Open Arrays
         Clay = dest_clay.GetRasterBand(1).ReadAsArray()
-        OM = dest_om.GetRasterBand(1).ReadAsArray()
+        SOC = dest_soc.GetRasterBand(1).ReadAsArray()
         Silt = dest_silt.GetRasterBand(1).ReadAsArray()        
 
         Clay = np.float_(Clay)
@@ -107,7 +107,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         except:
             pass
         '''        
-        OM = np.float_(OM)
+        OM = np.float_(SOC) * 1.72 # organic carbon to organic matter g/kg
         '''
         try:
            OM = RC.gap_filling(OM, 0, method = 1)
@@ -123,7 +123,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         '''        
         Clay[Clay>100]=np.nan                
         Silt[Silt>100]=np.nan
-        OM = OM/1000
+        OM = OM/10  #g/kg to %
         
         Clay[Clay==0]=np.nan  
         Silt[Silt==0]=np.nan  
@@ -131,7 +131,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         
         # Calculate bulk density
         bulk_dens1 = dest_bulk.GetRasterBand(1).ReadAsArray()
-        bulk_dens1 = bulk_dens1/1000 
+        bulk_dens1 = bulk_dens1/1000 # kg/m2 to gr/cm3
         bulk_dens1 = np.float_(bulk_dens1)
         '''           
         try:
@@ -139,7 +139,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         except:
             pass
         '''                   
-        bulk_dens2 = 1/(0.6117 + 0.3601 * Clay/100 + 0.002172 * np.power(OM * 100, 2)+ 0.01715 * np.log(OM * 100))
+        bulk_dens2 = 1/(0.6117 + 0.3601 * Clay/100 + 0.002172 * np.power(Clay/100, 2)+ 0.01715 * np.log(OM))
     
         '''           
         try:
@@ -147,7 +147,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         except:
             pass       
         '''           
-        bulk_dens = np.where(bulk_dens1>bulk_dens2, bulk_dens1, bulk_dens2)
+        bulk_dens = bulk_dens2 #np.where(bulk_dens1>bulk_dens2, bulk_dens1, bulk_dens2)
         
         '''
         # Oude methode gebaseerd op Schenost, Sinowski & Priesack (1996) 

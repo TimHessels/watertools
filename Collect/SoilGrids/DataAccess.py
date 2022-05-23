@@ -55,9 +55,9 @@ def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
         level_str = dict_levels[level]      
         conversion = 0.1         #dg/kg to g/kg
     if dataset == "SOD":
-        nameEnd = os.path.join(output_folder, 'SoilOrganicCarbonDensity_%s_SoilGrids_g_kg.tif' %level)        
+        nameEnd = os.path.join(output_folder, 'SoilOrganicCarbonDensity_%s_SoilGrids_g_dm3.tif' %level)        
         parameter = "ocd"
-        conversion = 0.1          #dg/kg to g/kg
+        conversion = 1.0       
         level_str = dict_levels[level]             
     if dataset == "PH":
         nameEnd = os.path.join(output_folder, 'SoilPH_%s_SoilGrids_pH10.tif' %level) 
