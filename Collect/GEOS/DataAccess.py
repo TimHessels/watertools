@@ -64,7 +64,10 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
             output_name = os.path.join(output_folder, "%s_GEOS_%s_hourly_%d.%02d.%02d_H%02d.M00.tif"%(Var, unit, Date.year, Date.month, Date.day, Hour))
             output_name_min = output_folder
             output_name_max = output_folder
-            url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx."
+            if Var in ['t2m', 'u2m', 'v2m', 'qv2m', 'tqv', 'ps', 'slp','t10m', 'v10m', 'u10m', 'v50m', 'u50m', 'ts']:
+                url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_slv_Nx."
+            if Var in ['swgdn']:
+                url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx."
      
         if TimeStep == "three_hourly":
             IDz_start = IDz_end = int(((Date - pd.Timestamp("2017-12-01")).days) * 8) + (Period - 1)

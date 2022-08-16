@@ -62,7 +62,8 @@ def DownloadData(output_folder, latlim, lonlim, dataset, level = None):
     if dataset == "PH":
         nameEnd = os.path.join(output_folder, 'SoilPH_%s_SoilGrids_pH10.tif' %level) 
         parameter = "phh2o"       
-        level_str = dict_levels[level]               
+        level_str = dict_levels[level]      
+        conversion = 1.0               
     if dataset == "CLAY":
         nameEnd = os.path.join(output_folder, 'ClayContentMassFraction_%s_SoilGrids_percentage.tif' %level)  
         parameter = "clay"   
