@@ -324,7 +324,19 @@ class VariablesInfo:
              'swgdn': 'W-m-2',
              'lwgnt': 'W-m-2',
              'lwgntclr': 'W-m-2',
-             'lwgntclrcln': 'W-m-2'}  
+             'lwgntclrcln': 'W-m-2',
+             't2m': 'K',
+             'u2m': 'm-s-1',
+             'v2m': 'm-s-1',
+             'qv2m': 'kg-kg-1',
+             'tqv': 'mm',
+             'ps': 'kpa',
+             'slp': 'kpa',
+             't10m': 'K',
+             'v10m': 'm-s-1',
+             'u10m': 'm-s-1',
+             'v50m': 'm-s-1',
+             'u50m': 'm-s-1'}  
             
             
         elif step == 'daily':
