@@ -417,11 +417,11 @@ def clip_data(input_file, latlim, lonlim, epsg_clip = 4326, band = 1):
     # Define the array that must remain
     Geo_in = dest_in.GetGeoTransform()
     Geo_in = list(Geo_in)
-    Start_x = np.max([int(np.floor(((lonlim[0]) - Geo_in[0])/ Geo_in[1])),0])
-    End_x = np.min([int(np.ceil(((lonlim[1]) - Geo_in[0])/ Geo_in[1])),int(dest_in.RasterXSize)])
+    Start_x = np.max([int(np.floor(np.round((lonlim[0]) - Geo_in[0],5)/ Geo_in[1])),0])
+    End_x = np.min([int(np.ceil(np.round((lonlim[1]) - Geo_in[0], 5)/ Geo_in[1])),int(dest_in.RasterXSize)])
 
-    Start_y = np.max([int(np.floor((Geo_in[3] - latlim[1])/ -Geo_in[5])),0])
-    End_y = np.min([int(np.ceil(((latlim[0]) - Geo_in[3])/Geo_in[5])), int(dest_in.RasterYSize)])
+    Start_y = np.max([int(np.floor(np.round(Geo_in[3] - latlim[1],5)/ -Geo_in[5])),0])
+    End_y = np.min([int(np.ceil(np.round((latlim[0]) - Geo_in[3],5)/Geo_in[5])), int(dest_in.RasterYSize)])
 
     #Create new GeoTransform
     Geo_in[0] = Geo_in[0] + Start_x * Geo_in[1]
