@@ -80,6 +80,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_li
 
     # Pass variables to parallel function and run
     args = [output_folder, TilesVertical, TilesHorizontal, lonlim, latlim, hdf_library]
+
     if not cores:
         for Date in Dates:
             RetrieveData(Date, args)
@@ -180,7 +181,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
 
             # Download the MODIS NDVI data
             url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD43A3.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
-
+      
 		      # Reset the begin parameters for downloading
             downloaded = 0
             N=0
