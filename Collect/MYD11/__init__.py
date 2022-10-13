@@ -17,7 +17,9 @@ MYD11.LST_daily(Dir='C:/Temp3/', Startdate='2003-12-01', Enddate='2003-12-30',
 
 from .LST_daily import main as LST_daily
 from .LST_8daily import main as LST_8daily
+from .LST_night import main as LST_night
+from .LST_8night import main as LST_8night
 
-__all__ = ['LST_daily', 'LST_8daily']
+__all__ = ['LST_daily', 'LST_8daily', 'LST_night', 'LST_8night']
 
 __version__ = '0.1'

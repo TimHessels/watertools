@@ -30,7 +30,7 @@ import watertools.General.raster_conversions as RC
 import watertools.General.data_conversions as DC
 import watertools
 
-def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cores, hdf_library, remove_hdf, angle_info = 0, time_info = 0):
+def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cores, hdf_library, remove_hdf, angle_info = 0, time_info = 0, day_night = "day"):
     """
     This function downloads MOD13 16-daily data
 
@@ -54,10 +54,16 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cor
     # Make an array of the days of which the LST is taken
     if TimeStep == 8:
         Dates = Make_TimeStamps(Startdate,Enddate)
-        TimeStepName = '8_Daily'
+        if day_night == "night":
+            TimeStepName = "8_Night"        
+        else:
+            TimeStepName = '8_Daily'
     if TimeStep == 1:
         Dates = pd.date_range(Startdate,Enddate,freq = 'D')
-        TimeStepName = 'Daily'
+        if day_night == "night":
+            TimeStepName = "Night"
+        else:
+            TimeStepName = 'Daily'
 
     # Create Waitbar
     if Waitbar == 1:
@@ -86,7 +92,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, TimeStep, Waitbar, cor
     TilesVertical, TilesHorizontal = watertools.Collect.MOD15.DataAccess.Get_tiles_from_txt(output_folder, hdf_library, latlim, lonlim)
 
     # Pass variables to parallel function and run
-    args = [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library, angle_info, time_info]
+    args = [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library, angle_info, time_info, day_night]
     if not cores:
         for Date in Dates:
             RetrieveData(Date, args)
@@ -123,7 +129,7 @@ def RetrieveData(Date, args):
     args -- A list of parameters defined in the DownloadData function.
     """
     # Argument
-    [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library, angle_info, time_info] = args
+    [output_folder, TilesVertical, TilesHorizontal,lonlim, latlim, TimeStep, hdf_library, angle_info, time_info, day_night] = args
 
     if TimeStep == 8:
         LSTfileNamePart = os.path.join(output_folder, 'LST_MOD11A2_K_8-daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
@@ -149,7 +155,7 @@ def RetrieveData(Date, args):
 
         # Collect the data from the MODIS webpage and returns the data and lat and long in meters of those tiles
         try:
-            Collect_data(TilesHorizontal, TilesVertical, Date, output_folder, TimeStep, hdf_library, angle_info)
+            Collect_data(TilesHorizontal, TilesVertical, Date, output_folder, TimeStep, hdf_library, day_night, angle_info)
         except:
             print("Was not able to download the file")
         try:
@@ -266,7 +272,7 @@ def Make_TimeStamps(Startdate,Enddate):
 
     return(Dates)
 
-def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf_library, angle_info = 0):
+def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf_library, day_night, angle_info = 0):
     '''
     This function downloads all the needed MODIS tiles from http://e4ftl01.cr.usgs.gov/MOLT/MOD13Q1.006/ as a hdf file.
 
@@ -392,14 +398,20 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
                 # Open .hdf only band with NDVI and collect all tiles to one array
                 dataset = gdal.Open(file_name)
                 sdsdict = dataset.GetMetadata('SUBDATASETS')
-                sdslist = [sdsdict[k] for k in sdsdict.keys() if (('SUBDATASET_1_NAME') in k or ('SUBDATASET_3_NAME') in k or ('SUBDATASET_4_NAME') in k)]
+                if day_night == "day":
+                    sdslist = [sdsdict[k] for k in sdsdict.keys() if (('SUBDATASET_1_NAME') in k or ('SUBDATASET_3_NAME') in k or ('SUBDATASET_4_NAME') in k)]
+                else:
+                    sdslist = [sdsdict[k] for k in sdsdict.keys() if (('SUBDATASET_5_NAME') in k or ('SUBDATASET_7_NAME') in k or ('SUBDATASET_8_NAME') in k)]                    
                 sds = []
                 sds_time = []
                 sds_obsang = []
                 
                 for n in sdslist:
                     sds.append(gdal.Open(n))
-                    full_layer = [i for i in sdslist if 'LST_Day_1km' in i]
+                    if day_night == "day":
+                        full_layer = [i for i in sdslist if 'LST_Day_1km' in i]
+                    else:
+                        full_layer = [i for i in sdslist if 'LST_Night_1km' in i]                       
                     idx = sdslist.index(full_layer[0])
                     if Horizontal == TilesHorizontal[0] and Vertical == TilesVertical[0]:
                         geo_t = sds[idx].GetGeoTransform()
@@ -413,7 +425,10 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
                 del data
  
                 if TimeStep == 1:
-                    full_layer_time = [i for i in sdslist if 'Day_view_time' in i]
+                    if day_night == "day":
+                        full_layer_time = [i for i in sdslist if 'Day_view_time' in i]
+                    else:
+                        full_layer_time = [i for i in sdslist if 'Night_view_time' in i]                        
                     idx_time = sdslist.index(full_layer_time[0])
                     sds_time.append(gdal.Open(sdslist[idx_time]))                
                     data_time = sds_time[0].ReadAsArray()
@@ -421,7 +436,10 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, TimeStep, hdf
                     del data_time
 
                 if angle_info == 1:
-                    full_layer_obsang = [i for i in sdslist if 'Day_view_angl' in i]
+                    if day_night == "day":
+                        full_layer_obsang = [i for i in sdslist if 'Day_view_angl' in i]
+                    else:
+                        full_layer_obsang = [i for i in sdslist if 'Night_view_angl' in i]                        
                     idx_obsang = sdslist.index(full_layer_obsang[0])
                     sds_obsang.append(gdal.Open(sdslist[idx_obsang]))            
                     data_obsang = sds_obsang[0].ReadAsArray()

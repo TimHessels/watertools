@@ -16,8 +16,10 @@ MOD11.LST_8daily(Dir='C:/Temp3/', Startdate='2003-12-01', Enddate='2003-12-30',
 """
 
 from .LST_8daily import main as LST_8daily
+from .LST_8night import main as LST_8night
 from .LST_daily import main as LST_daily
+from .LST_night import main as LST_night
 
-__all__ = ['LST_8daily', 'LST_daily']
+__all__ = ['LST_8daily', 'LST_8night', 'LST_daily', 'LST_night']
 
 __version__ = '0.1'
