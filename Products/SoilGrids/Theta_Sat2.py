@@ -139,7 +139,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         except:
             pass
         '''                   
-        bulk_dens2 = 1/(0.6117 + 0.3601 * Clay/100 + 0.002172 * np.power(Clay/100, 2)+ 0.01715 * np.log(OM))
+        bulk_dens2 = 1/(0.6117 + 0.3601 * Clay/100 + 0.002172 * np.power(OM, 2)+ 0.01715 * np.log(OM))
     
         '''           
         try:
