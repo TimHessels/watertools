@@ -35,7 +35,7 @@ import watertools.General.raster_conversions as RC
 import watertools.General.data_conversions as DC
 
 
-def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Product):
+def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, TimeStep, Product):
     """
     This scripts downloads SSEBop ET data from the UNESCO-IHE ftp server.
     The output files display the total ET in mm for a period of one month.
@@ -85,12 +85,21 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Prod
             Enddate = pd.Timestamp(datetime.datetime.now())
 
    # Define directory and create it if not exists
-    if Product == "ETact":
-        output_folder = os.path.join(Dir, 'Evaporation', 'SSEBop', 'Monthly')
-        freq_use = "MS"
-    if Product == "ETpot":
-        output_folder = os.path.join(Dir, 'Potential_Evapotranspiration', 'FEWS', 'Daily')        
-        freq_use = "D"
+    if TimeStep == "daily":
+        if Product == "ETact":
+            output_folder = os.path.join(Dir, 'Evapotranspiration', 'SSEBop', 'Daily')
+            freq_use = "D"
+        if Product == "ETpot":
+            output_folder = os.path.join(Dir, 'Potential_Evapotranspiration', 'FEWS', 'Daily')        
+            freq_use = "D"
+
+    if TimeStep == "monthly":
+        if Product == "ETact":
+            output_folder = os.path.join(Dir, 'Evapotranspiration', 'SSEBop', 'Monthly')
+            freq_use = "MS"
+        if Product == "ETpot":
+            output_folder = os.path.join(Dir, 'Potential_Evapotranspiration', 'FEWS', 'Monthly')        
+            freq_use = "MS"
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -112,52 +121,57 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Prod
         year = Date.year
         month = Date.month
         day = Date.day
-        
-        if version == "FTP":
 
-            # Date as printed in filename
-            Filename_out= os.path.join(output_folder,'ETa_SSEBop_FTP_mm-month-1_monthly_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
-
-            # Define end filename
-            Filename_dir = os.path.join("%s" %year, "m%s%02d.tif" %(str(year)[2:], month))
-            Filename_only = "m%s%02d.tif" %(str(year)[2:], month)
-
-        if version == "V4":
+        if version == "V4" or version == "V5":
 
             # Date as printed in filename
             if Product == "ETpot":
-                Filename_out= os.path.join(output_folder,'ETpot_FEWS_mm-day-1_daily_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
-                # Define the downloaded zip file
-                Filename_only_zip = 'et%02s%02d%02d.tar.gz' %(str(year)[2:], month, day)
-                # The end file name after downloading and unzipping
-                Filename_only = "et%02s%02d%02d.bil" %(str(year)[2:], month, day)
-                # Create bin folder
-                temp_folder = os.path.join(output_folder, "Temp")
-                if not os.path.exists(temp_folder):
-                    os.makedirs(temp_folder)
-                local_filename = os.path.join(temp_folder, Filename_only)
+                
+                if TimeStep == "daily":
+                    Filename_out= os.path.join(output_folder,'ETpot_FEWS_mm-day-1_daily_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
+                    # Define the downloaded zip file
+                    Filename_only_zip = 'et%02s%02d%02d.tar.gz' %(str(year)[2:], month, day)
+                    # The end file name after downloading and unzipping
+                    Filename_only = "et%02s%02d%02d.bil" %(str(year)[2:], month, day)
+                    # Create bin folder
+                    temp_folder = os.path.join(output_folder, "Temp")
+                    if not os.path.exists(temp_folder):
+                        os.makedirs(temp_folder)
+                    local_filename = os.path.join(temp_folder, Filename_only)
+                    
+            if Product == "ETact" and version == "V4":
+                                    
+                if TimeStep == "monthly":
+                    Filename_out= os.path.join(output_folder,'ETa_SSEBop_V4_mm-month-1_monthly_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
+                    # Define the downloaded zip file
+                    Filename_only_zip = "m%s%02d.zip" %(str(year), month)
+                    # The end file name after downloading and unzipping
+                    Filename_only = "m%s%02d_modisSSEBopETv4_actual_mm.tif" %(str(year), month)
+    
+            		    # Temporary filename for the downloaded global file
+                    local_filename = os.path.join(output_folder, Filename_only)
 
-            if Product == "ETact":
-                Filename_out= os.path.join(output_folder,'ETa_SSEBop_V4_mm-month-1_monthly_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
-                # Define the downloaded zip file
-                Filename_only_zip = "m%s%02d.zip" %(str(year), month)
-                # The end file name after downloading and unzipping
-                Filename_only = "m%s%02d_modisSSEBopETv4_actual_mm.tif" %(str(year), month)
-
-        		    # Temporary filename for the downloaded global file
-                local_filename = os.path.join(output_folder, Filename_only)
+            if Product == "ETact" and version == "V5":
+                
+                if TimeStep == "monthly":
+                    Filename_out= os.path.join(output_folder,'ETa_SSEBop_V5_mm-month-1_monthly_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
+                    # Define the downloaded zip file
+                    Filename_only_zip = "m%s%02d.zip" %(str(year), month)
+                    # The end file name after downloading and unzipping
+                    Filename_only = "m%s%02d_modisSSEBopETv5_actual_mm.tif" %(str(year), month)
+    
+            		    # Temporary filename for the downloaded global file
+                    local_filename = os.path.join(output_folder, Filename_only)
 
         # Download the data from FTP server if the file not exists
         if not os.path.exists(Filename_out):
             try:
 
-                if version == "FTP":
-                    Download_SSEBop_from_WA_FTP(local_filename, Filename_dir)
-                if version == "V4":
+                if version == "V4" or version == "V5":
                     if Product == "ETpot":
-                        Download_SSEBop_from_Web(temp_folder, Filename_only_zip, Product)
+                        Download_SSEBop_from_Web(temp_folder, Filename_only_zip, Product, TimeStep, version)
                     if Product == "ETact":
-                        Download_SSEBop_from_Web(output_folder, Filename_only_zip, Product)
+                        Download_SSEBop_from_Web(output_folder, Filename_only_zip, Product, TimeStep, version)
                         
                 if Product == "ETpot":
                     Array_ETpot = RC.Open_bil_array(local_filename)
@@ -182,7 +196,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Prod
             amount += 1
             WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
-    if version == "V4":
+    if version == "V4" or version == "V5":
         import glob
         os.chdir(output_folder)
         if Product == "ETact":
@@ -199,36 +213,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Prod
             
     return
 
-def Download_SSEBop_from_WA_FTP(local_filename, Filename_dir):
-    """
-    This function retrieves SSEBop data for a given date from the
-    ftp.wateraccounting.unesco-ihe.org server.
-
-    Restrictions:
-    The data and this python file may not be distributed to others without
-    permission of the WA+ team due data restriction of the SSEBop developers.
-
-    Keyword arguments:
-	 local_filename -- name of the temporary file which contains global SSEBop data
-    Filename_dir -- name of the end file with the monthly SSEBop data
-    """
-
-    # Collect account and FTP information
-    username, password = watertools.Functions.Random.Get_Username_PWD.GET("FTP_WA")
-    ftpserver = "ftp.wateraccounting.unesco-ihe.org"
-
-    # Download data from FTP
-    ftp=FTP(ftpserver)
-    ftp.login(username,password)
-    directory="/WaterAccounting/Data_Satellite/Evaporation/SSEBop/sourcefiles/"
-    ftp.cwd(directory)
-    lf = open(local_filename, "wb")
-    ftp.retrbinary("RETR " + Filename_dir, lf.write)
-    lf.close()
-
-    return
-
-def Download_SSEBop_from_Web(output_folder, Filename_only_zip, Product):
+def Download_SSEBop_from_Web(output_folder, Filename_only_zip, Product, TimeStep, version):
     """
     This function retrieves SSEBop data for a given date from the
     https://edcintl.cr.usgs.gov server.
@@ -237,11 +222,15 @@ def Download_SSEBop_from_Web(output_folder, Filename_only_zip, Product):
 	 local_filename -- name of the temporary file which contains global SSEBop data
     Filename_dir -- name of the end directory to put in the extracted data
     """
-    if Product == "ETact":
+    if Product == "ETact" and TimeStep == "monthly" and version == "V4":
         # Create the total url to the webpage
         total_URL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/global/monthly/eta/downloads/" + str(Filename_only_zip)
 
-    if Product == "ETpot":
+    if Product == "ETact" and TimeStep == "monthly" and version == "V5":
+        # Create the total url to the webpage
+        total_URL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/global/monthly/etav5/downloads/" + str(Filename_only_zip)
+           
+    if Product == "ETpot" and TimeStep == "daily":
         total_URL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/global/daily/pet/downloads/daily/" + str(Filename_only_zip)
 
     # Download the data

@@ -7,7 +7,7 @@ Created on Mon Aug 28 07:54:17 2017
 import sys
 from watertools.Collect.SSEBop.DataAccess import DownloadData
 
-def main(Dir, Startdate='', Enddate='', latlim=[-59.17, 80], lonlim=[-180, 180], version = "V4", Waitbar = 1):
+def main(Dir, Startdate='', Enddate='', latlim=[-59.17, 80], lonlim=[-180, 180], version = "V5", Waitbar = 1):
     """
     This function downloads daily FEWS Potential Evapotranspiration data
 
@@ -21,7 +21,7 @@ def main(Dir, Startdate='', Enddate='', latlim=[-59.17, 80], lonlim=[-180, 180],
     print('\nDownload daily FEWS potential evapotranspiration data for the period %s till %s' %(Startdate, Enddate))
 
     # Download data
-    DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Product = "ETpot")
+    DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, TimeStep = "daily",  Product = "ETpot")
 
 if __name__ == '__main__':
     main(sys.argv)
