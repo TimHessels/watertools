@@ -131,7 +131,7 @@ def Calc_Property(Dir, latlim, lonlim, SL, GF = True):
         
         # Calculate bulk density
         bulk_dens1 = dest_bulk.GetRasterBand(1).ReadAsArray()
-        bulk_dens1 = bulk_dens1/1000 # kg/m2 to gr/cm3
+        bulk_dens1 = bulk_dens1/1000 # kg/m3 to gr/cm3
         bulk_dens1 = np.float_(bulk_dens1)
         '''           
         try:
