@@ -12,6 +12,7 @@ import shutil
 from osgeo import gdal
 import sys
 import socket
+import requests
 
 # WA+ modules
 import watertools.General.data_conversions as DC
@@ -258,15 +259,19 @@ def Download_Data(nameFile, output_folder_trash):
 
     # download data from the internet
     url= "http://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF/%s" %(nameFile) 
+    file_name = url.split('/')[-1]
+    output_file = os.path.join(output_folder_trash, file_name)
     
     try:    
-        socket.setdefaulttimeout(300)
-        file_name = url.split('/')[-1]
-        output_file = os.path.join(output_folder_trash, file_name)
-        if sys.version_info[0] == 3:
-            urllib.request.urlretrieve(url, output_file)
-        if sys.version_info[0] == 2:
-            urllib.urlretrieve(url, output_file)
+        with open(output_file, 'wb') as f:
+            r = requests.get(url, verify = False)
+            f.write(r.content)
+        
+        # socket.setdefaulttimeout(300)
+        # if sys.version_info[0] == 3:
+        #     urllib.request.urlretrieve(url, output_file)
+        # if sys.version_info[0] == 2
+        #     urllib.urlretrieve(url, output_file)
     except:
         pass
 

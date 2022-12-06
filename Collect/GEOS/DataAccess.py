@@ -8,6 +8,7 @@ Created on Tue Feb 19 08:47:49 2019
 import os
 import numpy as np
 import pandas as pd
+import requests
 import urllib
 
 def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period, Waitbar, data_type = ["mean"]):
@@ -47,6 +48,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
     proj = "WGS84"
     
     Dates = pd.date_range(Startdate, Enddate, freq = "D")
+   
     
     # Create Waitbar
     if Waitbar == 1:
@@ -61,38 +63,150 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
         if TimeStep == "hourly":
             IDz_start = IDz_end = int(((Date - pd.Timestamp("2017-12-01")).days) * 24) + (Period - 1)
             Hour = int((Period - 1))
-            output_name = os.path.join(output_folder, "%s_GEOS_%s_hourly_%d.%02d.%02d_H%02d.M00.tif"%(Var, unit, Date.year, Date.month, Date.day, Hour))
             output_name_min = output_folder
             output_name_max = output_folder
             if Var in ['t2m', 'u2m', 'v2m', 'qv2m', 'tqv', 'ps', 'slp','t10m', 'v10m', 'u10m', 'v50m', 'u50m', 'ts']:
-                url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_slv_Nx."
+                
+                forecast = 0
+                
+                if "Max_IDz_start" not in locals():
+                    response = requests.get("https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_slv_Nx.info")
+                    content = str(response.content)
+                    Max_IDz_start = int(content.split("points")[-2].split("(")[-1]) - 1
+
+                    
+                if IDz_start > Max_IDz_start:    
+                    
+                    Date_start_fc = pd.Timestamp("2017-12-01") + pd.DateOffset(hours = Max_IDz_start)
+                    print("forecast is used")
+                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx/tavg1_2d_slv_Nx.%d%d%d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
+                    IDz_start = IDz_end = int(((Date - pd.Timestamp(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)).days) * 24) + (Period - 1)
+                    forecast = 1
+                    
+                else:
+                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_slv_Nx."
+                    
             if Var in ['swgdn']:
-                url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx."
+                
+                forecast = 0
+                
+                if "Max_IDz_start" not in locals():
+                    response = requests.get("https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx.info")
+                    content = str(response.content)
+                    Max_IDz_start = int(content.split("points")[-2].split("(")[-1]) - 1
+
+                if IDz_start > Max_IDz_start:    
+                    
+                    Date_start_fc = pd.Timestamp("2017-12-01") + pd.DateOffset(hours = Max_IDz_start)
+                    print("forecast is used")
+                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_rad_Nx/tavg1_2d_rad_Nx.%d%d%d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
+                    IDz_start = IDz_end = int(((Date - pd.Timestamp(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)).days) * 24) + (Period - 1)
+                    forecast = 1
+                    
+                else:
+                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx."             
+  
+
+            if forecast == 0:
+                output_name = os.path.join(output_folder, "%s_GEOS_%s_hourly_%d.%02d.%02d_H%02d.M00.tif"%(Var, unit, Date.year, Date.month, Date.day, Hour))
+            else:
+                output_name = os.path.join(output_folder, "%s_GEOS-fc_%s_hourly_%d.%02d.%02d_H%02d.M00.tif"%(Var, unit, Date.year, Date.month, Date.day, Hour))
      
+        
         if TimeStep == "three_hourly":
+            
             IDz_start = IDz_end = int(((Date - pd.Timestamp("2017-12-01")).days) * 8) + (Period - 1)
             Hour = int((Period - 1) * 3)
-            output_name = os.path.join(output_folder, "%s_GEOS_%s_3-hourly_%d.%02d.%02d_H%02d.M00.tif"%(Var, unit, Date.year, Date.month, Date.day, Hour))
+            forecast = 0
+            
+            if "Max_IDz_start_3h" not in locals():
+               response = requests.get("https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/inst3_2d_asm_Nx.info")
+               content = str(response.content)
+               Max_IDz_start_3h = int(content.split("points")[-2].split("(")[-1]) - 1
+               
+            if IDz_start > Max_IDz_start_3h:    
+               
+               Date_start_fc = pd.Timestamp("2017-12-01") + pd.DateOffset(hours = Max_IDz_start_3h * 3)
+               if Var in ['t2m', 't10m', 'ps', 'qv2m', 'gwettop']:
+                   print("forecast is used")
+                   url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/inst3_2d_asm_Nx/inst3_2d_asm_Nx.%d%d%d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
+                   IDz_start = IDz_end = int(((Date - pd.Timestamp(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)).days) * 24) + (Period - 1)
+                   forecast = 1
+               else:
+                   print("parameter not available in three hourly in forecast mode")
+               
+            else:
+               url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/inst3_2d_asm_Nx."
+                       
+            
+            if forecast == 0:
+                output_name = os.path.join(output_folder, "%s_GEOS_%s_3-hourly_%d.%02d.%02d_H%02d.M00.tif"%(Var, unit, Date.year, Date.month, Date.day, Hour))
+            else:
+                output_name = os.path.join(output_folder, "%s_GEOS-fc_%s_3-hourly_%d.%02d.%02d_H%02d.M00.tif"%(Var, unit, Date.year, Date.month, Date.day, Hour))
+                
             output_name_min = output_folder
             output_name_max = output_folder
-            url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/inst3_2d_asm_Nx."
+            
             
         if TimeStep == "daily":
+    
             if Var in ['t2m', 'u2m', 'v2m', 'qv2m', 'tqv', 'ps', 'slp','t10m', 'v10m', 'u10m', 'v50m', 'u50m', 'ts']:
-                IDz_start = int(((Date - pd.Timestamp("2017-12-01")).days) * 8) 
-                IDz_end = IDz_start + 7
-                url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/inst3_2d_asm_Nx."
-                size_z = 8
-            else:
                 IDz_start = int(((Date - pd.Timestamp("2017-12-01")).days) * 24) 
                 IDz_end = IDz_start + 23   
-                url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx."
+                forecast = 0
+                if "Max_IDz_start" not in locals():
+                    
+                    response = requests.get("https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_slv_Nx.info")
+                    content = str(response.content)
+                    Max_IDz_start = int(content.split("points")[-2].split("(")[-1]) - 1
+                
+                if IDz_end > Max_IDz_start:    
+                    
+                    Date_start_fc = pd.Timestamp("2017-12-01") + pd.DateOffset(hours = Max_IDz_start)
+                    print("forecast is used")
+                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx/tavg1_2d_slv_Nx.%d%d%d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
+                    IDz_start = int(((Date - pd.Timestamp(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)).days) * 24)
+                    IDz_end = IDz_start + 23   
+                    forecast = 1
+                    
+                else:
+                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_slv_Nx."
+                    
+                size_z = 24
+                
+            else:
+                
+                IDz_start = int(((Date - pd.Timestamp("2017-12-01")).days) * 24) 
+                IDz_end = IDz_start + 23  
+                forecast = 0
+                
+                if "Max_IDz_start" not in locals():
+                    
+                     response = requests.get("https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx.info")
+                     content = str(response.content)
+                     Max_IDz_start = int(content.split("points")[-2].split("(")[-1]) - 1
+                     
+                if IDz_end > Max_IDz_start:    
+                     
+                     Date_start_fc = pd.Timestamp("2017-12-01") + pd.DateOffset(hours = Max_IDz_start)
+                     print("forecast is used")
+                     url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_rad_Nx/tavg1_2d_rad_Nx.%d%d%d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
+                     IDz_start = IDz_end = int(((Date - pd.Timestamp(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)).days) * 24) + (Period - 1)
+                     forecast = 1
+                     
+                else:
+                     url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx."             
+
                 size_z = 24
                  
             if "mean" in data_type:
-                output_name = os.path.join(output_folder, "%s_GEOS_%s_daily_%d.%02d.%02d.tif"%(Var, unit, Date.year, Date.month, Date.day))
+                if forecast == 0:
+                    output_name = os.path.join(output_folder, "%s_GEOS_%s_daily_%d.%02d.%02d.tif"%(Var, unit, Date.year, Date.month, Date.day))
+                else:
+                    output_name = os.path.join(output_folder, "%s_GEOS-fc_%s_daily_%d.%02d.%02d.tif"%(Var, unit, Date.year, Date.month, Date.day))
             else:
                 output_name = output_folder
+                
             if "min" in data_type:
                 output_name_min = os.path.join(output_folder, "min", "%smin_GEOS_%s_daily_%d.%02d.%02d.tif"%(Var, unit, Date.year, Date.month, Date.day))
             else:

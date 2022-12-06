@@ -6,10 +6,10 @@ Created on Mon Feb 18 20:50:36 2019
 """
 
 import os
-import urllib
 from osgeo import gdal
 import shutil
 import numpy as np
+import requests
 
 def DownloadData(output_folder, latlim, lonlim):
     
@@ -47,7 +47,9 @@ def DownloadData(output_folder, latlim, lonlim):
         filename_out = os.path.join(output_folder_temp, "Globcover2009_V2.3_Global_.zip")
         
         # Download the data
-        urllib.request.urlretrieve(url, filename=filename_out)
+        with open(filename_out, 'wb') as f:
+            r = requests.get(url, verify = False)
+            f.write(r.content)      
         
         # Extract data
         DC.Extract_Data(filename_out, output_folder_temp)
