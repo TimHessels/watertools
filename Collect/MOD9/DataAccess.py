@@ -214,12 +214,6 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
         letter = "A"
 
                     
-    r = s.get(''.join([url,'?fields=all&format=json']), headers=headers)
-    if r.status_code == 200:            
-        f = r.text 
-    else:
-        print("Got an ERROR 404 not connected!!!")
-
     # Create the Lat and Long of the MODIS tile in meters
     for Vertical in range(int(TilesVertical[0]), int(TilesVertical[1])+1):
         Distance = 231.65635826395834 * size_factor # resolution of a MODIS pixel in meter
@@ -246,10 +240,17 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
 
             if not downloaded == 1:
              
-                try:
+                r = s.get(''.join([url,'?fields=all&format=json']), headers=headers, timeout = 2000)
+                if r.status_code == 200:            
+                    f = r.text 
+                else:
+                    print("Got an ERROR 404 not connected!!!")
 
-                    # Sum all the files on the server
-                    soup = BeautifulSoup(f, "lxml")
+                # Sum all the files on the server
+                soup = BeautifulSoup(f, "lxml")   
+             
+                try:
+                    
                     for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
     
                         # Find the file with the wanted tile number
@@ -274,17 +275,19 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
                                         downloaded = 1
                                     else:
                                                            
-                                        with s.get(nameDownload, headers=headers, stream=True) as r:
-                                            with open(file_name, 'wb') as f:
-                                                for chunk in r.iter_content(chunk_size=1024 * 1024):
-                                                    if chunk:  # filter out keep-alive new chunks
-                                                        f.write(chunk)
-                                                        # f.flush()                                       
+                                        r = s.get(nameDownload, headers=headers, stream=True, timeout = 2000)
+                                        with open(file_name, 'wb') as f:
+                                            for chunk in r.iter_content(chunk_size=1024 * 1024):
+                                                if chunk:  # filter out keep-alive new chunks
+                                                    f.write(chunk)
+                                                    # f.flush()                                       
                                                                   
                                         statinfo = os.stat(file_name)
                                         # Say that download was succesfull
                                         if int(statinfo.st_size) > 10000:
                                              downloaded = 1
+                                        else:
+                                            print("Size is too small")
     
                                 # If download was not succesfull
                                 except:
@@ -292,10 +295,10 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
                                     # Try another time
                                     N = N + 1
     
-        				         # Stop trying after 10 times
-                            if N == 10:
-                                print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
-                                downloaded = 1
+    				            # Stop trying after 10 times
+                                if N == 10:
+                                    print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
+                                    downloaded = 1
 
                 except:
                         print("Url not found: %s" %url)                                     

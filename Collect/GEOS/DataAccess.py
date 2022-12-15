@@ -71,6 +71,9 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                 
                 if "Max_IDz_start" not in locals():
                     response = requests.get("https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_slv_Nx.info")
+                    if response.status_code > 300:
+                        raise("Error opening the server https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_slv_Nx.info")
+                    
                     content = str(response.content)
                     Max_IDz_start = int(content.split("points")[-2].split("(")[-1]) - 1
 
@@ -92,6 +95,9 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                 
                 if "Max_IDz_start" not in locals():
                     response = requests.get("https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx.info")
+                    if response.status_code > 300:
+                        raise("Error opening the server https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx.info")
+                    
                     content = str(response.content)
                     Max_IDz_start = int(content.split("points")[-2].split("(")[-1]) - 1
 
@@ -121,6 +127,9 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
             
             if "Max_IDz_start_3h" not in locals():
                response = requests.get("https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/inst3_2d_asm_Nx.info")
+               if response.status_code > 300:
+                   raise("Error opening the server https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/inst3_2d_asm_Nx.info")
+                    
                content = str(response.content)
                Max_IDz_start_3h = int(content.split("points")[-2].split("(")[-1]) - 1
                
@@ -157,6 +166,9 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                 if "Max_IDz_start" not in locals():
                     
                     response = requests.get("https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_slv_Nx.info")
+                    if response.status_code > 300:
+                        raise("Error opening the server https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_slv_Nx.info")
+                        
                     content = str(response.content)
                     Max_IDz_start = int(content.split("points")[-2].split("(")[-1]) - 1
                 
@@ -183,6 +195,9 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                 if "Max_IDz_start" not in locals():
                     
                      response = requests.get("https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx.info")
+                     if response.status_code > 300:
+                         raise("Error opening the server https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/assim/tavg1_2d_rad_Nx.info")
+                         
                      content = str(response.content)
                      Max_IDz_start = int(content.split("points")[-2].split("(")[-1]) - 1
                      

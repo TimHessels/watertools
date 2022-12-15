@@ -37,7 +37,7 @@ def GET(server):
     obj = json.loads(datastore)      
     f.close()
     
-    if server != "WAPOR" and server != "NASA_BEARER":
+    if server != "WAPOR" and server != "NASA_BEARER" and server != "VIIRS_BEARER":
         username_crypt, pwd_crypt = obj[server]
         username = cipher_suite.decrypt(username_crypt.encode("utf-8"))
         pwd = cipher_suite.decrypt(pwd_crypt.encode("utf-8"))        

@@ -59,8 +59,8 @@ help(Collect)
 dir(Collect)
 """
 
-from watertools.Collect import TRMM, GLDAS, ALEXI, CHIRPS, CHIRP, DEM, CFSR, MOD9, MOD10, MOD11, MOD12, MOD13, MOD15, MOD16, MOD17, MCD43, MCD19, MYD9, MYD11, MYD13, GLEAM, HiHydroSoil, ECMWF, RFE, JRC, TWC, ETmonitor, SEBS, SSEBop, CMRSET, MSWEP, ASCAT, SoilGrids, FEWS, PROBAV, GPM, NLDAS, S30, L30, Globcover, MERRA, GEOS, MSGCPP, ESACCI, WAPOR
+from watertools.Collect import TRMM, GLDAS, ALEXI, CHIRPS, CHIRP, DEM, CFSR, MOD9, MOD10, MOD11, MOD12, MOD13, MOD15, MOD16, MOD17, MCD43, MCD19, MYD9, MYD11, MYD13, GLEAM, HiHydroSoil, ECMWF, RFE, JRC, TWC, ETmonitor, SEBS, SSEBop, CMRSET, MSWEP, ASCAT, SoilGrids, FEWS, PROBAV, GPM, NLDAS, S30, L30, Globcover, MERRA, GEOS, MSGCPP, ESACCI, WAPOR, VIIRS
 
-__all__ = ['TRMM', 'GLDAS', 'ALEXI', 'CHIRPS', 'CHIRP', 'DEM', 'CFSR', 'MOD9', 'MOD10', 'MOD11', 'MOD12', 'MOD13', 'MOD15', 'MOD16', 'MOD17', 'MCD43', 'MCD19', 'MYD9', 'MYD11','MYD13', 'GLEAM', 'HiHydroSoil', 'ECMWF', 'RFE', 'JRC', 'TWC', 'ETmonitor', 'SEBS', 'SSEBop', 'CMRSET', 'MSWEP', 'ASCAT', 'SoilGrids', 'FEWS', 'PROBAV', 'GPM', 'NLDAS', 'S30', 'L30', 'Globcover', 'MERRA', 'GEOS', 'MSGCPP', 'ESACCI', 'WAPOR']
+__all__ = ['TRMM', 'GLDAS', 'ALEXI', 'CHIRPS', 'CHIRP', 'DEM', 'CFSR', 'MOD9', 'MOD10', 'MOD11', 'MOD12', 'MOD13', 'MOD15', 'MOD16', 'MOD17', 'MCD43', 'MCD19', 'MYD9', 'MYD11','MYD13', 'GLEAM', 'HiHydroSoil', 'ECMWF', 'RFE', 'JRC', 'TWC', 'ETmonitor', 'SEBS', 'SSEBop', 'CMRSET', 'MSWEP', 'ASCAT', 'SoilGrids', 'FEWS', 'PROBAV', 'GPM', 'NLDAS', 'S30', 'L30', 'Globcover', 'MERRA', 'GEOS', 'MSGCPP', 'ESACCI', 'WAPOR', 'VIIRS']
 
 __version__ = '0.1'

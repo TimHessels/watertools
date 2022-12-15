@@ -94,7 +94,7 @@ def RetrieveData(args):
         data_end, geo_end, Proj_out = RC.clip_data(data_in, latlim, lonlim)
     else:
 
-        data_end = np.zeros([int((latlim[1] - latlim[0])/0.00025), int((lonlim[1] - lonlim[0])/0.00025)])
+        data_end = np.zeros([int(np.round((latlim[1] - latlim[0])/0.00025)), int(np.round((lonlim[1] - lonlim[0])/0.00025))])
 
         for Name_to_merge in Names_to_download:
             trash_folder = os.path.join(output_folder, "Trash")
