@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import requests
 import urllib
+import time
 
 def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period, Waitbar, data_type = ["mean"]):
 
@@ -324,6 +325,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                     # Stop trying after 10 times
                     if N == 10:
                         print('Data from ' + Date.strftime('%Y-%m-%d') + ' is not available')
+                        time.sleep(30)
                         downloaded = 1
     
         if Waitbar == 1:

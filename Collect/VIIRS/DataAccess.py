@@ -84,7 +84,7 @@ def DownloadData(input_folder, startdate, enddate, latlim, lonlim, Waitbar):
             files_vnp_hdf = [files_vnp[m.start():m.start()+43] for m in re.finditer("VNP03IMG.A", files_vnp)]
             files_vnp_hdf_ok = [k for k in files_vnp_hdf if int(k.split(".")[2])>=int(time_str_start[0:4]) - 4 and int(k.split(".")[2])<=int(time_str_end[0:4]) + 4]
             
-            if len(files_viaes_hdf_ok) > 0:
+            if len(files_viaes_hdf_ok) > 0 and len(files_vnp_hdf_ok) > 0:
                 
                 for idx, file_viaes_hdf_ok in enumerate(files_viaes_hdf_ok):
                     
