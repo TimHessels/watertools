@@ -220,6 +220,9 @@ def DownloadData(input_folder, startdate, enddate, latlim, lonlim, Waitbar):
                                 
                                 print("Error creating VIIRS file for %s" %file_viaes_hdf_ok)
         
+                        else:
+                            print("%s already exists" %filename_out) 
+                         
         # Adjust waitbar
         if Waitbar == 1:
             import watertools.Functions.Random.WaitbarConsole as WaitbarConsole
@@ -242,14 +245,19 @@ def Perform_Download_VIIRS(url, file_name_out):
     
     VIIRS_BEARER, passw = watertools.Functions.Random.Get_Username_PWD.GET('VIIRS_BEARER')
     head = {"Authorization": "Bearer %s" %VIIRS_BEARER}
-    
+    print(head)
+    print(url)
     r = requests.get(url, headers = head, stream=True, timeout = 2000)
-    
-    with open(file_name_out, 'wb') as f:
-        for chunk in r.iter_content(chunk_size=1024 * 1024):
-            if chunk:  # filter out keep-alive new chunks
-                f.write(chunk)
-                
+    print(r.status_code)
+    if r.status_code == 200:
+        
+        with open(file_name_out, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024 * 1024):
+                if chunk:  # filter out keep-alive new chunks
+                    f.write(chunk)
+    else:
+        print("Something went wrong downloading %s" %url)
+                    
     return()
 
 def firstPage(site = "avl"):

@@ -10,7 +10,7 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
-def Show_tif(image_file, Limits = None, Color = None):
+def Show_tif(image_file, Limits = None, Color = None, Invert = False, output_format = None, title = None):
     """
     This function plot a tiff array in the console
 
@@ -38,10 +38,25 @@ def Show_tif(image_file, Limits = None, Color = None):
     
     if Color == None:
         Color = "viridis"
-    
+    if Invert == True:
+        Color = plt.cm.get_cmap(Color).reversed()
+        
     plt.imshow(Array, cmap = Color, vmin=Limits[0], vmax=Limits[1])
+    if title != None:
+        plt.title(title)
+        
     plt.colorbar()
-    plt.show()
+    
+    if output_format != None:
+        directory_out = os.path.dirname(output_format)
+        if not os.path.exists(directory_out):
+            os.makedirs(directory_out)
+        
+        plt.savefig(output_format, bbox_inches='tight')
+    else:
+        plt.show()
+        
+    plt.close()
     
     return()
 
