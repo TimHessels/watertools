@@ -16,6 +16,7 @@ import calendar
 from netCDF4 import Dataset
 
 # Water Accounting modules
+import watertools
 import watertools.General.data_conversions as DC
 
 def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCase, Product):
@@ -32,6 +33,9 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCa
              to avoid using parallel computing routines.
     Waitbar -- 1 (Default) will print a waitbar
     """
+    if not os.path.exists(Dir):
+        os.makedirs(Dir)
+        
     # Check start and end date and otherwise set the date
     if not Startdate:
         Startdate = pd.Timestamp('2003-01-01')
@@ -45,14 +49,14 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, TimeCa
 
     # String Parameters
     if TimeCase == 'daily':
-        VarCode = '%s_GLEAM.V3.3b_mm-day-1_daily' %Product
-        FTPprefix = 'data/v3.3b/'
+        VarCode = '%s_GLEAM.V3.6b_mm-day-1_daily' %Product
+        FTPprefix = 'data/v3.6b/'
         TimeFreq = 'D'
         Folder_name = 'Daily'
 
     elif TimeCase == 'monthly':
-        VarCode = '%s_GLEAM.V3.3b_mm-month-1_monthly' %Product
-        FTPprefix = 'data/v3.3b/'
+        VarCode = '%s_GLEAM.V3.6b_mm-month-1_monthly' %Product
+        FTPprefix = 'data/v3.6b/'
         TimeFreq = 'M'
         Folder_name = 'Monthly'
 
@@ -149,9 +153,9 @@ def RetrieveData(Date, args):
     if TimeCase == 'monthly':
 
         if Product == "ET":
-            filename='E_' + str(Year) + '_GLEAM_v3.3b_MO.nc'
+            filename='E_' + str(Year) + '_GLEAM_v3.6b.nc'
         if Product == "ETpot":
-            filename='Ep_' + str(Year) + '_GLEAM_v3.3b_MO.nc'
+            filename='Ep_' + str(Year) + '_GLEAM_v3.6b.nc'
         
         local_filename = os.path.join(output_folder, filename)
 
@@ -171,24 +175,25 @@ def RetrieveData(Date, args):
         Day = 1
 
         if Product == "ET":
-            Data = f.variables['E'][DOYDownload:DOYend,Xstart:Xend,Ystart:Yend]
+            Data = f.variables['E'][DOYDownload:DOYend,Ystart:Yend, Xstart:Xend].data
         if Product == "ETpot":
-            Data = f.variables['Ep'][DOYDownload:DOYend,Xstart:Xend,Ystart:Yend]
+            Data = f.variables['Ep'][DOYDownload:DOYend,Ystart:Yend,Xstart:Xend]
            
         data=np.array(Data)
         f.close()
 
         # Sum ET data in time and change the no data value into -999
         dataSum=sum(data,1)
-        dataSum[dataSum<-100]=-999.000
-        dataCor=np.swapaxes(dataSum,0,1)
-
+        dataSum[dataSum<-100]=np.nan
+        #dataCor=np.swapaxes(dataSum,0,1)
+        dataCor = dataSum 
+        
     if TimeCase == 'daily':
         
         if Product == "ET":
-            filename='E_' + str(Year) + '_GLEAM_v3.3b.nc'
+            filename='E_' + str(Year) + '_GLEAM_v3.6b.nc'
         if Product == "ETpot":
-            filename='Ep_' + str(Year) + '_GLEAM_v3.3b.nc'
+            filename='Ep_' + str(Year) + '_GLEAM_v3.6b.nc'
         
         local_filename = os.path.join(output_folder, filename)
 
@@ -208,9 +213,10 @@ def RetrieveData(Date, args):
         data=np.array(Data)
         f.close()
 
-        data[data<-100]=-999.000
-        dataCor=np.swapaxes(data,0,1)
-
+        data[data<-100]=np.nan
+        #dataCor=np.swapaxes(dataSum,0,1)
+        dataCor = dataSum 
+        
     # The Georeference of the map
     geo_in=[lonlim[0], 0.25, 0.0, latlim[1], 0.0, -0.25]
 
@@ -249,7 +255,7 @@ def Collect_data(FTPprefix,Years,output_folder, Waitbar, Product):
 
 
     for year in Years:
-        directory = os.path.join(FTPprefix, '%d' %year)
+        directory = os.path.join(FTPprefix, 'daily/%d' %year)
         ssh=paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(server, port=portnumber, username=username, password=password)
@@ -257,9 +263,9 @@ def Collect_data(FTPprefix,Years,output_folder, Waitbar, Product):
         ftp.chdir(directory)
         
         if Product == "ET":
-             filename='E_' + str(year) + '_GLEAM_v3.3b.nc'
+             filename='E_' + str(year) + '_GLEAM_v3.6b.nc'
         if Product == "ETpot":
-             filename='Ep_' + str(year) + '_GLEAM_v3.3b.nc'
+             filename='Ep_' + str(year) + '_GLEAM_v3.6b.nc'
         local_filename = os.path.join(output_folder, filename)
 
         if not os.path.exists(local_filename):
