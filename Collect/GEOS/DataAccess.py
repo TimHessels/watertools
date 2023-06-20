@@ -177,7 +177,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                     
                     Date_start_fc = pd.Timestamp("2017-12-01") + pd.DateOffset(hours = Max_IDz_start)
                     print("forecast is used")
-                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx/tavg1_2d_slv_Nx.%d%d%d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
+                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx/tavg1_2d_slv_Nx.%d%02d%02d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
                     IDz_start = int(((Date - pd.Timestamp(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)).days) * 24)
                     IDz_end = IDz_start + 23   
                     forecast = 1
@@ -206,7 +206,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                      
                      Date_start_fc = pd.Timestamp("2017-12-01") + pd.DateOffset(hours = Max_IDz_start)
                      print("forecast is used")
-                     url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_rad_Nx/tavg1_2d_rad_Nx.%d%d%d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
+                     url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_rad_Nx/tavg1_2d_rad_Nx.%d%02d%02d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
                      IDz_start = IDz_end = int(((Date - pd.Timestamp(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)).days) * 24) + (Period - 1)
                      forecast = 1
                      
@@ -236,7 +236,8 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
 
             # define total url
             url_GEOS = url_start + 'ascii?%s[%s:1:%s][%s:1:%s][%s:1:%s]' %(Var, IDz_start,IDz_end, int(IDy[0]),int(IDy[1]),int(IDx[0]),int(IDx[1]))
-        
+  
+             
             # Reset the begin parameters for downloading
             downloaded = 0
             N = 0
