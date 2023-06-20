@@ -40,7 +40,7 @@ def DownloadData(Dir, latlim, lonlim, Waitbar):
         filename_out = os.path.join(Dir_trash, "ESACCI-LC-L4-LCCS-Map-300m-P1Y-2015-v2.0.7.zip")
 
         # Download data
-        with open(output_filename, 'wb') as local_file:
+        with open(filename_out, 'wb') as local_file:
             ftp.retrbinary('RETR ' + os.path.basename('/CCI/LandCover/ESACCI-LC-L4-LCCS-Map-300m-P1Y-2015-v2.0.7.zip'), local_file.write)
 
         ftp.quit()
