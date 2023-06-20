@@ -53,14 +53,14 @@ def DownloadData(Dir, latlim, lonlim, Waitbar):
         
         try:
             # Clip data to user extend
-            data, Geo_out = RC.clip_data(filename_world, latlim, lonlim)
-            
+            data, Geo_out, Proj_out = RC.clip_data(filename_world, latlim, lonlim)
+       
             # Save data of clipped array
             DC.Save_as_tiff(output_filename, data, Geo_out, 4326)
             
         except:
             
-            RC.Clip_Dataset_GDAL(RC.clip_data(filename_world, latlim, lonlim))
+            RC.Clip_Dataset_GDAL(filename_world, output_filename, latlim, lonlim)
         
         # Remove trash folder
         shutil.rmtree(Dir_trash)
