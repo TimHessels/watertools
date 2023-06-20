@@ -21,7 +21,7 @@ def DownloadData(Dir, latlim, lonlim, Waitbar):
     """
     
     # Define the output name
-    output_filename = os.path.join(Dir, 'LU_ESACCI.tif')
+    output_filename = os.path.join(Dir, "ESACCI", 'LU_ESACCI.tif')
     
     if not os.path.exists(output_filename):
     
@@ -32,7 +32,7 @@ def DownloadData(Dir, latlim, lonlim, Waitbar):
         
         
         # Create a Trash folder
-        Dir_trash = os.path.join(Dir, "Trash")
+        Dir_trash = os.path.join(Dir, "ESACCI", "Trash")
         if not os.path.exists(Dir_trash):
             os.makedirs(Dir_trash)
         
