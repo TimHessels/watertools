@@ -1222,7 +1222,7 @@ def Vector_to_Raster(shapefile_name, filename, Attribute_name):
     
     return(Raster_Basin)
 
-def Raster_to_Vector(filename, shapefile_name):
+def Raster_to_Vector(filename, shapefile_name, parameter_format = "INT", digits = 0):
     """
     This function creates a vector of a raster file
 
@@ -1252,11 +1252,18 @@ def Raster_to_Vector(filename, shapefile_name):
     drv = ogr.GetDriverByName("ESRI Shapefile")
     dst_ds = drv.CreateDataSource(shapefile_name)
     dst_layer = dst_ds.CreateLayer(dst_layername, srs = None)
-    newField = ogr.FieldDefn('DN', ogr.OFTInteger)
-    dst_layer.CreateField(newField)
-    gdal.Polygonize(srcband, None, dst_layer, 0, [], 
-    callback=None )    
-    dst_ds.Destroy() 
+    if parameter_format == "INT":
+        newField = ogr.FieldDefn('DN', ogr.OFTInteger)
+        dst_layer.CreateField(newField)
+        gdal.Polygonize(srcband, None, dst_layer, 0, [], 
+        callback=None)    
+        dst_ds.Destroy() 
+    if parameter_format == "REAL":
+        newField = ogr.FieldDefn('DN', ogr.OFTReal)    
+        dst_layer.CreateField(newField)
+        gdal.FPolygonize(srcband, None, dst_layer, 0, [], 
+        callback=None)    
+        dst_ds.Destroy() 
     
     proj_filename =  os.path.join(os.path.dirname(shapefile_name), os.path.basename(shapefile_name).replace(".shp",".prj"))
     prj = open(proj_filename, "w")

@@ -131,7 +131,31 @@ def Get_Row_Column_CoordinateWGS(filename, Coordinate):
     return(yID, xID)     
     
  
+def Get_Row_Column_Coordinate(filename, Coordinate):
+             
+    dest = gdal.Open(filename)
+    geo_out = dest.GetGeoTransform()
+    size_x = dest.RasterXSize
+    size_y = dest.RasterYSize
+    ulx = np.arange(0,size_x) * geo_out[1] + geo_out[0] + 0.5 *geo_out[1]
+    uly = np.arange(0,size_y) * geo_out[5] + geo_out[3] + 0.5 *geo_out[5]   
     
+    ulxx = np.zeros([len(uly),len(ulx)])
+    ulyy = np.zeros([len(uly),len(ulx)])
+    ulxx[:,:]=ulx[None,:]
+    ulyy[:,:]=uly[:,None]
+    
+    ulx_dis = np.abs(ulxx - Coordinate[0])
+    uly_dis = np.abs(ulyy - Coordinate[1])
+    tot_dis = ulx_dis + uly_dis
+    if np.nanmin(tot_dis) > (4 * (np.abs(ulxx[0,0]-ulxx[1,1]) + np.abs(ulyy[0,0]-ulyy[1,1]))):
+        yID, xID = [np.nan, np.nan]
+    else:
+        yID, xID = np.argwhere(tot_dis == np.nanmin(tot_dis))[0]
+    
+    return(yID, xID)     
+      
+     
 '''   
  
 input_folders = [r"G:\SEBAL_Tadla\Daily_SEBAL\Dataset_out\Albedo_daily",r"G:\SEBAL_Tadla\Daily_SEBAL\Dataset_out\PreSEBAL_out\ALBEDO_MODIS_test\Albedo_new","G:\SEBAL_Tadla\Daily_SEBAL\Dataset_out\PreSEBAL_SEBAL_out\Albedo"]
