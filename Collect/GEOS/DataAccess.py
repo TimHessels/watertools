@@ -83,7 +83,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                     
                     Date_start_fc = pd.Timestamp("2017-12-01") + pd.DateOffset(hours = Max_IDz_start)
                     print("forecast is used")
-                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx/tavg1_2d_slv_Nx.%d%d%d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
+                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx/tavg1_2d_slv_Nx.%d%02d%02d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
                     IDz_start = IDz_end = int(((Date - pd.Timestamp(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)).days) * 24) + (Period - 1)
                     forecast = 1
                     
@@ -106,7 +106,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                     
                     Date_start_fc = pd.Timestamp("2017-12-01") + pd.DateOffset(hours = Max_IDz_start)
                     print("forecast is used")
-                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_rad_Nx/tavg1_2d_rad_Nx.%d%d%d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
+                    url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_rad_Nx/tavg1_2d_rad_Nx.%d%02d%02d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
                     IDz_start = IDz_end = int(((Date - pd.Timestamp(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)).days) * 24) + (Period - 1)
                     forecast = 1
                     
@@ -139,7 +139,7 @@ def DownloadData(Dir, Var, Startdate, Enddate, latlim, lonlim, TimeStep, Period,
                Date_start_fc = pd.Timestamp("2017-12-01") + pd.DateOffset(hours = Max_IDz_start_3h * 3)
                if Var in ['t2m', 't10m', 'ps', 'qv2m', 'gwettop']:
                    print("forecast is used")
-                   url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/inst3_2d_asm_Nx/inst3_2d_asm_Nx.%d%d%d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
+                   url_start = r"https://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/inst3_2d_asm_Nx/inst3_2d_asm_Nx.%d%02d%02d_00." %(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)
                    IDz_start = IDz_end = int(((Date - pd.Timestamp(Date_start_fc.year, Date_start_fc.month, Date_start_fc.day)).days) * 24) + (Period - 1)
                    forecast = 1
                else:
