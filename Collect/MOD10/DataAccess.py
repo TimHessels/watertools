@@ -242,7 +242,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library, 
 
     # Download the MODIS FPAR data
     if period == "8-daily":
-        url = 'https://n5eil01u.ecs.nsidc.org/MOST/MOD10A2.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+        url = 'https://n5eil01u.ecs.nsidc.org/MOST/MOD10A2.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
     if period == "daily":
         url = 'https://n5eil01u.ecs.nsidc.org/MOST/MOD10A1.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
         

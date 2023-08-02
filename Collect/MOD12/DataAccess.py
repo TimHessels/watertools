@@ -179,7 +179,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, LC_Type, hdf_
             countX=Horizontal - TilesHorizontal[0] + 1
 
             # Download the MODIS LC data
-            url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD12Q1.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD12Q1.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
 		      # Reset the begin parameters for downloading
             downloaded = 0
