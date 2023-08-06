@@ -16,7 +16,8 @@ MCD19.Albedo_8daily(Dir='C:/Temp3/', Startdate='2003-12-01', Enddate='2003-12-20
 """
 
 from .Albedo_8daily import main as Albedo_8daily
+from .Albedo_daily import main as Albedo_daily
 
-__all__ = ['Albedo_8daily']
+__all__ = ['Albedo_8daily', 'Albedo_daily']
 
 __version__ = '0.1'

@@ -19,9 +19,7 @@ def main(Dir, Startdate, Enddate, latlim, lonlim, cores=False, Waitbar = 1, hdf_
     if Waitbar == 1:
         print('\nDownload 8-daily MODIS Albedo data for period %s till %s' %(Startdate, Enddate))
         
-        
-    print("This data is not available anymore. Use the daily product")    
-    #DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_library, remove_hdf)
+    DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_library, remove_hdf)
 
 if __name__ == '__main__':
     main(sys.argv)

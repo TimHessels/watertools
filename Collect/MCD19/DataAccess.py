@@ -53,8 +53,9 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_li
         Enddate = pd.Timestamp('Now')
 
     # Make an array of the days of which the NDVI is taken
-    Dates = watertools.Collect.MOD11.DataAccess.Make_TimeStamps(Startdate,Enddate)
-
+    #Dates = watertools.Collect.MOD11.DataAccess.Make_TimeStamps(Startdate,Enddate)
+    Dates = pd.date_range(Startdate, Enddate, freq= "D")
+    
     # Create Waitbar
     if Waitbar == 1:
         import watertools.Functions.Random.WaitbarConsole as WaitbarConsole
@@ -74,7 +75,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, cores, hdf_li
 
     # Make directory for the MODIS Albedo data
     Dir = Dir.replace("/", os.sep)
-    output_folder = os.path.join(Dir, 'Albedo', 'MCD19', '8_Daily')
+    output_folder = os.path.join(Dir, 'Albedo', 'MCD19', 'Daily')
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -121,7 +122,7 @@ def RetrieveData(Date, args):
     [output_folder, TilesVertical, TilesHorizontal, lonlim, latlim, hdf_library] = args
 
     # output filename
-    ReffileName = os.path.join(output_folder, 'Albedo_MCD19A3_-_8-daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
+    ReffileName = os.path.join(output_folder, 'Albedo_MCD19A3D_-_daily_' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '.tif')
 
     if not os.path.exists(ReffileName):
         
@@ -165,8 +166,8 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
     '''
     
     # Make a new tile for the data
-    sizeX = int((TilesHorizontal[1] - TilesHorizontal[0] + 1) * 1200)
-    sizeY = int((TilesVertical[1] - TilesVertical[0] + 1) * 1200)
+    sizeX = int((TilesHorizontal[1] - TilesHorizontal[0] + 1) * 4800)
+    sizeY = int((TilesVertical[1] - TilesVertical[0] + 1) * 4800)
     DataTot = np.zeros((sizeY, sizeX))
 
     # Load accounts
@@ -174,14 +175,14 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
 
     # Create the Lat and Long of the MODIS tile in meters
     for Vertical in range(int(TilesVertical[0]), int(TilesVertical[1])+1):
-        Distance = 231.65635826395834 * 4 # resolution of a MODIS pixel in meter
+        Distance = 231.65635826395834  # resolution of a MODIS pixel in meter
         countY=(TilesVertical[1] - TilesVertical[0] + 1) - (Vertical - TilesVertical[0])
 
         for Horizontal in range(int(TilesHorizontal[0]), int(TilesHorizontal[1]) + 1):
             countX=Horizontal - TilesHorizontal[0] + 1
 
             # Download the MODIS NDVI data
-            url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD19A3.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD19A3D.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
 		      # Reset the begin parameters for downloading
             downloaded = 0
@@ -190,7 +191,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
 	         # Check the library given by user
             if hdf_library is not None:
                 os.chdir(hdf_library)
-                hdf_name = glob.glob("MCD19A3.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
+                hdf_name = glob.glob("MCD19A3D.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
 
                 if len(hdf_name) == 1:
                     hdf_file = os.path.join(hdf_library, hdf_name[0])
@@ -214,8 +215,8 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                     for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
     
                         # Find the file with the wanted tile number
-                        Vfile=str(i)[30:32]
-                        Hfile=str(i)[27:29]
+                        Vfile=str(i)[31:33]
+                        Hfile=str(i)[28:30]
     
                         if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
                             
@@ -267,12 +268,12 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                 # Open .hdf only band with NDVI and collect all tiles to one array
                 dataset = gdal.Open(file_name)
                 sdsdict = dataset.GetMetadata('SUBDATASETS')
-                sdslist = [sdsdict[k] for k in sdsdict.keys() if '_4_NAME' in k]
+                sdslist = [sdsdict[k] for k in sdsdict.keys() if '_11_NAME' in k]
                 sds = []
 
                 for n in sdslist:
                     sds.append(gdal.Open(n))
-                    full_layer = [i for i in sdslist if 'Sur_albedo' in i]
+                    full_layer = [i for i in sdslist if 'NBAR_250m' in i]
                     idx = sdslist.index(full_layer[0])
                     if Horizontal == TilesHorizontal[0] and Vertical == TilesVertical[0]:
                         geo_t = sds[idx].GetGeoTransform()
@@ -283,23 +284,24 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                     data = sds[idx].ReadAsArray()
                     data = np.float_(data) * 0.0001
                     data[data<0] = np.nan
-                    Coef = np.array([0.215, 0.215, 0.242, 0.129, 0.101, 0.062, 0.036])
-                    data = data[0:7, :, :] * Coef[:, None, None]
+                    Coef = np.array([0.5, 0.5])
+                    #Coef = np.array([0.215, 0.215, 0.242, 0.129, 0.101, 0.062, 0.036])
+                    data = data[0:2, :, :] * Coef[:, None, None]
                     countYdata = (TilesVertical[1] - TilesVertical[0] + 2) - countY
-                    DataTot[int((countYdata - 1) * 1200):int(countYdata * 1200), int((countX - 1) * 1200):int(countX * 1200)]=np.nansum(data,axis=0)
+                    DataTot[int((countYdata - 1) * 4800):int(countYdata * 4800), int((countX - 1) * 4800):int(countX * 4800)]=np.nansum(data,axis=0)
 
             # if the tile not exists or cannot be opened, create a nan array with the right projection
             except:
                 if Horizontal==TilesHorizontal[0] and Vertical==TilesVertical[0]:
-                     x1 = (TilesHorizontal[0] - 19) * 1200 * Distance
-                     x4 = (TilesVertical[0] - 9) * 1200 * -1 * Distance
+                     x1 = (TilesHorizontal[0] - 19) * 4800 * Distance
+                     x4 = (TilesVertical[0] - 9) * 4800 * -1 * Distance
                      geo = 	[x1, Distance, 0.0, x4, 0.0, -Distance]
                      geo_t=tuple(geo)
 
                 proj='PROJCS["unnamed",GEOGCS["Unknown datum based upon the custom spheroid",DATUM["Not specified (based on custom spheroid)",SPHEROID["Custom spheroid",6371007.181,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Sinusoidal"],PARAMETER["longitude_of_center",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1]]'
-                data=np.ones((1200,1200)) * (-9999)
+                data=np.ones((4800,4800)) * (-9999)
                 countYdata=(TilesVertical[1] - TilesVertical[0] + 2) - countY
-                DataTot[(countYdata - 1) * 1200:countYdata * 1200,(countX - 1) * 1200:countX * 1200] = data
+                DataTot[(countYdata - 1) * 4800:countYdata * 4800,(countX - 1) * 4800:countX * 4800] = data
                 del data
 
     DataTot[DataTot>5.] = -9999
@@ -312,8 +314,8 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
          dst_ds.SetProjection(proj)
     except:
         proj='PROJCS["unnamed",GEOGCS["Unknown datum based upon the custom spheroid",DATUM["Not specified (based on custom spheroid)",SPHEROID["Custom spheroid",6371007.181,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Sinusoidal"],PARAMETER["longitude_of_center",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1]]'
-        x1 = (TilesHorizontal[0] - 18) * 1200 * Distance
-        x4 = (TilesVertical[0] - 9) * 1200 * -1 * Distance
+        x1 = (TilesHorizontal[0] - 18) * 4800 * Distance
+        x4 = (TilesVertical[0] - 9) * 4800 * -1 * Distance
         geo = [x1, Distance, 0.0, x4, 0.0, -Distance]
         geo_t = tuple(geo)
         dst_ds.SetProjection(proj)
