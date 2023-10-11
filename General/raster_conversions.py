@@ -1165,7 +1165,7 @@ def Get3Darray_time_series_monthly(Data_Path, Startdate, Enddate, Example_data =
 
     return(dataTot)
 
-def Vector_to_Raster(shapefile_name, filename, Attribute_name):
+def Vector_to_Raster(shapefile_name, filename, Attribute_name, all_touched = "FALSE"):
     """
     This function creates a raster of a shp file
 
@@ -1214,7 +1214,7 @@ def Vector_to_Raster(shapefile_name, filename, Attribute_name):
     band.Fill(-9999)
 
     # Rasterize the shape and save it as band in tiff file
-    gdal.RasterizeLayer(target_ds, [1], source_layer, options=["ATTRIBUTE=%s" %Attribute_name])
+    gdal.RasterizeLayer(target_ds, [1], source_layer, options=["ATTRIBUTE=%s" %Attribute_name, "ALL_TOUCHED=%s" %all_touched])
 
     # Open array
     Raster_Basin = target_ds.GetRasterBand(1).ReadAsArray()

@@ -192,7 +192,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
 	         # Check the library given by user
             if hdf_library is not None:
                 os.chdir(hdf_library)
-                hdf_name = glob.glob("MOD17A3.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
+                hdf_name = glob.glob("MOD17A3HGF.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
 
                 if len(hdf_name) == 1:
                     hdf_file = os.path.join(hdf_library, hdf_name[0])
@@ -214,12 +214,12 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
         		      # Sum all the files on the server
                     soup = BeautifulSoup(f, "lxml")
                     for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
-    
+                     
                         # Find the file with the wanted tile number
                         Vfile=str(i)[-28:-26]
                         Hfile=str(i)[-31:-29]
                         if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
-    
+     
                             # Define the whole url name
                             if sys.version_info[0] == 3:
                                 full_url = urllib.parse.urljoin(url, i['href'])
