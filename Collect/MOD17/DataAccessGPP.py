@@ -234,8 +234,8 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
             countX=Horizontal - TilesHorizontal[0] + 1
 
             # Download the MODIS GPP data
-            if Date.strftime('%Y') < 2021:
-                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A2H.006/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+            if int(Date.strftime('%Y')) < 2021:
+                url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A2HGF.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
             else:
                 url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A2H.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
 
@@ -246,7 +246,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
 	         # Check the library given by user
             if hdf_library is not None:
                 os.chdir(hdf_library)
-                hdf_name = glob.glob("MOD17A2H.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
+                hdf_name = glob.glob("MOD17A2HGF.A%s%03s.h%02dv%02d.*" %(Date.strftime('%Y'), Date.strftime('%j'), Horizontal, Vertical))
 
                 if len(hdf_name) == 1:
                     hdf_file = os.path.join(hdf_library, hdf_name[0])
@@ -270,8 +270,8 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                     for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
     
                         # Find the file with the wanted tile number
-                        Vfile=str(i)[31:33]
-                        Hfile=str(i)[28:30]
+                        Vfile=str(i)[33:35]
+                        Hfile=str(i)[30:32]
                         if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
     
                             # Define the whole url name

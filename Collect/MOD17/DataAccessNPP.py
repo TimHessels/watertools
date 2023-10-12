@@ -15,6 +15,7 @@ import re
 import glob
 from joblib import Parallel, delayed
 import sys
+import requests
 if sys.version_info[0] == 3:
     import urllib.request    
     import urllib.parse
@@ -163,7 +164,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
 
     # Make a new tile for the data
     # NPP_SIZE = 2
-    NPP_SIZE = 4
+    NPP_SIZE = 2
     sizeX = int((TilesHorizontal[1] - TilesHorizontal[0] + 1) * 4800 / NPP_SIZE )
     sizeY = int((TilesVertical[1] - TilesVertical[0] + 1) * 4800 / NPP_SIZE)
     DataTot = np.zeros((sizeY, sizeX))
@@ -237,7 +238,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                                         print("file ", file_name, " already exists")
                                         downloaded = 1
                                     else:
-                                        """
+                                        
                                         x = requests.get(nameDownload, allow_redirects = False)
                                         try:
                                             y = requests.get(x.headers['location'], auth = (username, password))
@@ -250,12 +251,8 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                                         z = open(file_name, 'wb')
                                         z.write(y.content)
                                         z.close()
-                                        """
-                                        if sys.version_info[0] == 3:
-                                            urllib.request.urlretrieve(nameDownload, file_name)
-                                        if sys.version_info[0] == 2:
-                                            urllib.urlretrieve(nameDownload, file_name)
-    
+                                     
+                   
                                         statinfo = os.stat(file_name)
                                         # Say that download was succesfull
                                         if int(statinfo.st_size) > 10000:
@@ -286,7 +283,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                 for n in sdslist:
                     sds.append(gdal.Open(n))
                     #yfull_layer = [i for i in sdslist if 'Npp_500m' in i]
-                    full_layer = [i for i in sdslist if 'Npp_1km' in i]
+                    full_layer = [i for i in sdslist if 'Npp_500m' in i]
                     idx = sdslist.index(full_layer[0])
                     if Horizontal == TilesHorizontal[0] and Vertical == TilesVertical[0]:
                         geo_t = sds[idx].GetGeoTransform()
