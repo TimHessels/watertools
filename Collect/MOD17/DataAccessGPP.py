@@ -236,8 +236,10 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
             # Download the MODIS GPP data
             if int(Date.strftime('%Y')) < 2021:
                 url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A2HGF.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+                i_offset = 0
             else:
                 url = 'https://e4ftl01.cr.usgs.gov/MOLT/MOD17A2H.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
+                i_offset = -2
 
     		   # Reset the begin parameters for downloading
             downloaded = 0
@@ -268,10 +270,10 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                     # Sum all the files on the server
                     soup = BeautifulSoup(f, "lxml")
                     for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
-    
+                        
                         # Find the file with the wanted tile number
-                        Vfile=str(i)[33:35]
-                        Hfile=str(i)[30:32]
+                        Vfile=str(i)[33+ i_offset:35+ i_offset]
+                        Hfile=str(i)[30+ i_offset:32+ i_offset]
                         if int(Vfile) is int(Vertical) and int(Hfile) is int(Horizontal):
     
                             # Define the whole url name
