@@ -7,7 +7,7 @@ Module: Collect/DEM
 # General modules
 import numpy as np
 import os
-import urllib
+import requests
 import shutil
 from osgeo import gdal
 import glob
@@ -111,37 +111,12 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
             # extract zip data
             DC.Extract_Data(output_file, output_folder_trash)
 
-            # Converts the data with a adf extention to a tiff extension.
-            # The input is the file name and in which directory the data must be stored
-            file_name_tiff = file_name.split('.')[0] + '_trans_temporary.tif'
-            file_name_extract = file_name.split('_')[0:3]
-            if resolution == '3s':
-                file_name_extract2 = file_name_extract[0]+'_'+file_name_extract[1]
-
-            if resolution == '15s':
-                file_name_extract2 = file_name_extract[0]+'_'+file_name_extract[1]+'_15s'
-
-            if resolution == '30s':
-                file_name_extract2 = file_name_extract[0]+'_'+file_name_extract[1]+'_30s'
-
-            output_tiff = os.path.join(output_folder_trash, file_name_tiff)
-
-            # convert data from adf to a tiff file
-            if (resolution == "15s" or resolution == "3s"):
-                
-                input_adf = os.path.join(output_folder_trash, file_name_extract2,
-                                    file_name_extract2, 'hdr.adf')
-                output_tiff = DC.Convert_adf_to_tiff(input_adf, output_tiff)
-
-            # convert data from adf to a tiff file
-            if resolution == "30s":
-                
-                input_bil = os.path.join(output_folder_trash,'%s.bil' %file_name_extract2)              
-                output_tiff = DC.Convert_bil_to_tiff(input_bil, output_tiff)
+         
+            output_tiff = os.path.join(output_folder_trash, nameFile.replace(".zip", ".tif"))
 
             geo_out, proj, size_X, size_Y = RC.Open_array_info(output_tiff)
-            if (resolution == "3s" and (int(size_X) != int(6000) or int(size_Y) != int(6000))):
-                data = np.ones((6000, 6000)) * -9999
+            if (resolution == "3s" and (int(size_X) != int(12000) or int(size_Y) != int(12000))):
+                data = np.ones((12000, 12000)) * -9999
 
                 # Create the latitude bound
                 Vfile = str(nameFile)[1:3]
@@ -189,7 +164,7 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
                 output = nameFile.split('.')[0] + "_trans_temporary.tif"
                 output_tiff = os.path.join(output_folder_trash, output)
                 file_name = nameFile
-                data = np.ones((6000, 6000)) * -9999
+                data = np.ones((12000, 12000)) * -9999
                 data = data.astype(np.float32)
 
                 # Create the latitude bound
@@ -405,12 +380,12 @@ def Find_Document_Names(latlim, lonlim, parameter):
     lonlim -- [xmin, xmax] (values must be between -180 and 180)
     """
     # find tiles that must be downloaded
-    startLon = np.floor(lonlim[0] / 5) * 5
-    startLat = np.floor(latlim[0] / 5) * 5
-    endLon = np.ceil(lonlim[1] / 5.0) * 5
-    endLat = np.ceil(latlim[1] / 5.0) * 5
-    rangeLon = np.arange(startLon, endLon, 5)
-    rangeLat = np.arange(startLat, endLat, 5)
+    startLon = np.floor(lonlim[0] / 10) * 10
+    startLat = np.floor(latlim[0] / 10) * 10
+    endLon = np.ceil(lonlim[1] / 10.0) * 10
+    endLat = np.ceil(latlim[1] / 10.0) * 10
+    rangeLon = np.arange(startLon, endLon, 10)
+    rangeLat = np.arange(startLat, endLat, 10)
 
     name = []
 
@@ -429,7 +404,7 @@ def Find_Document_Names(latlim, lonlim, parameter):
 
             name.append(str(DirectionLat + str('%02d' % int(abs(latname))) +
                         DirectionLon + str('%03d' % int(abs(lonname))) +
-                        "_%s_grid.zip" %parameter))
+                        "_%s.zip" %parameter))
     return(name, rangeLon, rangeLat)
 
 
@@ -451,46 +426,25 @@ def Download_Data(nameFile, output_folder_trash, parameter,para_name,resolution)
             para_name2 = para_name.lower()
             # info about the roots http://www.hydrosheds.org/download/getroot
             if resolution == '3s':
-                url="https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/hydrosheds/sa_%s_%s_grid/%s/%s" %(para_name2,resolution,continent2,nameFile)
-            if resolution == '15s':
-                url="https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/hydrosheds/sa_%s_zip_grid/%s" %(resolution,nameFile)
-            if resolution == '30s':   
-                url="https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/hydrosheds/sa_%s_zip_bil/%s" %(resolution,nameFile)                
+                url="https://data.hydrosheds.org/file/hydrosheds-v1-%s/%s_%s_%s/%s" %(para_name2, continent, para_name2, resolution, nameFile)
+            if resolution == '15s' or resolution == '30s':
+                url="https://data.hydrosheds.org/file/hydrosheds-v1-%s/%s" %(para_name2, nameFile)
             file_name = url.split('/')[-1]
             output_file = os.path.join(output_folder_trash, file_name)
-            if sys.version_info[0] == 3:
-                urllib.request.urlretrieve(url, output_file)
-            if sys.version_info[0] == 2:
-                urllib.urlretrieve(url, output_file)
+            
+            with open(output_file, "wb") as fp:
+                data = requests.get(url)
+                fp.write(data.content)
+            
+            fp.close()
             size_data	= int(os.stat(output_file).st_size)
 
             if  size_data > 10000:
                 break
+            
         except:
             continue
-
-    if int(os.stat(output_file).st_size) == 0:
-        for continent in allcontinents:
-            try:
-                continent2 = continent.upper()
-                para_name2 = para_name.lower()
-                # info about the roots http://www.hydrosheds.org/download/getroot
-                if resolution == '3s':
-                    url="https://earlywarning.usgs.gov/hydrodata/sa_%s_%s_grid/%s/%s" %(para_name2,resolution,continent2,nameFile)
-                if resolution == '15s':
-                    url="https://earlywarning.usgs.gov/hydrodata/sa_%s_zip_grid/%s" %(resolution,nameFile)
-                file_name = url.split('/')[-1]
-                output_file = os.path.join(output_folder_trash, file_name)
-                if sys.version_info[0] == 3:
-                    urllib.request.urlretrieve(url, output_file)
-                if sys.version_info[0] == 2:
-                    urllib.urlretrieve(url, output_file)
-
-                if int(os.stat(output_file).st_size) > 10000:
-                    break
-            except:
-                continue
-
+        
     return(output_file, file_name)
 
 
@@ -502,10 +456,7 @@ def Find_Document_names_15s_30s(latlim, lonlim, parameter, resolution):
     for continent in continents:
         extent = DEM_15s_extents.Continent[continent]
         if (extent[0] < lonlim[0] and extent[1] > lonlim[0] and extent[2] < latlim[0] and extent[3] > latlim[0]) or (extent[0] < lonlim[1] and extent[1] > lonlim[1] and extent[2] < latlim[1] and extent[3] > latlim[1]) == True:
-            if resolution == "15s":
-                name = '%s_%s_%s_grid.zip' %(continent, parameter, resolution)
-            if resolution =="30s":
-                name = '%s_%s_%s_bil.zip' %(continent, parameter, resolution)                
+            name = 'hyd_gr_%s_%s.zip' %(parameter, resolution)       
             continents_download = np.append(continents_download, name)
 
     return(continents_download)
