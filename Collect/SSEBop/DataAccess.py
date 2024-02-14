@@ -122,7 +122,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Time
         month = Date.month
         day = Date.day
 
-        if version == "V4" or version == "V5":
+        if version == "V4" or version == "V5" or version == "V6":
 
             # Date as printed in filename
             if Product == "ETpot":
@@ -163,11 +163,26 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Time
             		    # Temporary filename for the downloaded global file
                     local_filename = os.path.join(output_folder, Filename_only)
 
+            if Product == "ETact" and version == "V6":
+                
+                if TimeStep == "monthly":
+                    Filename_out= os.path.join(output_folder,'ETa_SSEBop_V6_mm-month-1_monthly_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
+                    # Define the downloaded zip file
+                    Filename_only_zip = "m%s%02d.zip" %(str(year), month)
+                    # The end file name after downloading and unzipping
+                    Filename_only = "m%s%02d_viirsSSEBopETv6_actual_mm.tif" %(str(year), month)
+    
+            		    # Temporary filename for the downloaded global file
+                    local_filename = os.path.join(output_folder, Filename_only)
+
+
+
+
         # Download the data from FTP server if the file not exists
         if not os.path.exists(Filename_out):
             try:
 
-                if version == "V4" or version == "V5":
+                if version == "V4" or version == "V5" or version == "V6":
                     if Product == "ETpot":
                         Download_SSEBop_from_Web(temp_folder, Filename_only_zip, Product, TimeStep, version)
                     if Product == "ETact":
@@ -229,9 +244,16 @@ def Download_SSEBop_from_Web(output_folder, Filename_only_zip, Product, TimeStep
     if Product == "ETact" and TimeStep == "monthly" and version == "V5":
         # Create the total url to the webpage
         total_URL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/global/monthly/etav5/downloads/" + str(Filename_only_zip)
+
+    if Product == "ETact" and TimeStep == "monthly" and version == "V6":
+        # Create the total url to the webpage
+        total_URL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/global/monthly/etav6/downloads/monthly/" + str(Filename_only_zip)
+
            
     if Product == "ETpot" and TimeStep == "daily":
         total_URL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/global/daily/pet/downloads/daily/" + str(Filename_only_zip)
+
+
 
     # Download the data
     if sys.version_info[0] == 2:

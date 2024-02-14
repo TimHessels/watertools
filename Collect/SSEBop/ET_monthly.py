@@ -8,7 +8,7 @@ import os
 import sys
 from watertools.Collect.SSEBop.DataAccess import DownloadData
 
-def main(Dir, Startdate='', Enddate='', latlim=[-59.17, 80], lonlim=[-180, 180], version = "V5", Waitbar = 1):
+def main(Dir, Startdate='', Enddate='', latlim=[-59.17, 80], lonlim=[-180, 180], version = "V6", Waitbar = 1):
     """
     This function downloads monthly SSEBop data
 
