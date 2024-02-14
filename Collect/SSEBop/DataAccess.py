@@ -211,7 +211,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Time
             amount += 1
             WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
-    if version == "V4" or version == "V5":
+    if version == "V4" or version == "V5" or version == "V6":
         import glob
         os.chdir(output_folder)
         if Product == "ETact":
