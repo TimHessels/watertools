@@ -254,7 +254,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library, 
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         get_dataset  = requests.get(dataset.headers['location'], auth = (username, password), verify = False).content
 
-    soup = BeautifulSoup(get_dataset, "lxml")
+    soup = BeautifulSoup(get_dataset, "html.parser")
 
     if len(str(soup)) < 300:
         print('Download was not succesfull, please check NASA account')

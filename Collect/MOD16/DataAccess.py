@@ -219,7 +219,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder,timestep, hdf_
                         f = urllib2.urlopen(url)
     
                     # Sum all the files on the server
-                    soup = BeautifulSoup(f, "lxml")
+                    soup = BeautifulSoup(f, "html.parser")
 
                     for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
 

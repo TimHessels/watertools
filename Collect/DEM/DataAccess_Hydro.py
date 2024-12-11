@@ -244,7 +244,6 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
 
         datasetTot[datasetTot<-9999] = -9999
 
-
     if resolution =='15s':
         output_file_merged = os.path.join(output_folder_trash,'merged.tif')
         datasetTot, geo_out = Merge_DEM_15s_30s(output_folder_trash, output_file_merged,latlim, lonlim, resolution)
@@ -450,13 +449,13 @@ def Download_Data(nameFile, output_folder_trash, parameter,para_name,resolution)
 
 def Find_Document_names_15s_30s(latlim, lonlim, parameter, resolution):
 
-    continents = ['na','ca','sa','eu','af','as','au']
+    continents = ['na','ca','sa','eu','af','as','au', 'gr']
     continents_download = []
 
     for continent in continents:
         extent = DEM_15s_extents.Continent[continent]
         if (extent[0] < lonlim[0] and extent[1] > lonlim[0] and extent[2] < latlim[0] and extent[3] > latlim[0]) or (extent[0] < lonlim[1] and extent[1] > lonlim[1] and extent[2] < latlim[1] and extent[3] > latlim[1]) == True:
-            name = 'hyd_gr_%s_%s.zip' %(parameter, resolution)       
+            name = 'hyd_%s_%s_%s.zip' %(continent, parameter, resolution)       
             continents_download = np.append(continents_download, name)
 
     return(continents_download)
@@ -468,4 +467,5 @@ class DEM_15s_extents:
                       'eu' : [-14, 70, 12, 62],
                       'af' : [-19, 55, -35, 38],
                       'as' : [57, 180, -12, 61],
-                      'au' : [112, 180, -56, -10]}
+                      'au' : [112, 180, -56, -10],
+                      'gr': [59, 84, -74, -11]}

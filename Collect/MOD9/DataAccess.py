@@ -249,7 +249,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, band, resolut
                     print("Got an ERROR 404 not connected!!!")
 
                 # Sum all the files on the server
-                soup = BeautifulSoup(f, "lxml")   
+                soup = BeautifulSoup(f, "html.parser")   
              
                 try:
                     
