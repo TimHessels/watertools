@@ -13,10 +13,10 @@ import numpy as np
 import subprocess
 from pyproj import Proj, transform
 import scipy.interpolate
-import fiona
 import requests
 import pycurl
 import shapefile
+from pyproj import CRS
 
 def Run_command_window(argument):
     """
@@ -594,31 +594,31 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
 
     # Perform the projection/resampling
     if method == 1:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_NearestNeighbour)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_NearestNeighbour)
     if method == 2:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Bilinear)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Bilinear)
     if method == 3:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Lanczos)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Lanczos)
     if method == 4:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Average)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Average)
     if method == 5:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Cubic)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Cubic)
     if method == 6:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_CubicSpline)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_CubicSpline)
     if method == 7:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Mode)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Mode)
     if method == 8:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Max)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Max)
     if method == 9:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Min)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Min)
     if method == 10:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Med)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Med)
     if method == 11:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Q1)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Q1)
     if method == 12:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Q3)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Q3)
     if method == 13:
-        gdal.ReprojectImage(g, dest1, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Sum)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Sum)
         
         
     gdal.ReprojectImage(g_nan, dest_nan, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_NearestNeighbour)
@@ -1009,8 +1009,18 @@ def Get_epsg(g, extension = 'tiff'):
             Projection = g
             epsg_to=int((str(Projection).split('"EPSG","')[-1].split('"')[0:-1])[0])
         if extension == 'shp':
-            data = fiona.open(g)
-            epsg_to = int(data.crs['init'].split(":")[-1])
+   
+            # Open the shapefile using PyShp
+            sf = shapefile.Reader(g)
+            
+            # Access the .prj file for CRS information
+            prj_file = g.replace(".shp", ".prj")
+            with open(prj_file, 'r') as prj:
+                prj_text = prj.read()
+            
+            # Parse the CRS and extract the EPSG code
+            crs = CRS.from_wkt(prj_text)
+            epsg_to = crs.to_epsg()  # Convert CRS to EPSG code
             
             '''
             projection_file = ''.join([os.path.splitext(g)[0],'.prj'])

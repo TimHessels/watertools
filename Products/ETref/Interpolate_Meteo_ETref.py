@@ -8,6 +8,7 @@ Module: Products/ETref
 import os
 import numpy as np
 
+
 # import watertools modules
 from watertools.General import data_conversions as DC
 from watertools.General import raster_conversions as RC
@@ -55,11 +56,19 @@ def lapse_rate(Dir,temperature_map, DEMmap):
     """
 
     # calculate average altitudes corresponding to T resolution
-    dest = RC.reproject_dataset_example(DEMmap, temperature_map,method = 4)
     DEM_ave_out_name = os.path.join(Dir,'HydroSHED', 'DEM','DEM_ave.tif')
-    geo_out, proj, size_X, size_Y = RC.Open_array_info(temperature_map)
-    DEM_ave_data = dest.GetRasterBand(1).ReadAsArray()
-    DC.Save_as_tiff(DEM_ave_out_name, DEM_ave_data, geo_out, proj)
+
+    if not os.path.exists(DEM_ave_out_name):
+        dest = RC.reproject_dataset_example(DEMmap, temperature_map, method = 4)
+        geo_out, proj, size_X, size_Y = RC.Open_array_info(temperature_map)
+        DEM_ave_data = dest.GetRasterBand(1).ReadAsArray()
+        DEM_ave_data[np.isnan(DEM_ave_data)] = 0
+        DEM_ave_data = RC.gap_filling(DEM_ave_data, 0)
+        DC.Save_as_tiff(DEM_ave_out_name, DEM_ave_data, geo_out, proj)
+
+    else:
+        DEM_ave_data = RC.Open_tiff_array(DEM_ave_out_name)
+          
     dest = None
 
     # determine lapse-rate [degress Celcius per meter]
@@ -74,6 +83,10 @@ def lapse_rate(Dir,temperature_map, DEMmap):
     # Open the temperature dataset
     dest = RC.reproject_dataset_example(temperature_map, DEMmap, method = 2)
     T=dest.GetRasterBand(1).ReadAsArray()
+    T[np.isnan(T)] = -9999
+    T = RC.gap_filling(T, -9999)
+
+    
     dest = None
 
     # Open Demmap

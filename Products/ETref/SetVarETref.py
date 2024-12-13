@@ -5,6 +5,7 @@ Module: Products/ETref
 '''
 # import general python modules
 import os
+import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 
@@ -14,7 +15,7 @@ from watertools.General import data_conversions as DC
 from watertools.Products.ETref.CalcETref import calc_ETref
 
 
-def SetVariables(Dir, Startdate, Enddate, latlim, lonlim, pixel_size, cores, LANDSAF, Waitbar):
+def SetVariables(Dir, Startdate, Enddate, latlim, lonlim, pixel_size, cores, LANDSAF_USE, CFSR_USE, GLDAS_USE, Waitbar):
     """
     This function starts to calculate ETref (daily) data based on Hydroshed, GLDAS, and (CFSR/LANDSAF) in parallel or single core
 
@@ -43,7 +44,7 @@ def SetVariables(Dir, Startdate, Enddate, latlim, lonlim, pixel_size, cores, LAN
         Waitbar.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
     # Pass variables to parallel function and run
-    args = [Dir, lonlim, latlim, pixel_size, LANDSAF]
+    args = [Dir, lonlim, latlim, pixel_size, LANDSAF_USE, CFSR_USE, GLDAS_USE]
     if not cores:
         for Date in Dates:
             ETref(Date, args)
@@ -66,7 +67,7 @@ def ETref(Date, args):
 	"""
 
 	# unpack the arguments
-    [Dir, lonlim, latlim, pixel_size, LANDSAF] = args
+    [Dir, lonlim, latlim, pixel_size, LANDSAF_USE, CFSR_USE, GLDAS_USE] = args
 
     # Set the paths
     nameTmin='Tair-min_GLDAS-NOAH_C_daily_' + Date.strftime('%Y.%m.%d') + ".tif"
@@ -84,7 +85,7 @@ def ETref(Date, args):
     nameWind='W_GLDAS-NOAH_m-s-1_daily_'+ Date.strftime('%Y.%m.%d') + ".tif"
     wind_str=os.path.join(Dir,'Weather_Data','Model','GLDAS','daily','wind_f_inst','mean',nameWind )
 
-    if LANDSAF==1:
+    if LANDSAF_USE==1:
 
         nameShortClearname = 'ShortWave_Clear_Daily_W-m2_' + Date.strftime('%Y-%m-%d') + '.tif'
         input2_str=os.path.join(Dir,'Landsaf_Clipped','Shortwave_Clear_Sky',nameShortClearname)
@@ -92,9 +93,9 @@ def ETref(Date, args):
         nameShortNetname = 'ShortWave_Net_Daily_W-m2_' + Date.strftime('%Y-%m-%d') + '.tif'
         input1_str=os.path.join(Dir,'Landsaf_Clipped','Shortwave_Net',nameShortNetname)
 
-        input3_str='not'
+        input3_str='landsaf'
 
-    else:
+    if CFSR_USE==1:
         if Date<pd.Timestamp(pd.datetime(2011, 4, 1)):
 
             nameDownLong='DLWR_CFSR_W-m2_' + Date.strftime('%Y.%m.%d') + ".tif"
@@ -116,6 +117,18 @@ def ETref(Date, args):
             nameUpLong='ULWR_CFSRv2_W-m2_' + Date.strftime('%Y.%m.%d') + ".tif"
             input3_str=os.path.join(Dir,'Radiation','CFSRv2',nameUpLong)
 
+
+    if GLDAS_USE==1:
+
+        nameShortClearname = 'LWnet_GLDAS-NOAH_W-m-2_daily_' + Date.strftime('%Y.%m.%d') + '.tif'
+        input2_str=os.path.join(Dir,'Weather_Data','Model','GLDAS','daily','lwnet_tavg','mean',nameShortClearname)       
+
+        nameShortNetname = 'SWnet_GLDAS-NOAH_W-m-2_daily_' + Date.strftime('%Y.%m.%d') + '.tif'
+        input1_str=os.path.join(Dir,'Weather_Data','Model','GLDAS','daily','swnet_tavg','mean', nameShortNetname)      
+
+        input3_str='gldas'
+
+
    # The day of year
     DOY=Date.dayofyear
 
@@ -127,6 +140,8 @@ def ETref(Date, args):
         dest, ulx, lry, lrx, uly, epsg_to = RC.reproject_dataset_epsg(DEMmap_str, pixel_spacing = pixel_size, epsg_to=4326, method = 2)
         DEMmap_str=os.path.join(Dir,'HydroSHED','DEM','DEM_HydroShed_m_reshaped_for_ETref.tif')
         DEM_data = dest.GetRasterBand(1).ReadAsArray()
+        DEM_data[np.isnan(DEM_data)] = -9999
+        DEM_data = RC.gap_filling(DEM_data, -9999)
         geo_dem = [ulx, pixel_size, 0.0, uly, 0.0, - pixel_size]
         DC.Save_as_tiff(name=DEMmap_str, data=DEM_data, geo=geo_dem, projection='4326')
 
