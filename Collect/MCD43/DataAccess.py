@@ -174,10 +174,10 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
     # Create the Lat and Long of the MODIS tile in meters
     for Vertical in range(int(TilesVertical[0]), int(TilesVertical[1])+1):
         Distance = 231.65635826395834 * 2 # resolution of a MODIS pixel in meter
-        countY=(TilesVertical[1] - TilesVertical[0] + 1) - (Vertical - TilesVertical[0])
+        countY=int((TilesVertical[1] - TilesVertical[0] + 1) - (Vertical - TilesVertical[0]))
 
         for Horizontal in range(int(TilesHorizontal[0]), int(TilesHorizontal[1]) + 1):
-            countX=Horizontal - TilesHorizontal[0] + 1
+            countX=int(Horizontal - TilesHorizontal[0] + 1)
 
             # Download the MODIS NDVI data
             url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD43A3.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
@@ -280,7 +280,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                         proj = sds[idx].GetProjection()
 
                     data = sds[idx].ReadAsArray()
-                    countYdata = (TilesVertical[1] - TilesVertical[0] + 2) - countY
+                    countYdata = int((TilesVertical[1] - TilesVertical[0] + 2) - countY)
                     DataTot_Direct[int((countYdata - 1) * 2400):int(countYdata * 2400), int((countX - 1) * 2400):int(countX * 2400)]=data
 
                 # Open .hdf only band with NDVI and collect all tiles to one array
@@ -300,7 +300,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                         proj = sds[idx].GetProjection()
 
                     data = sds[idx].ReadAsArray()
-                    countYdata = (TilesVertical[1] - TilesVertical[0] + 2) - countY
+                    countYdata = int((TilesVertical[1] - TilesVertical[0] + 2) - countY)
                     DataTot_Diffuse[int((countYdata - 1) * 2400):int(countYdata * 2400), int((countX - 1) * 2400):int(countX * 2400)]=data
                 del data
 

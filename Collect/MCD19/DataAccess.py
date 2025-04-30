@@ -176,10 +176,10 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
     # Create the Lat and Long of the MODIS tile in meters
     for Vertical in range(int(TilesVertical[0]), int(TilesVertical[1])+1):
         Distance = 231.65635826395834  # resolution of a MODIS pixel in meter
-        countY=(TilesVertical[1] - TilesVertical[0] + 1) - (Vertical - TilesVertical[0])
+        countY=int((TilesVertical[1] - TilesVertical[0] + 1) - (Vertical - TilesVertical[0]))
 
         for Horizontal in range(int(TilesHorizontal[0]), int(TilesHorizontal[1]) + 1):
-            countX=Horizontal - TilesHorizontal[0] + 1
+            countX=int(Horizontal - TilesHorizontal[0] + 1)
 
             # Download the MODIS NDVI data
             url = 'https://e4ftl01.cr.usgs.gov/MOTA/MCD19A3D.061/' + Date.strftime('%Y') + '.' + Date.strftime('%m') + '.' + Date.strftime('%d') + '/'
@@ -287,7 +287,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                     Coef = np.array([0.5, 0.5])
                     #Coef = np.array([0.215, 0.215, 0.242, 0.129, 0.101, 0.062, 0.036])
                     data = data[0:2, :, :] * Coef[:, None, None]
-                    countYdata = (TilesVertical[1] - TilesVertical[0] + 2) - countY
+                    countYdata = int((TilesVertical[1] - TilesVertical[0] + 2) - countY)
                     DataTot[int((countYdata - 1) * 4800):int(countYdata * 4800), int((countX - 1) * 4800):int(countX * 4800)]=np.nansum(data,axis=0)
 
             # if the tile not exists or cannot be opened, create a nan array with the right projection
