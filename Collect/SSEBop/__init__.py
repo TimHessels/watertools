@@ -21,7 +21,7 @@ SSEBop.ET_monthly(Dir='C:/Temp/', Startdate='2008-12-01', Enddate='2011-01-20',
 """
 
 from .ET_monthly import main as ET_monthly
-from .ETpot_daily import main as ETpot_daily
-__all__ = ['ET_monthly', 'ETpot_daily']
+
+__all__ = ['ET_monthly']
 
 __version__ = '0.1'

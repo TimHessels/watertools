@@ -13,7 +13,7 @@ from watertools.Products.ETref.CollectLANDSAFETref import CollectLANDSAF
 from watertools.Products.ETref.SetVarETref import SetVariables
 
 def main(Dir, Startdate = '', Enddate = '',
-         latlim = [-60, 60], lonlim = [-180, 180], pixel_size = False, cores = False, LANDSAF =  0, SourceLANDSAF=  '', Waitbar = 1):
+         latlim = [-60, 60], lonlim = [-180, 180], pixel_size = False, cores = False, LANDSAF_USE =  0, CFSR_USE =  0, GLDAS_USE =  1, SourceLANDSAF=  '', Waitbar = 1):
     """
     This function creates ETref (daily) data based on Hydroshed, GLDAS, and (CFSR/LANDSAF)
 
@@ -47,15 +47,15 @@ def main(Dir, Startdate = '', Enddate = '',
         lonlim[1] = np.min(lonlim[1], 180)
 
     # Download data (using the wa.Collect scripts)
-    CollectData(Dir, Startdate, Enddate, latlim, lonlim, cores, LANDSAF)
+    CollectData(Dir, Startdate, Enddate, latlim, lonlim, cores, CFSR_USE, GLDAS_USE, LANDSAF_USE)
 
     # Process LANDSAF data if needed
-    if LANDSAF == 1:
+    if LANDSAF_USE == 1:
         CollectLANDSAF(SourceLANDSAF, Dir, Startdate, Enddate, latlim, lonlim)
 
     # Set up the variables and calculates ETref hereafter
-    SetVariables(Dir, Startdate, Enddate, latlim, lonlim, pixel_size, cores, LANDSAF, Waitbar)
+    SetVariables(Dir, Startdate, Enddate, latlim, lonlim, pixel_size, cores, LANDSAF_USE, CFSR_USE, GLDAS_USE, Waitbar)
 
 
-if __name__ == '__main__':
-    main(sys.argv)
+# if __name__ == '__main__':
+#     main(sys.argv)

@@ -243,10 +243,10 @@ def Collect_data(TilesHorizontal, TilesVertical, Date, username, password, outpu
     for Vertical in range(int(TilesVertical[0]), int(TilesVertical[1])+1):
         
         Distance = 4*231.65635826395834 # resolution of a MODIS pixel in meter
-        countY=(TilesVertical[1] - TilesVertical[0] + 1) - (Vertical - TilesVertical[0])
+        countY=int((TilesVertical[1] - TilesVertical[0] + 1) - (Vertical - TilesVertical[0]))
 
         for Horizontal in range(int(TilesHorizontal[0]), int(TilesHorizontal[1]) + 1):
-            countX=Horizontal - TilesHorizontal[0] + 1
+            countX=int(Horizontal - TilesHorizontal[0] + 1)
 
             # Create the URL to the LST MODIS data
             if TimeStep == 8:
@@ -402,7 +402,7 @@ def Collect_data(TilesHorizontal, TilesVertical, Date, username, password, outpu
 
                 proj='PROJCS["unnamed",GEOGCS["Unknown datum based upon the custom spheroid",DATUM["Not specified (based on custom spheroid)",SPHEROID["Custom spheroid",6371007.181,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Sinusoidal"],PARAMETER["longitude_of_center",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1]]'
                 data=np.ones((1200,1200)) * (-9999/0.02)
-                countYdata=(TilesVertical[1] - TilesVertical[0] + 2) - countY
+                countYdata=int((TilesVertical[1] - TilesVertical[0] + 2) - countY)
                 DataTot[int((countYdata - 1) * 1200):int(countYdata * 1200),int((countX - 1) * 1200):int(countX * 1200)] = data * 0.02
                 DataTot[DataTot < 1] = -9999
                 

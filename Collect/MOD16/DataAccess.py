@@ -219,7 +219,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder,timestep, hdf_
                         f = urllib2.urlopen(url)
     
                     # Sum all the files on the server
-                    soup = BeautifulSoup(f, "lxml")
+                    soup = BeautifulSoup(f, "html.parser")
 
                     for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
 
@@ -302,7 +302,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder,timestep, hdf_
                 except:
                     proj='PROJCS["unnamed",GEOGCS["Unknown datum based upon the custom spheroid",DATUM["Not specified (based on custom spheroid)",SPHEROID["Custom spheroid",6371007.181,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Sinusoidal"],PARAMETER["longitude_of_center",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1]]'
                     data=np.ones((1200* Size_pix, 1200* Size_pix)) * (-9999)
-                    countYdata=(TilesVertical[1] - TilesVertical[0] + 2) - countY
+                    countYdata=int((TilesVertical[1] - TilesVertical[0] + 2) - countY)
                     DataTot[(countYdata - 1) * 1200* Size_pix:countYdata * 1200* Size_pix,(countX - 1) * 1200* Size_pix:countX * 1200* Size_pix] = data * 0.1
                     downloaded = 1
 

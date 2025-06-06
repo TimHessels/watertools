@@ -25,6 +25,8 @@ import os
 import pandas as pd
 from ftplib import FTP
 import sys
+import datetime
+
 if sys.version_info[0] == 3:
     import urllib.parse
 if sys.version_info[0] == 2:
@@ -81,7 +83,6 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Time
         if not Startdate:
             Startdate = pd.Timestamp('2003-01-01')
         if not Enddate:
-            import datetime
             Enddate = pd.Timestamp(datetime.datetime.now())
 
    # Define directory and create it if not exists
@@ -122,7 +123,14 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Time
         month = Date.month
         day = Date.day
 
-        if version == "V4" or version == "V5" or version == "V6":
+        if Date < datetime.datetime(2012,2,1) and version == "V6" and Product == "ETact":
+            print("Change version type from V6 into V5 for date %s" %Date.strftime("%Y-%m-%d"))
+            version_use = "V5"
+        else:
+            version_use = np.copy(version)
+            
+            
+        if version_use == "V4" or version_use == "V5" or version_use == "V6":
 
             # Date as printed in filename
             if Product == "ETpot":
@@ -139,7 +147,8 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Time
                         os.makedirs(temp_folder)
                     local_filename = os.path.join(temp_folder, Filename_only)
                     
-            if Product == "ETact" and version == "V4":
+                                        
+            if Product == "ETact" and version_use == "V4":
                                     
                 if TimeStep == "monthly":
                     Filename_out= os.path.join(output_folder,'ETa_SSEBop_V4_mm-month-1_monthly_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
@@ -151,7 +160,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Time
             		    # Temporary filename for the downloaded global file
                     local_filename = os.path.join(output_folder, Filename_only)
 
-            if Product == "ETact" and version == "V5":
+            if Product == "ETact" and version_use == "V5":
                 
                 if TimeStep == "monthly":
                     Filename_out= os.path.join(output_folder,'ETa_SSEBop_V5_mm-month-1_monthly_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
@@ -163,7 +172,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Time
             		    # Temporary filename for the downloaded global file
                     local_filename = os.path.join(output_folder, Filename_only)
 
-            if Product == "ETact" and version == "V6":
+            if Product == "ETact" and version_use == "V6":
                 
                 if TimeStep == "monthly":
                     Filename_out= os.path.join(output_folder,'ETa_SSEBop_V6_mm-month-1_monthly_%s.%02s.%02s.tif' %(Date.strftime('%Y'), Date.strftime('%m'), Date.strftime('%d')))
@@ -175,18 +184,15 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Time
             		    # Temporary filename for the downloaded global file
                     local_filename = os.path.join(output_folder, Filename_only)
 
-
-
-
         # Download the data from FTP server if the file not exists
         if not os.path.exists(Filename_out):
             try:
 
-                if version == "V4" or version == "V5" or version == "V6":
+                if version_use == "V4" or version_use == "V5" or version_use == "V6":
                     if Product == "ETpot":
-                        Download_SSEBop_from_Web(temp_folder, Filename_only_zip, Product, TimeStep, version)
+                        Download_SSEBop_from_Web(temp_folder, Filename_only_zip, Product, TimeStep, version_use)
                     if Product == "ETact":
-                        Download_SSEBop_from_Web(output_folder, Filename_only_zip, Product, TimeStep, version)
+                        Download_SSEBop_from_Web(output_folder, Filename_only_zip, Product, TimeStep, version_use)
                         
                 if Product == "ETpot":
                     Array_ETpot = RC.Open_bil_array(local_filename)
@@ -211,7 +217,7 @@ def DownloadData(Dir, Startdate, Enddate, latlim, lonlim, Waitbar, version, Time
             amount += 1
             WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
-    if version == "V4" or version == "V5" or version == "V6":
+    if version_use == "V4" or version_use == "V5" or version_use == "V6":
         import glob
         os.chdir(output_folder)
         if Product == "ETact":
@@ -247,7 +253,7 @@ def Download_SSEBop_from_Web(output_folder, Filename_only_zip, Product, TimeStep
 
     if Product == "ETact" and TimeStep == "monthly" and version == "V6":
         # Create the total url to the webpage
-        total_URL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/global/monthly/etav6/downloads/monthly/" + str(Filename_only_zip)
+        total_URL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/global/monthly/etav61/downloads/monthly/" + str(Filename_only_zip)
 
            
     if Product == "ETpot" and TimeStep == "daily":

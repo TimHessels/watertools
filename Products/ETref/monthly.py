@@ -17,7 +17,7 @@ from watertools.General import data_conversions as DC
 from watertools.Products.ETref import daily
 
 def main(Dir, Startdate = '', Enddate = '',
-         latlim = [-60, 60], lonlim = [-180, 180], pixel_size = False, cores = False, LANDSAF =  0, SourceLANDSAF=  '', Waitbar = 1):
+         latlim = [-60, 60], lonlim = [-180, 180], pixel_size = False, cores = False, LANDSAF_USE =  0, CFSR_USE = 0, GLDAS_USE = 1, SourceLANDSAF=  '', Waitbar = 1):
     """
     This function downloads TRMM3B43 V7 (monthly) data
 
@@ -57,7 +57,7 @@ def main(Dir, Startdate = '', Enddate = '',
         EndTime=Date.strftime('%Y')+'-'+Date.strftime('%m')+'-'+str(Mday)
 
         # Get ETref on daily basis
-        daily(Dir=Dir, Startdate=StartTime,Enddate=EndTime,latlim=latlim, lonlim=lonlim, pixel_size = pixel_size, cores=cores, LANDSAF=LANDSAF, SourceLANDSAF=SourceLANDSAF, Waitbar = 0)
+        daily(Dir=Dir, Startdate=StartTime,Enddate=EndTime,latlim=latlim, lonlim=lonlim, pixel_size = pixel_size, cores=cores, LANDSAF_USE =  LANDSAF_USE, CFSR_USE =  CFSR_USE, GLDAS_USE =  GLDAS_USE,  SourceLANDSAF=SourceLANDSAF, Waitbar = 0)
 
         # Load DEM
         if not pixel_size:
@@ -93,5 +93,5 @@ def main(Dir, Startdate = '', Enddate = '',
             WaitbarConsole.printWaitBar(amount, total_amount, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
 
-if __name__ == '__main__':
-    main(sys.argv)
+# if __name__ == '__main__':
+#     main(sys.argv)

@@ -31,7 +31,7 @@ def Show_tif(image_file, Limits = None, Color = None, Invert = False, output_for
     dest = gdal.Open(os.path.join(directory, file))
     Array = dest.GetRasterBand(1).ReadAsArray()
     
-    Array = np.float_(Array)
+    Array = np.float64(Array)
     Array[Array==-9999] = np.nan
     if Limits == None:
         Limits = [np.nanmin(Array), np.nanmax(Array)]
@@ -76,7 +76,7 @@ def Show_array(image_file, Limits = None, Color = None, title = None):
     """    
 
     Array = image_file
-    Array = np.float_(Array)
+    Array = np.float64(Array)
     Array[Array==-9999] = np.nan
     if Limits == None:
         Limits = [np.nanmin(Array), np.nanmax(Array)]

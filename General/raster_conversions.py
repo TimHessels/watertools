@@ -4,6 +4,7 @@ Created on Fri Dec 16 19:04:22 2016
 
 @author: tih
 """
+from packaging.version import Version
 import pandas as pd
 import glob
 from osgeo import gdal, ogr, osr
@@ -11,12 +12,13 @@ import os
 import sys
 import numpy as np
 import subprocess
+import pyproj
 from pyproj import Proj, transform
 import scipy.interpolate
-import fiona
 import requests
 import pycurl
 import shapefile
+from pyproj import CRS
 
 def Run_command_window(argument):
     """
@@ -409,13 +411,21 @@ def clip_data(input_file, latlim, lonlim, epsg_clip = 4326, band = 1):
  
     if Proj_out != epsg_clip:
      
-        inProj = Proj(init='epsg:%d' %epsg_clip)
-        outProj = Proj(init='epsg:%d' %Proj_out)
-    
-        # Up to here, all  the projection have been defined, as well as a
-        # transformation from the from to the to
-        lonlim_rep[0], latlim_rep[0] = transform(inProj,outProj,lonlim[0], latlim[0])
-        lonlim_rep[1], latlim_rep[1] = transform(inProj,outProj,lonlim[1], latlim[1])       
+        if Version(pyproj.__version__) > Version("3.0.0"):
+            from pyproj import Transformer
+            transformer = Transformer.from_crs('epsg:%d' %epsg_clip, 'epsg:%d' %Proj_out, always_xy=True)
+            lonlim_rep[0], latlim_rep[0]= transformer.transform(lonlim[0], latlim[0])
+            lonlim_rep[1], latlim_rep[1]  = transformer.transform(lonlim[1], latlim[1])
+            
+        else:   
+     
+            inProj = Proj(init='epsg:%d' %epsg_clip)
+            outProj = Proj(init='epsg:%d' %Proj_out)
+        
+            # Up to here, all  the projection have been defined, as well as a
+            # transformation from the from to the to
+            lonlim_rep[0], latlim_rep[0] = transform(inProj,outProj,lonlim[0], latlim[0])
+            lonlim_rep[1], latlim_rep[1] = transform(inProj,outProj,lonlim[1], latlim[1])       
  
 
     # Define the array that must remain
@@ -548,14 +558,23 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
     wgs84 = osr.SpatialReference()
     wgs84.ImportFromEPSG(epsg_from)
 
-    inProj = Proj(init='epsg:%d' %epsg_from)
-    outProj = Proj(init='epsg:%d' %epsg_to)
-
-    # Up to here, all  the projection have been defined, as well as a
-    # transformation from the from to the to
-    ulx, uly = transform(inProj,outProj,geo_t[0], geo_t[3])
-    lrx, lry = transform(inProj,outProj,geo_t[0] + geo_t[1] * x_size,
-                                        geo_t[3] + geo_t[5] * y_size)
+    if Version(pyproj.__version__) > Version("3.0.0"):
+        from pyproj import Transformer
+        transformer = Transformer.from_crs('epsg:%d' %epsg_from, 'epsg:%d' %epsg_to, always_xy=True)
+        ulx, uly = transformer.transform(geo_t[0], geo_t[3])
+        lrx, lry = transformer.transform(geo_t[0] + geo_t[1] * x_size,
+                                            geo_t[3] + geo_t[5] * y_size)
+       
+    else:   
+   
+        inProj = Proj(init='epsg:%d' %epsg_from)
+        outProj = Proj(init='epsg:%d' %epsg_to)
+    
+        # Up to here, all  the projection have been defined, as well as a
+        # transformation from the from to the to
+        ulx, uly = transform(inProj,outProj,geo_t[0], geo_t[3])
+        lrx, lry = transform(inProj,outProj,geo_t[0] + geo_t[1] * x_size,
+                                            geo_t[3] + geo_t[5] * y_size)
 
     # See how using 27700 and WGS84 introduces a z-value!
     # Now, we create an in-memory raster
@@ -594,13 +613,32 @@ def reproject_dataset_epsg(dataset, pixel_spacing, epsg_to, method = 2):
 
     # Perform the projection/resampling
     if method == 1:
-        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(),gdal.GRA_NearestNeighbour)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_NearestNeighbour)
     if method == 2:
-        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(),gdal.GRA_Bilinear)
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Bilinear)
     if method == 3:
         gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Lanczos)
     if method == 4:
         gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Average)
+    if method == 5:
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Cubic)
+    if method == 6:
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_CubicSpline)
+    if method == 7:
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Mode)
+    if method == 8:
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Max)
+    if method == 9:
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Min)
+    if method == 10:
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Med)
+    if method == 11:
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Q1)
+    if method == 12:
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Q3)
+    if method == 13:
+        gdal.ReprojectImage(g, dest, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_Sum)
+        
         
     gdal.ReprojectImage(g_nan, dest_nan, wgs84.ExportToWkt(), osng.ExportToWkt(), gdal.GRA_NearestNeighbour)
     
@@ -742,8 +780,13 @@ def reproject_shapefile(input_shp, epsg_to, output_shp_name=False):
     
     epsg_from = Get_epsg(input_shp, 'shp')
     
-    input_projection = Proj(init="epsg:%s" %epsg_from)
-    output_projection = Proj(init="epsg:%s" %epsg_to)
+    if Version(pyproj.__version__) > Version("3.0.0"):
+        from pyproj import Transformer
+        transformer = Transformer.from_crs('epsg:%d' %epsg_from, 'epsg:%d' %epsg_to, always_xy=True)
+    else:   
+    
+        input_projection = Proj(init="epsg:%s" %epsg_from)
+        output_projection = Proj(init="epsg:%s" %epsg_to)
     
     geom = shpf.shapes()
     
@@ -756,7 +799,10 @@ def reproject_shapefile(input_shp, epsg_to, output_shp_name=False):
             for coords in feature.points:
                 x, y = coords[0], coords[1]
                 # tranform the coord
-                new_x, new_y = transform(input_projection, output_projection, x, y)
+                if Version(pyproj.__version__) > Version("3.0.0"):
+                    new_x, new_y = transformer.transform(x, y)
+                else:
+                    new_x, new_y = transform(input_projection, output_projection, x, y)
                 # put the coord into a list structure
                 poly_coord = [new_x, new_y]
                 # append the coords to the polygon list
@@ -788,7 +834,10 @@ def reproject_shapefile(input_shp, epsg_to, output_shp_name=False):
                     for coords in feature.points[coord_count:end_point]:
                         x, y = coords[0], coords[1]
                         # tranform the coord
-                        new_x, new_y = transform(input_projection, output_projection, x, y)
+                        if Version(pyproj.__version__) > Version("3.0.0"):
+                            new_x, new_y = transformer.transform(x, y)
+                        else:
+                            new_x, new_y = transform(input_projection, output_projection, x, y)
                         # put the coord into a list structure
                         poly_coord = [float(new_x), float(new_y)]
                         # append the coords to the part list
@@ -990,8 +1039,18 @@ def Get_epsg(g, extension = 'tiff'):
             Projection = g
             epsg_to=int((str(Projection).split('"EPSG","')[-1].split('"')[0:-1])[0])
         if extension == 'shp':
-            data = fiona.open(g)
-            epsg_to = int(data.crs['init'].split(":")[-1])
+   
+            # Open the shapefile using PyShp
+            sf = shapefile.Reader(g)
+            
+            # Access the .prj file for CRS information
+            prj_file = g.replace(".shp", ".prj")
+            with open(prj_file, 'r') as prj:
+                prj_text = prj.read()
+            
+            # Parse the CRS and extract the EPSG code
+            crs = CRS.from_wkt(prj_text)
+            epsg_to = crs.to_epsg()  # Convert CRS to EPSG code
             
             '''
             projection_file = ''.join([os.path.splitext(g)[0],'.prj'])

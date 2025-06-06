@@ -228,10 +228,10 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
     # Create the Lat and Long of the MODIS tile in meters
     for Vertical in range(int(TilesVertical[0]), int(TilesVertical[1])+1):
         Distance = 231.65635826395834 # resolution of a MODIS pixel in meter
-        countY=(TilesVertical[1] - TilesVertical[0] + 1) - (Vertical - TilesVertical[0])
+        countY=int((TilesVertical[1] - TilesVertical[0] + 1) - (Vertical - TilesVertical[0]))
 
         for Horizontal in range(int(TilesHorizontal[0]), int(TilesHorizontal[1]) + 1):
-            countX=Horizontal - TilesHorizontal[0] + 1
+            countX=int(Horizontal - TilesHorizontal[0] + 1)
 
 		      # Reset the begin parameters for downloading
             downloaded = 0
@@ -263,7 +263,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                         f = urllib2.urlopen(url)
 
                     # Sum all the files on the server
-                    soup = BeautifulSoup(f, "lxml")
+                    soup = BeautifulSoup(f, "html.parser")
                     for i in soup.findAll('a', attrs = {'href': re.compile('(?i)(hdf)$')}):
     
                         # Find the file with the wanted tile number
@@ -337,7 +337,7 @@ def Collect_data(TilesHorizontal,TilesVertical,Date,output_folder, hdf_library):
                         proj = sds[idx].GetProjection()
 
                     data = sds[idx].ReadAsArray()
-                    countYdata = (TilesVertical[1] - TilesVertical[0] + 2) - countY
+                    countYdata = int((TilesVertical[1] - TilesVertical[0] + 2) - countY)
                     DataTot[int((countYdata - 1) * 4800):int(countYdata * 4800), int((countX - 1) * 4800):int(countX * 4800)]=data * 0.0001
                 del data
 

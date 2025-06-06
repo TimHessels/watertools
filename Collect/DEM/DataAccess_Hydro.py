@@ -149,6 +149,7 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
                 if np.max(data)==255:
                     data[data==255] = -9999
                 data[data<-9999] = -9999
+                data[data>1e9] = -9999
 
                 geo_in = [Bound1, 0.00083333333333333, 0.0, int(Bound2 + 5),
                           0.0, -0.0008333333333333333333]
@@ -243,7 +244,7 @@ def DownloadData(output_folder, latlim, lonlim, parameter, resolution):
                                     size_X_end)
 
         datasetTot[datasetTot<-9999] = -9999
-
+        datasetTot[datasetTot>1e9] = -9999
 
     if resolution =='15s':
         output_file_merged = os.path.join(output_folder_trash,'merged.tif')
@@ -320,6 +321,7 @@ def Merge_DEM_15s_30s(output_folder_trash,output_file_merged,latlim, lonlim, res
         inFile=os.path.join(output_folder_trash,tiff_file)
         geo, proj, size_X, size_Y = RC.Open_array_info(inFile)
         Data = RC.Open_tiff_array(inFile)
+        Data = np.int64(Data)
         lonmin_tiff = geo[0]
         latmax_tiff = geo[3]
         lon_tiff_position = int(np.round((lonmin_clip - lonmin_tiff)/ resolution_geo))
@@ -327,9 +329,12 @@ def Merge_DEM_15s_30s(output_folder_trash,output_file_merged,latlim, lonlim, res
         lon_data_tot_position = int(np.round((lonmin_clip - lonmin)/ resolution_geo))
         lat_data_tot_position = int(np.round((latmax - latmax_clip)/ resolution_geo))
 
+        Data[Data>1e9] = -9999.
         Data[Data<-9999.] = -9999.
         if tiff_file.find("dir")>0:
-            Data[Data==247] = -9999.      
+            Data[Data==247] = -9999.
+            
+            
             
         data_tot[lat_data_tot_position:lat_data_tot_position+size_y_clip,lon_data_tot_position:lon_data_tot_position+size_x_clip][data_tot[lat_data_tot_position:lat_data_tot_position+size_y_clip,lon_data_tot_position:lon_data_tot_position+size_x_clip]==-9999]= Data[lat_tiff_position:lat_tiff_position+size_y_clip,lon_tiff_position:lon_tiff_position+size_x_clip][data_tot[lat_data_tot_position:lat_data_tot_position+size_y_clip,lon_data_tot_position:lon_data_tot_position+size_x_clip]==-9999]
 
@@ -450,13 +455,13 @@ def Download_Data(nameFile, output_folder_trash, parameter,para_name,resolution)
 
 def Find_Document_names_15s_30s(latlim, lonlim, parameter, resolution):
 
-    continents = ['na','ca','sa','eu','af','as','au']
+    continents = ['na','ca','sa','eu','af','as','au', 'gr']
     continents_download = []
 
     for continent in continents:
         extent = DEM_15s_extents.Continent[continent]
         if (extent[0] < lonlim[0] and extent[1] > lonlim[0] and extent[2] < latlim[0] and extent[3] > latlim[0]) or (extent[0] < lonlim[1] and extent[1] > lonlim[1] and extent[2] < latlim[1] and extent[3] > latlim[1]) == True:
-            name = 'hyd_gr_%s_%s.zip' %(parameter, resolution)       
+            name = 'hyd_%s_%s_%s.zip' %(continent, parameter, resolution)       
             continents_download = np.append(continents_download, name)
 
     return(continents_download)
@@ -468,4 +473,5 @@ class DEM_15s_extents:
                       'eu' : [-14, 70, 12, 62],
                       'af' : [-19, 55, -35, 38],
                       'as' : [57, 180, -12, 61],
-                      'au' : [112, 180, -56, -10]}
+                      'au' : [112, 180, -56, -10],
+                      'gr': [59, 84, -74, -11]}
