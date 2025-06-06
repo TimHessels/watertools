@@ -61,7 +61,7 @@ def Show_tif(image_file, Limits = None, Color = None, Invert = False, output_for
     return()
 
 
-def Show_array(image_file, Limits = None, Color = None):
+def Show_array(image_file, Limits = None, Color = None, title = None):
     """
     This function plot a tiff array in the console
 
@@ -85,6 +85,7 @@ def Show_array(image_file, Limits = None, Color = None):
         Color = "viridis"
     
     plt.imshow(Array, cmap = Color, vmin=Limits[0], vmax=Limits[1])
+    plt.title(title)
     plt.colorbar()
     plt.show()
     
